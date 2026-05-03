@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { ShoppingCart, Star, Heart } from "lucide-react";
 import { create } from "zustand";
@@ -21,8 +22,7 @@ const useStore = create((set) => ({
     })),
 }));
 
-// ─── Category Themes — solid orange or purple, no gradients ──────────────────
-// Even-indexed categories → orange, Odd-indexed → purple
+// ─── Category Themes ──────────────────────────────────────────────────────────
 const CATEGORY_COLORS = {
   orange: {
     header: "bg-orange-500",
@@ -71,6 +71,57 @@ function groupByCategory(productList) {
   }, {});
 }
 
+// ─── Skeleton Components ──────────────────────────────────────────────────────
+function CardSkeleton({ isMobile }) {
+  return (
+    <div
+      className={`rounded-2xl p-2 md:p-3 bg-transparent
+        ${isMobile ? "min-w-[44vw] shrink-0" : ""}
+      `}
+    >
+      <div className="w-full h-32 md:h-48 rounded-xl bg-gray-200 animate-pulse" />
+      <div className="pt-2 space-y-2">
+        <div className="h-3 w-3/4 rounded-md bg-gray-200 animate-pulse" />
+        <div className="h-2.5 w-full rounded-md bg-gray-200 animate-pulse" />
+        <div className="h-2.5 w-2/3 rounded-md bg-gray-200 animate-pulse" />
+        <div className="h-2.5 w-1/2 rounded-md bg-gray-200 animate-pulse" />
+        <div className="flex items-center justify-between pt-1">
+          <div className="h-4 w-1/3 rounded-md bg-gray-200 animate-pulse" />
+          <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-200 animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CategorySkeleton({ colorKey = "orange" }) {
+  const headerBg = colorKey === "orange" ? "bg-orange-400" : "bg-purple-600";
+  return (
+    <div className="mb-10">
+      {/* skeleton header */}
+      <div className={`flex items-center justify-between ${headerBg} opacity-40 px-4 py-2.5 md:rounded-t-2xl`}>
+        <div className="h-4 w-28 rounded bg-white/70 animate-pulse" />
+        <div className="h-3 w-12 rounded bg-white/70 animate-pulse" />
+      </div>
+      {/* skeleton cards */}
+      <div className="bg-white md:rounded-b-2xl p-3 md:p-4">
+        {/* mobile */}
+        <div className="md:hidden flex gap-2 overflow-hidden pb-2">
+          {[...Array(3)].map((_, i) => (
+            <CardSkeleton key={i} isMobile={true} />
+          ))}
+        </div>
+        {/* desktop */}
+        <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <CardSkeleton key={i} isMobile={false} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Star Rating ──────────────────────────────────────────────────────────────
 function StarRating({ rating, size, starClass }) {
   const full = Math.floor(rating);
@@ -109,7 +160,6 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
         ${isMobile ? "min-w-[44vw] snap-start shrink-0" : ""}
       `}
     >
-      {/* Image */}
       <div className="relative w-full h-32 md:h-48 bg-gray-100 rounded-xl overflow-hidden group">
         <Image
           src={product.image}
@@ -117,19 +167,16 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
           fill
           className="object-cover group-hover:scale-110 transition duration-500"
         />
-
         {hasDiscount && (
           <span className="absolute top-1.5 left-1.5 bg-orange-500 text-white text-[9px] md:text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded-md font-semibold">
             -{discountPercent}%
           </span>
         )}
-
         {product.stock <= 5 && (
           <span className="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-[8px] md:text-[10px] px-1.5 py-0.5 rounded-md font-semibold">
             Only {product.stock} left!
           </span>
         )}
-
         <button
           onClick={() => toggleWishlist(product.id)}
           className="absolute top-1.5 right-1.5 w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition"
@@ -146,16 +193,13 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
         </button>
       </div>
 
-      {/* Details */}
       <div className="pt-2">
         <h4 className="text-[11px] md:text-sm font-semibold text-black line-clamp-1 mb-0.5">
           {product.name}
         </h4>
-
         <p className="text-[10px] md:text-xs text-gray-500 line-clamp-2 mb-1.5">
           Premium quality product built for everyday use.
         </p>
-
         <div className="mb-1.5">
           <StarRating
             rating={parseFloat(product.rating)}
@@ -163,7 +207,6 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
             starClass={theme.star}
           />
         </div>
-
         <div className="flex items-center justify-between gap-1">
           <div className="min-w-0">
             <p className="text-black font-bold text-[11px] md:text-base truncate">
@@ -175,7 +218,6 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
               </p>
             )}
           </div>
-
           <button
             onClick={() => addToCart(product)}
             className="shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center active:scale-95 transition"
@@ -189,16 +231,51 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
   );
 }
 
+// ─── More Coming Card ─────────────────────────────────────────────────────────
+function MoreComingCard() {
+  return (
+    <div className="mx-3 md:mx-0 mb-6 rounded-2xl bg-gray-100 px-6 py-10 flex flex-col items-center justify-center text-center gap-3">
+      <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center">
+        <ShoppingCart size={26} className="text-gray-400" />
+      </div>
+      <h3 className="text-sm md:text-base font-bold text-gray-600">
+        More products coming soon
+      </h3>
+      <p className="text-xs md:text-sm text-gray-400 max-w-xs leading-relaxed">
+        We&apos;re adding new categories and products every week. Check back soon for fresh arrivals from across Africa.
+      </p>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Products() {
   const { wishlist, toggleWishlist, addToCart } = useStore();
+  const [loaded, setLoaded] = useState(false);
+
+  // Simulates data load — swap for real fetch / SWR / React Query as needed
+  useEffect(() => {
+    const t = setTimeout(() => setLoaded(true), 1800);
+    return () => clearTimeout(t);
+  }, []);
+
   const groupedProducts = groupByCategory(products);
 
+  // ── Skeleton state ──
+  if (!loaded) {
+    return (
+      <section className="w-full px-0 md:px-8 py-10 bg-white">
+        <div className="max-w-7xl mx-auto">
+          {CATEGORY_ORDER.map((cat, i) => (
+            <CategorySkeleton key={cat} colorKey={i % 2 === 0 ? "orange" : "purple"} />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // ── Loaded state ──
   return (
-    /*
-      Mobile: w-full, px-0 so the category header bleeds edge-to-edge.
-      Desktop: restore px-8 and max-width container.
-    */
     <section className="w-full px-0 md:px-8 py-10 bg-white">
       <div className="max-w-7xl mx-auto">
 
@@ -208,7 +285,7 @@ export default function Products() {
           return (
             <div key={category} className="mb-10">
 
-              {/* ── Category Header ── */}
+              {/* Category Header */}
               <div
                 className={`
                   flex items-center justify-between
@@ -217,7 +294,6 @@ export default function Products() {
                   md:rounded-t-2xl
                 `}
               >
-                {/* Smaller text on mobile */}
                 <h3 className="text-sm md:text-xl font-bold text-white tracking-tight">
                   {category}
                 </h3>
@@ -226,9 +302,8 @@ export default function Products() {
                 </button>
               </div>
 
-              {/* ── Products body ── */}
+              {/* Products body */}
               <div className="bg-white md:rounded-b-2xl p-3 md:p-4">
-
                 {/* Mobile: Horizontal Carousel */}
                 <div className="md:hidden flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
                   {categoryProducts.map((product) => (
@@ -263,6 +338,9 @@ export default function Products() {
             </div>
           );
         })}
+
+        {/* End-of-list indicator */}
+        <MoreComingCard />
 
       </div>
     </section>
