@@ -1,6 +1,8 @@
 // app/layout.jsx
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import MobileNav from "@/components/ui/MobileNav";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Odara - African Marketplace",
-  description: "Discover authentic African products, deals, and new arrivals at Odara marketplace",
+  description:
+    "Discover authentic African products, deals, and new arrivals at Odara marketplace",
 };
 
 export default function RootLayout({ children }) {
@@ -24,7 +27,12 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        {children}
+        {/* Main content — pb-16 prevents content hiding behind the mobile nav */}
+        <main className="pb-16 md:pb-0">{children}</main>
+
+
+        {/* Mobile-only bottom nav — md:hidden is handled inside MobileNav */}
+        <MobileNav />
       </body>
     </html>
   );
