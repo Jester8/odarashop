@@ -20,7 +20,7 @@ export const metadata = {
     "Discover authentic African products, deals, and new arrivals at Odara marketplace",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
