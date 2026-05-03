@@ -2,7 +2,7 @@
 import Navbar from "@/components/ui/Navbar";
 import Hero from "@/components/ui/Hero";
 import Products from "@/components/layout/Products";
-import Footer from "@/components/ui/Footer"
+import Footer from "@/components/ui/footer"
 
 export default function Home() {
   return (
