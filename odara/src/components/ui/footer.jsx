@@ -139,33 +139,8 @@ function FlutterwaveIcon() {
   );
 }
 
-function OpayIcon() {
-  return (
-    <svg viewBox="0 0 80 24" height="24" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="10" fill="#1BAB53" />
-      <circle cx="12" cy="12" r="6" fill="white" />
-      <circle cx="12" cy="12" r="3" fill="#1BAB53" />
-      <text x="27" y="17" fontFamily="Arial Black, sans-serif" fontSize="13" fontWeight="900" fill="#1a1a1a">
-        OPay
-      </text>
-    </svg>
-  );
-}
 
-function BankTransferIcon() {
-  return (
-    <svg viewBox="0 0 110 24" height="24" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="10" width="16" height="10" rx="1.5" fill="none" stroke="#555" strokeWidth="1.5" />
-      <path d="M10 2 L18 10 H2 Z" fill="#555" />
-      <line x1="6" y1="13" x2="6" y2="17" stroke="white" strokeWidth="1.5" />
-      <line x1="10" y1="13" x2="10" y2="17" stroke="white" strokeWidth="1.5" />
-      <line x1="14" y1="13" x2="14" y2="17" stroke="white" strokeWidth="1.5" />
-      <text x="24" y="17" fontFamily="Arial, sans-serif" fontSize="11" fill="#555" fontWeight="600">
-        Bank Transfer
-      </text>
-    </svg>
-  );
-}
+
 
 const PAYMENT_METHODS = [
   { name: "Visa", icon: <VisaIcon /> },
@@ -173,8 +148,7 @@ const PAYMENT_METHODS = [
   { name: "Verve", icon: <VerveIcon /> },
   { name: "Paystack", icon: <PaystackIcon /> },
   { name: "Flutterwave", icon: <FlutterwaveIcon /> },
-  { name: "Opay", icon: <OpayIcon /> },
-  { name: "Bank Transfer", icon: <BankTransferIcon /> },
+ 
 ];
 
 /* ─────────────────────────────────────────────
@@ -296,9 +270,7 @@ export default function Footer() {
               </li>
             </ul>
 
-            <a href="https://odara.com.ng" className="text-sm font-semibold text-orange-500">
-              www.odara.com.ng
-            </a>
+          
 
             {/* Social */}
             <div className="flex gap-2 mt-5">
@@ -333,7 +305,7 @@ export default function Footer() {
               <div
                 key={method.name}
                 title={method.name}
-                className="h-10 px-3 bg-white border border-gray-100 rounded-lg flex items-center justify-center shadow-sm"
+                className="h-10 px-3 bg-transparent  flex items-center justify-center"
               >
                 {method.icon}
               </div>
@@ -365,7 +337,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 md:px-8 pb-5">
           <p className="text-[10px] text-gray-300 leading-relaxed">
             Odara connects African sellers with African buyers through a trusted marketplace
-            focused only on African-made and African-sourced goods.
+            focused only on African-made products.
           </p>
         </div>
       </div>

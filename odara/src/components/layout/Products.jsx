@@ -21,59 +21,35 @@ const useStore = create((set) => ({
     })),
 }));
 
-// ─── Shared constants ─────────────────────────────────────────────────────────
-const SHARED_BODY = "bg-white";
-const SHARED_HEADER = "bg-gradient-to-r from-orange-500 via-orange-400 to-amber-400";
-
-// ─── Category Themes ──────────────────────────────────────────────────────────
-const CATEGORY_THEMES = {
-  "New Arrivals": {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
+// ─── Category Themes — solid orange or purple, no gradients ──────────────────
+// Even-indexed categories → orange, Odd-indexed → purple
+const CATEGORY_COLORS = {
+  orange: {
+    header: "bg-orange-500",
     star: "fill-orange-400 text-orange-400",
   },
-  Electronics: {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
-    star: "fill-orange-400 text-orange-400",
-  },
-  Fashion: {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
-    star: "fill-orange-400 text-orange-400",
-  },
-  Home: {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
-    star: "fill-orange-400 text-orange-400",
-  },
-  Accessories: {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
-    star: "fill-orange-400 text-orange-400",
-  },
-  Beauty: {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
-    star: "fill-orange-400 text-orange-400",
-  },
-  Sports: {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
-    star: "fill-orange-400 text-orange-400",
-  },
-  Groceries: {
-    header: SHARED_HEADER,
-    body: SHARED_BODY,
-    star: "fill-orange-400 text-orange-400",
+  purple: {
+    header: "bg-purple-700",
+    star: "fill-purple-400 text-purple-400",
   },
 };
 
-const DEFAULT_THEME = {
-  header: SHARED_HEADER,
-  body: SHARED_BODY,
-  star: "fill-orange-400 text-orange-400",
-};
+const CATEGORY_ORDER = [
+  "New Arrivals",
+  "Electronics",
+  "Fashion",
+  "Home",
+  "Accessories",
+  "Beauty",
+  "Sports",
+  "Groceries",
+];
+
+function getCategoryTheme(category) {
+  const idx = CATEGORY_ORDER.indexOf(category);
+  const key = idx % 2 === 0 ? "orange" : "purple";
+  return CATEGORY_COLORS[key];
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const DISCOUNTS = [10, 15, 20, 30];
@@ -96,7 +72,7 @@ function groupByCategory(productList) {
 }
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
-function StarRating({ rating, size }) {
+function StarRating({ rating, size, starClass }) {
   const full = Math.floor(rating);
   const hasHalf = rating - full >= 0.5;
 
@@ -108,9 +84,9 @@ function StarRating({ rating, size }) {
           size={size}
           className={
             star <= full
-              ? "fill-orange-400 text-orange-400"
+              ? starClass
               : star === full + 1 && hasHalf
-              ? "fill-orange-400 text-orange-400 opacity-50"
+              ? `${starClass} opacity-50`
               : "fill-gray-300 text-gray-300"
           }
         />
@@ -148,7 +124,6 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
           </span>
         )}
 
-        {/* Stock badge */}
         {product.stock <= 5 && (
           <span className="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-[8px] md:text-[10px] px-1.5 py-0.5 rounded-md font-semibold">
             Only {product.stock} left!
@@ -181,15 +156,14 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
           Premium quality product built for everyday use.
         </p>
 
-        {/* Stars */}
         <div className="mb-1.5">
           <StarRating
             rating={parseFloat(product.rating)}
             size={isMobile ? 9 : 11}
+            starClass={theme.star}
           />
         </div>
 
-        {/* Price + Cart */}
         <div className="flex items-center justify-between gap-1">
           <div className="min-w-0">
             <p className="text-black font-bold text-[11px] md:text-base truncate">
@@ -221,30 +195,40 @@ export default function Products() {
   const groupedProducts = groupByCategory(products);
 
   return (
-    <section className="w-full px-3 md:px-8 py-10 bg-white">
+    /*
+      Mobile: w-full, px-0 so the category header bleeds edge-to-edge.
+      Desktop: restore px-8 and max-width container.
+    */
+    <section className="w-full px-0 md:px-8 py-10 bg-white">
       <div className="max-w-7xl mx-auto">
-        {/* <h2 className="text-2xl md:text-3xl font-bold text-black mb-6">
-          Shop Products
-        </h2> */}
 
         {Object.entries(groupedProducts).map(([category, categoryProducts]) => {
-          const theme = CATEGORY_THEMES[category] ?? DEFAULT_THEME;
+          const theme = getCategoryTheme(category);
 
           return (
             <div key={category} className="mb-10">
-              {/* Category Header */}
+
+              {/* ── Category Header ── */}
               <div
-                className={`flex items-center justify-between ${theme.header} px-5 py-3 rounded-t-2xl`}
+                className={`
+                  flex items-center justify-between
+                  ${theme.header}
+                  px-4 py-2.5
+                  md:rounded-t-2xl
+                `}
               >
-                <h3 className="text-lg md:text-xl font-bold text-white">
+                {/* Smaller text on mobile */}
+                <h3 className="text-sm md:text-xl font-bold text-white tracking-tight">
                   {category}
                 </h3>
-                <button className="text-sm font-medium text-white hover:underline">
+                <button className="text-xs md:text-sm font-medium text-white/90 hover:text-white hover:underline transition">
                   View All
                 </button>
               </div>
 
-              <div className={`${theme.body} rounded-b-2xl p-3 md:p-4`}>
+              {/* ── Products body ── */}
+              <div className="bg-white md:rounded-b-2xl p-3 md:p-4">
+
                 {/* Mobile: Horizontal Carousel */}
                 <div className="md:hidden flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
                   {categoryProducts.map((product) => (
@@ -275,9 +259,11 @@ export default function Products() {
                   ))}
                 </div>
               </div>
+
             </div>
           );
         })}
+
       </div>
     </section>
   );

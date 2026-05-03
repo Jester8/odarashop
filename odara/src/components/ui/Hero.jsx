@@ -234,6 +234,7 @@ export default function Hero() {
           z-index: 10;
           display: flex;
           gap: 7px;
+          align-items: center;
         }
         .carousel-dot {
           width: 7px; height: 7px;
@@ -242,12 +243,11 @@ export default function Hero() {
           border: none;
           cursor: pointer;
           padding: 0;
-          transition: background 0.2s, transform 0.2s;
+          transition: background 0.2s, transform 0.2s, width 0.25s;
         }
         .carousel-dot.active {
           background: #fff;
           transform: scale(1.3);
-          
         }
 
         /* Progress bar */
@@ -409,13 +409,70 @@ export default function Hero() {
         }
         .trust-item svg { color: #E8520A; flex-shrink: 0; }
 
-        /* ── Responsive ── */
+        /* ── Mobile ── */
         @media (max-width: 768px) {
-          .hero-grid { grid-template-columns: 1fr; }
+          /* Full-width: remove all padding so carousel bleeds edge to edge */
+          .hero-root {
+            padding: 0;
+          }
+          .hero-grid {
+            grid-template-columns: 1fr;
+            gap: 0;
+          }
           .hero-side { display: none; }
-          .hero-carousel { min-height: 300px; }
-          .carousel-content { padding: 24px 22px; }
-          .hero-headline { font-size: 1.5rem; }
+
+          /* Taller, no rounded corners */
+          .hero-carousel {
+            min-height: 420px;
+            border-radius: 0;
+          }
+
+          /* Content padding — extra bottom space for dots/arrows */
+          .carousel-content {
+            padding: 28px 20px 72px;
+          }
+
+          .hero-headline { font-size: 1.65rem; }
+
+          .hero-body {
+            font-size: 0.8rem;
+            margin-bottom: 18px;
+          }
+
+          /* Smaller CTA button */
+          .hero-cta {
+            font-size: 0.8rem;
+            padding: 10px 18px;
+          }
+          .hero-cta svg { width: 14px; height: 14px; }
+
+          /* Hide centre arrows on mobile — use bottom-right arrows instead */
+          .carousel-arrow {
+            top: auto;
+            transform: none;
+            bottom: 12px;
+            width: 30px;
+            height: 30px;
+          }
+          .carousel-arrow.prev { left: auto; right: 52px; }
+          .carousel-arrow.next { right: 14px; }
+
+          /* Dots — bottom-left, moved lower */
+          .carousel-dots {
+            bottom: 18px;
+            left: 18px;
+            transform: none;
+          }
+          .carousel-dot {
+            width: 6px;
+            height: 6px;
+          }
+          .carousel-dot.active {
+            width: 18px;
+            border-radius: 4px;
+            transform: none;
+            background: #fff;
+          }
         }
       `}</style>
 
@@ -551,8 +608,6 @@ export default function Hero() {
             </div>
           </div>
         </div>
-
-      
       </section>
     </>
   );
