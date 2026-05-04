@@ -1,12 +1,11 @@
 "use client";
 
-import { Home, ShoppingCart, Heart, User } from "lucide-react";
+import { Home, ShoppingCart, Heart, User, Grid3x3 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { create } from "zustand";
 
 // ─── Reuse the same store from Products (or import from a shared store file) ──
-// If you have a central store, import useStore from "@/store" instead.
 const useStore = create((set) => ({
   cart: [],
   wishlist: [],
@@ -14,10 +13,11 @@ const useStore = create((set) => ({
 
 // ─── Nav items ────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { label: "Home",     icon: Home,         href: "/"         },
-  { label: "Cart",     icon: ShoppingCart, href: "/cart"     },
-  { label: "Wishlist", icon: Heart,        href: "/wishlist" },
-  { label: "Profile",  icon: User,         href: "/profile"  },
+  { label: "Home",       icon: Home,         href: "/"         },
+  { label: "Categories", icon: Grid3x3,      href: "/categories" },
+  { label: "Cart",       icon: ShoppingCart, href: "/cart"     },
+  { label: "Wishlist",   icon: Heart,        href: "/wishlist" },
+  { label: "Profile",    icon: User,         href: "/profile"  },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -28,10 +28,10 @@ export default function MobileNav() {
   return (
     // md:hidden → renders only on screens smaller than 768px
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 safe-area-pb">
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="flex items-center justify-around px-2 pt-2 pb-2">
         {NAV_ITEMS.map(({ label, icon: Icon, href }) => {
           const isActive = pathname === href;
-
+          
           // Badge counts
           const badgeCount =
             label === "Cart"
@@ -44,21 +44,21 @@ export default function MobileNav() {
             <Link
               key={label}
               href={href}
-              className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200 active:scale-90"
+              className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200 active:scale-90 group"
             >
-              {/* Icon wrapper with active pill */}
+              {/* Icon wrapper */}
               <div className="relative">
                 <div
                   className={`
-                    flex items-center justify-center w-10 h-7 rounded-full transition-all duration-200
-                    ${isActive ? "bg-orange-500" : "bg-transparent"}
+                    flex items-center justify-center w-10 h-8 rounded-lg transition-all duration-200
+                    ${isActive ? "bg-[#2D1B4E]/10" : "bg-transparent"}
                   `}
                 >
                   <Icon
                     size={20}
                     strokeWidth={isActive ? 2.2 : 1.8}
-                    className={`transition-colors duration-200 ${
-                      isActive ? "text-white" : "text-gray-400"
+                    className={`transition-all duration-200 ${
+                      isActive ? "text-[#2D1B4E]" : "text-gray-400"
                     }`}
                   />
                 </div>
@@ -71,13 +71,17 @@ export default function MobileNav() {
                 )}
               </div>
 
-              {/* Label */}
+              {/* Label with underline on active */}
               <span
-                className={`text-[10px] font-medium transition-colors duration-200 ${
-                  isActive ? "text-orange-500" : "text-gray-400"
-                }`}
+                className={`
+                  text-[10px] font-medium transition-all duration-200 relative
+                  ${isActive ? "text-[#2D1B4E] font-bold" : "text-gray-400"}
+                `}
               >
                 {label}
+                {isActive && (
+                  <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-4 h-0.5 bg-[#2D1B4E] rounded-full"></span>
+                )}
               </span>
             </Link>
           );
