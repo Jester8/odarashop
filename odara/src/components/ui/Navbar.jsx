@@ -358,6 +358,27 @@ const Navbar = () => {
                 </button>
               </div>
 
+              {/* Login/Register in Drawer - Mobile */}
+              <div className="px-4 py-3 bg-[#F5F3FF] border-b border-[#EDE9F6]">
+                <p className="text-[0.7rem] text-[#6B5E8A] font-semibold mb-2">Welcome to Odara</p>
+                <Link
+                  href="/login"
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="flex items-center justify-center gap-1.5 w-full bg-[#2D1B4E] hover:bg-[#3d2568] text-white text-xs font-extrabold py-2 px-3 rounded-lg transition-colors no-underline"
+                >
+                  <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                  </svg>
+                  Sign In
+                </Link>
+                <p className="text-center text-[0.65rem] text-[#9C8EC1] mt-1.5">
+                  No account?{' '}
+                  <Link href="/signup" onClick={() => setIsDrawerOpen(false)} className="text-[#2D1B4E] font-bold hover:underline">
+                    Register
+                  </Link>
+                </p>
+              </div>
+
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Categories</div>
               {CATEGORIES.map((cat) => (
                 <Link key={cat.label} href={cat.href} className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
@@ -406,6 +427,19 @@ const Navbar = () => {
 
               <div className="h-px bg-[#F0EEF4] my-1.5 mx-4" />
 
+              <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">My Account</div>
+              <Link href="/account" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
+                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">👤</span>My Account
+              </Link>
+              <Link href="/wishlist" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
+                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">❤️</span>Wishlist
+              </Link>
+              <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
+                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">📦</span>Orders
+              </Link>
+
+              <div className="h-px bg-[#F0EEF4] my-1.5 mx-4" />
+
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Support</div>
               <Link href="/contact" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
                 <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">💬</span>Contact Us
@@ -414,7 +448,7 @@ const Navbar = () => {
                 <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">❓</span>FAQs
               </Link>
               <Link href="/track-order" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">📦</span>Track My Order
+                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">🔍</span>Track My Order
               </Link>
 
               <div className="mt-auto pt-4 pb-4 px-4 border-t border-[#F0EEF4] flex-shrink-0">
