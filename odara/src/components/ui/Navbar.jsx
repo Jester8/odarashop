@@ -27,7 +27,6 @@ const FlagIcon = ({ code, size = 20 }) => {
   return <FlagNG size={size} />;
 };
 
-// Clean shopping bag SVG icon — no emoji, no ambiguous paths
 const ShoppingBagIcon = ({ size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
     <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
@@ -107,8 +106,11 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className={`sticky top-0 z-50 bg-white font-['Manrope'] transition-shadow duration-300 ${
-        isScrolled ? 'md:shadow-lg md:shadow-[rgba(45,27,78,.08)]' : ''
+      {/* ── Fixed mobile offset spacer ── */}
+      <div className="block md:hidden h-[108px]" aria-hidden="true" />
+
+      <nav className={`fixed md:sticky top-0 left-0 right-0 z-50 bg-white font-['Manrope'] transition-shadow duration-300 ${
+        isScrolled ? 'shadow-lg shadow-[rgba(45,27,78,.08)]' : ''
       }`}>
 
         {/* ══ DESKTOP ══ */}
@@ -251,7 +253,7 @@ const Navbar = () => {
         </div>
 
         {/* ══ MOBILE ══ */}
-        <div className="md:hidden border-b border-[#F0EEF4]">
+        <div className="md:hidden border-b border-[#F0EEF4] bg-white">
           {/* Row 1 */}
           <div className="px-4 h-14 flex items-center gap-3">
             <button
