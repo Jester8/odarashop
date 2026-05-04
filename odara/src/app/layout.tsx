@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "Odara - African Marketplace",
   description:
-    "Discover authentic African products, deals, and new arrivals at Odara marketplace",
+    "Buy and sell African products.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
