@@ -35,8 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             - md:pb-0 resets padding on desktop where MobileNav is hidden        */}
         <main className="pb-16 md:pb-0">{children}</main>
 
-        {/* Mobile-only bottom nav — md:hidden is handled inside MobileNav */}
-        <MobileNav />
+       <div className="fixed bottom-0 left-0 right-0 z-50">
+  <MobileNav />
+</div>
       </body>
     </html>
   );
