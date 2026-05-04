@@ -165,7 +165,8 @@ export default function SignupPage() {
             type="date"
             value={dob}
             onChange={(e) => setDob(e.target.value)}
-            className={inputCls}
+            className={`${inputCls} [&::-webkit-calendar-picker-indicator]:opacity-50 [&::-webkit-calendar-picker-indicator]:hover:opacity-100`}
+            style={{ minHeight: "50px" }}
           />
         </div>
 
@@ -306,6 +307,33 @@ export default function SignupPage() {
           )}
         </div>
       </div>
+
+      <style jsx global>{`
+        /* Fix for date input on iOS */
+        input[type="date"] {
+          -webkit-appearance: none;
+          appearance: none;
+          min-height: 50px;
+        }
+        
+        input[type="date"]::-webkit-datetime-edit {
+          padding: 0;
+        }
+        
+        input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+          padding: 0;
+        }
+        
+        input[type="date"]::-webkit-datetime-edit-text {
+          padding: 0 0.2em;
+        }
+        
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+          padding: 0;
+        }
+      `}</style>
     </div>
   );
 }
