@@ -18,8 +18,6 @@ import {
   AlertCircle,
   MessageCircle,
   ThumbsUp,
-  Flag,
-  MoreHorizontal,
   Send
 } from "lucide-react";
 import { create } from "zustand";
@@ -92,25 +90,23 @@ function QuantitySelector({ quantity, setQuantity, stock }) {
   };
 
   return (
-    <div className="flex items-center gap-3 border border-gray-200 rounded-xl">
+    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden w-[120px]">
       <button
         onClick={decrease}
         disabled={quantity <= 1}
-        className="p-2 hover:bg-gray-50 rounded-l-xl disabled:opacity-40 disabled:cursor-not-allowed transition"
-        aria-label="Decrease quantity"
+        className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
       >
-        <Minus size={18} />
+        <Minus size={14} className="text-gray-800" />
       </button>
-      <span className="w-10 text-center font-semibold text-gray-800">
+      <span className="w-12 text-center font-semibold text-gray-900 text-sm">
         {quantity}
       </span>
       <button
         onClick={increase}
         disabled={quantity >= stock}
-        className="p-2 hover:bg-gray-50 rounded-r-xl disabled:opacity-40 disabled:cursor-not-allowed transition"
-        aria-label="Increase quantity"
+        className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition"
       >
-        <Plus size={18} />
+        <Plus size={14} className="text-gray-800" />
       </button>
     </div>
   );
@@ -145,22 +141,10 @@ function Review({ review }) {
                 <span className="text-xs text-gray-400">{review.date}</span>
               </div>
             </div>
-            <button className="text-gray-400 hover:text-gray-600 transition">
-              <MoreHorizontal size={16} />
-            </button>
           </div>
           <p className="text-gray-600 text-sm mt-2 leading-relaxed">
             {review.comment}
           </p>
-          {review.images && review.images.length > 0 && (
-            <div className="flex gap-2 mt-3">
-              {review.images.map((img, idx) => (
-                <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
-                  <Image src={img} alt={`Review image ${idx + 1}`} fill className="object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
           <div className="flex items-center gap-4 mt-3">
             <button
               onClick={handleLike}
@@ -170,10 +154,6 @@ function Review({ review }) {
             >
               <ThumbsUp size={14} />
               <span>Helpful ({likesCount})</span>
-            </button>
-            <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition">
-              <Flag size={14} />
-              <span>Report</span>
             </button>
           </div>
         </div>
@@ -194,7 +174,7 @@ function ReviewForm({ onSubmit }) {
       onSubmit({
         rating,
         comment,
-        userName: "Current User", // In real app, get from auth
+        userName: "Current User",
         date: new Date().toLocaleDateString(),
         likes: 0,
       });
@@ -239,7 +219,7 @@ function ReviewForm({ onSubmit }) {
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
-          className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:border-[#2D1B4E] focus:ring-2 focus:ring-[#2D1B4E]/10 outline-none transition"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-[#2D1B4E] focus:ring-2 focus:ring-[#2D1B4E]/10 outline-none transition placeholder:text-gray-400"
           placeholder="Share your experience with this product..."
           required
         />
@@ -255,9 +235,8 @@ function ReviewForm({ onSubmit }) {
   );
 }
 
-// ─── Related Products Card (matches product card style) ───────────────────────
+// ─── Related Products Card ────────────────────────────────────────────────────
 function RelatedProductCard({ product, onClick }) {
-  const router = useRouter();
   const { hasDiscount, discountPercent, oldPrice } = getDiscount(product);
   const { wishlist, toggleWishlist, addToCart } = useStore();
   const isInWishlist = wishlist.includes(product.id);
@@ -372,20 +351,11 @@ export default function ProductPage() {
         comment: "Exceeded my expectations! Worth every naira. Will definitely buy again from Odara.",
         likes: 8,
       },
-      {
-        id: 4,
-        userName: "Folake A.",
-        rating: 4,
-        date: "February 28, 2024",
-        comment: "Good product for the price. The customer service was very helpful when I had questions.",
-        likes: 5,
-      },
     ];
     setReviews(mockReviews);
   }, [productId]);
 
   useEffect(() => {
-    // Short delay for smooth transition
     const timer = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(timer);
   }, [productId]);
@@ -396,59 +366,63 @@ export default function ProductPage() {
       id: reviews.length + 1,
     };
     setReviews([reviewWithId, ...reviews]);
-    // Scroll to reviews section
     document.getElementById("reviews-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Handle product not found
   if (!loading && !product) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4 pt-20 md:pt-0">
-        <div className="text-center">
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle size={48} className="text-gray-400" />
+      <>
+        <div className="min-h-screen bg-white flex items-center justify-center px-4">
+          <div className="text-center">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle size={48} className="text-gray-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h1>
+            <p className="text-gray-500 mb-6">The product you're looking for doesn't exist or has been removed.</p>
+            <button
+              onClick={() => router.back()}
+              className="inline-flex items-center gap-2 bg-[#2D1B4E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#3d2568] transition"
+            >
+              <ChevronLeft size={20} /> Go Back
+            </button>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Product Not Found</h1>
-          <p className="text-gray-500 mb-6">The product you're looking for doesn't exist or has been removed.</p>
-          <button
-            onClick={() => router.back()}
-            className="inline-flex items-center gap-2 bg-[#2D1B4E] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#3d2568] transition"
-          >
-            <ChevronLeft size={20} /> Go Back
-          </button>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white pt-20 md:pt-8">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            <div>
-              <div className="bg-gray-200 rounded-2xl aspect-square animate-pulse" />
-              <div className="flex gap-3 mt-4">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg animate-pulse" />
-                ))}
+      <>
+        <div className="min-h-screen bg-white pt-16">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+              <div>
+                <div className="bg-gray-200 rounded-2xl aspect-square animate-pulse" />
+                <div className="flex gap-3 mt-4">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg animate-pulse" />
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 rounded-lg w-3/4 animate-pulse" />
-              <div className="h-6 bg-gray-200 rounded-lg w-1/2 animate-pulse" />
-              <div className="h-12 bg-gray-200 rounded-lg w-2/3 animate-pulse" />
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded-full w-full animate-pulse" />
-                <div className="h-4 bg-gray-200 rounded-full w-5/6 animate-pulse" />
-                <div className="h-4 bg-gray-200 rounded-full w-4/6 animate-pulse" />
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded-lg w-3/4 animate-pulse" />
+                <div className="h-6 bg-gray-200 rounded-lg w-1/2 animate-pulse" />
+                <div className="h-12 bg-gray-200 rounded-lg w-2/3 animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded-full w-full animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded-full w-5/6 animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded-full w-4/6 animate-pulse" />
+                </div>
+                <div className="h-10 bg-gray-200 rounded-lg w-1/3 animate-pulse" />
+                <div className="h-14 bg-gray-200 rounded-xl animate-pulse" />
               </div>
-              <div className="h-10 bg-gray-200 rounded-lg w-1/3 animate-pulse" />
-              <div className="h-14 bg-gray-200 rounded-xl animate-pulse" />
             </div>
           </div>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
@@ -476,12 +450,10 @@ export default function ProductPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Get related products
   const relatedProducts = products
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  // Generate image variations (using same image for demo)
   const productImages = [
     product.image,
     product.image,
@@ -491,16 +463,29 @@ export default function ProductPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-white pt-20 md:pt-8">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-12">
-          {/* Back button */}
+      {/* Fixed Back Button at Top */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3">
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-[#2D1B4E] transition mb-6 group"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-[#2D1B4E] transition group"
           >
             <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition" />
             <span className="text-sm font-medium">Back to Shopping</span>
           </button>
+        </div>
+      </div>
+
+      {/* Main Content with padding to account for fixed header and footer */}
+      <div className="pt-16 pb-0 min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-12">
+          {/* Mobile Sticky Header with Category and Product Name */}
+          <div className="sticky top-16 z-40 bg-white border-b border-gray-100 shadow-sm md:hidden -mx-4 px-4 py-3 mb-4">
+            <div>
+              <p className="text-xs text-[#2D1B4E] font-semibold">{product.category}</p>
+              <h1 className="text-sm font-bold text-gray-900 line-clamp-1">{product.name}</h1>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             {/* Left Column - Images */}
@@ -545,10 +530,10 @@ export default function ProductPage() {
 
             {/* Right Column - Product Info */}
             <div>
-              <p className="text-sm font-semibold text-[#2D1B4E] mb-2">
+              <p className="text-sm font-semibold text-[#2D1B4E] mb-2 hidden md:block">
                 {product.category}
               </p>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 hidden md:block">
                 {product.name}
               </h1>
               <div className="flex items-center gap-3 mb-4">
@@ -710,9 +695,9 @@ export default function ProductPage() {
             )}
           </div>
 
-          {/* Related Products - Matching product card style */}
+          {/* Related Products */}
           {relatedProducts.length > 0 && (
-            <div className="mt-16 pt-8 border-t border-gray-100">
+            <div className="mt-16 pt-8 border-t border-gray-100 pb-8">
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">
                 You May Also Like
               </h2>
@@ -730,7 +715,7 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Fixed Footer */}
       <Footer />
 
       {/* Add to Cart Success Toast */}
