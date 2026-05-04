@@ -26,11 +26,11 @@ const useStore = create((set) => ({
 const CATEGORY_COLORS = {
   orange: {
     header: "bg-orange-500",
-    star: "fill-orange-400 text-orange-400",
+    star: "fill-amber-400 text-amber-400",
   },
   purple: {
     header: "bg-purple-700",
-    star: "fill-purple-400 text-purple-400",
+    star: "fill-amber-400 text-amber-400",
   },
 };
 
@@ -79,7 +79,7 @@ function CardSkeleton({ isMobile }) {
         ${isMobile ? "min-w-[44vw] shrink-0" : ""}
       `}
     >
-      <div className="w-full h-32 md:h-48 rounded-xl bg-gray-200 animate-pulse" />
+      <div className="w-full h-32 md:h-44 rounded-xl bg-gray-200 animate-pulse" />
       <div className="pt-2 space-y-2">
         <div className="h-3 w-3/4 rounded-md bg-gray-200 animate-pulse" />
         <div className="h-2.5 w-full rounded-md bg-gray-200 animate-pulse" />
@@ -98,12 +98,10 @@ function CategorySkeleton({ colorKey = "orange" }) {
   const headerBg = colorKey === "orange" ? "bg-orange-400" : "bg-purple-600";
   return (
     <div className="mb-10">
-      {/* skeleton header */}
       <div className={`flex items-center justify-between ${headerBg} opacity-40 px-4 py-2.5 md:rounded-t-2xl`}>
         <div className="h-4 w-28 rounded bg-white/70 animate-pulse" />
         <div className="h-3 w-12 rounded bg-white/70 animate-pulse" />
       </div>
-      {/* skeleton cards */}
       <div className="bg-white md:rounded-b-2xl p-3 md:p-4">
         {/* mobile */}
         <div className="md:hidden flex gap-2 overflow-hidden pb-2">
@@ -111,9 +109,9 @@ function CategorySkeleton({ colorKey = "orange" }) {
             <CardSkeleton key={i} isMobile={true} />
           ))}
         </div>
-        {/* desktop */}
-        <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
+        {/* desktop — 5 columns */}
+        <div className="hidden md:grid grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
             <CardSkeleton key={i} isMobile={false} />
           ))}
         </div>
@@ -156,11 +154,15 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
   return (
     <div
       className={`
-        rounded-2xl p-2 md:p-3 hover:-translate-y-1 transition duration-300 bg-transparent
+        group rounded-2xl p-2 md:p-3 bg-white
+        transition-all duration-300 ease-out cursor-pointer
+        md:hover:-translate-y-2 md:hover:scale-[1.03]
+        md:hover:shadow-[0_12px_40px_rgba(0,0,0,0.13)]
+        md:hover:z-10 md:relative
         ${isMobile ? "min-w-[44vw] snap-start shrink-0" : ""}
       `}
     >
-      <div className="relative w-full h-32 md:h-48 bg-gray-100 rounded-xl overflow-hidden group">
+      <div className="relative w-full h-32 md:h-44 bg-gray-100 rounded-xl overflow-hidden">
         <Image
           src={product.image}
           alt={product.name}
@@ -209,7 +211,7 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
         </div>
         <div className="flex items-center justify-between gap-1">
           <div className="min-w-0">
-            <p className="text-black font-bold text-[11px] md:text-base truncate">
+            <p className="text-black font-bold text-[11px] md:text-sm truncate">
               ₦{product.price.toLocaleString()}
             </p>
             {hasDiscount && (
@@ -253,7 +255,6 @@ export default function Products() {
   const { wishlist, toggleWishlist, addToCart } = useStore();
   const [loaded, setLoaded] = useState(false);
 
-  // Simulates data load — swap for real fetch / SWR / React Query as needed
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 1800);
     return () => clearTimeout(t);
@@ -303,7 +304,9 @@ export default function Products() {
               </div>
 
               {/* Products body */}
-              <div className="bg-white md:rounded-b-2xl p-3 md:p-4">
+              {/* overflow-visible so pop-out shadow/scale isn't clipped */}
+              <div className="bg-white md:rounded-b-2xl p-3 md:p-4 overflow-visible">
+
                 {/* Mobile: Horizontal Carousel */}
                 <div className="md:hidden flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
                   {categoryProducts.map((product) => (
@@ -319,8 +322,9 @@ export default function Products() {
                   ))}
                 </div>
 
-                {/* Desktop: Grid */}
-                <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-4">
+                {/* Desktop: 5-column Grid */}
+                {/* py-3 gives vertical room for the translate-up on hover */}
+                <div className="hidden md:grid grid-cols-5 gap-3 py-3">
                   {categoryProducts.map((product) => (
                     <ProductCard
                       key={`desktop-${product.id}`}
@@ -333,15 +337,13 @@ export default function Products() {
                     />
                   ))}
                 </div>
-              </div>
 
+              </div>
             </div>
           );
         })}
 
-        {/* End-of-list indicator */}
         <MoreComingCard />
-
       </div>
     </section>
   );

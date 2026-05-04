@@ -22,6 +22,21 @@
     --foreground: #ededed;
   }
 }
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 50px !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid #DDD5F8 !important;
+  font-size: 0.9rem !important;
+  font-weight: 500 !important;
+  padding-left: 60px !important;
+}
+
+.react-tel-input .flag-dropdown {
+  border-radius: 0.75rem 0 0 0.75rem !important;
+  border: 1px solid #DDD5F8 !important;
+  background: white !important;
+}
 
 body {
   background: var(--background);

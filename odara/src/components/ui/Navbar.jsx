@@ -55,6 +55,48 @@ const CATEGORIES = [
   { label: 'Health',        icon: '💊', href: '/category/health' },
 ];
 
+// ─── Shared Account Dropdown Content ─────────────────────────────────────────
+const AccountDropdownContent = ({ onClose, dropdownRef }) => (
+  <div ref={dropdownRef} className="absolute right-0 top-full mt-2.5 bg-white border border-[#EDE9F6] rounded-xl shadow-lg overflow-hidden z-50 w-[200px] animate-[nb-dropIn_0.15s_ease]">
+    {/* Sign In CTA */}
+    <div className="px-3.5 py-3 bg-[#F5F3FF] border-b border-[#EDE9F6]">
+      <p className="text-[0.7rem] text-[#6B5E8A] font-semibold mb-2">Welcome to Odara</p>
+      <Link
+        href="/login"
+        onClick={onClose}
+        className="flex items-center justify-center gap-1.5 w-full bg-[#2D1B4E] hover:bg-[#3d2568] text-white text-xs font-extrabold py-2 px-3 rounded-lg transition-colors no-underline"
+      >
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
+        </svg>
+        Sign In
+      </Link>
+      <p className="text-center text-[0.65rem] text-[#9C8EC1] mt-1.5">
+        No account?{' '}
+        <Link href="/signup" onClick={onClose} className="text-[#2D1B4E] font-bold hover:underline">
+          Register
+        </Link>
+      </p>
+    </div>
+
+    {/* Menu Items */}
+    <Link href="/account" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={onClose}>
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+      My Account
+    </Link>
+    <div className="h-px bg-[#F3F4F6]" />
+    <Link href="/wishlist" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={onClose}>
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+      Wishlist
+    </Link>
+    <div className="h-px bg-[#F3F4F6]" />
+    <Link href="/orders" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={onClose}>
+      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+      Orders
+    </Link>
+  </div>
+);
+
 const Navbar = () => {
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen]       = useState(false);
@@ -103,6 +145,8 @@ const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) console.log('Search:', searchQuery);
   };
+
+  const closeAccount = () => setIsAccountDropdownOpen(false);
 
   return (
     <>
@@ -194,7 +238,7 @@ const Navbar = () => {
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                {/* Account */}
+                {/* Account — desktop */}
                 <div className="relative">
                   <button
                     ref={accountButtonRef}
@@ -208,22 +252,7 @@ const Navbar = () => {
                     <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Account</span>
                   </button>
                   {isAccountDropdownOpen && (
-                    <div ref={dropdownRef} className="absolute right-0 top-full mt-2.5 bg-white border border-[#EDE9F6] rounded-xl shadow-lg overflow-hidden z-50 w-[184px] animate-[nb-dropIn_0.15s_ease]">
-                      <Link href="/account" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsAccountDropdownOpen(false)}>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        My Account
-                      </Link>
-                      <div className="h-px bg-[#F3F4F6]" />
-                      <Link href="/wishlist" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsAccountDropdownOpen(false)}>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                        Wishlist
-                      </Link>
-                      <div className="h-px bg-[#F3F4F6]" />
-                      <Link href="/orders" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsAccountDropdownOpen(false)}>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                        Orders
-                      </Link>
-                    </div>
+                    <AccountDropdownContent onClose={closeAccount} dropdownRef={dropdownRef} />
                   )}
                 </div>
 
@@ -272,7 +301,7 @@ const Navbar = () => {
 
             <div className="flex-1" />
 
-            {/* Account */}
+            {/* Account — mobile */}
             <div className="relative flex-shrink-0">
               <button
                 ref={mobileAccountButtonRef}
@@ -286,22 +315,7 @@ const Navbar = () => {
                 </svg>
               </button>
               {isAccountDropdownOpen && (
-                <div ref={mobileDropdownRef} className="absolute right-0 top-full mt-2 bg-white border border-[#EDE9F6] rounded-xl shadow-lg overflow-hidden z-50 w-[184px] animate-[nb-dropIn_0.15s_ease]">
-                  <Link href="/account" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsAccountDropdownOpen(false)}>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    My Account
-                  </Link>
-                  <div className="h-px bg-[#F3F4F6]" />
-                  <Link href="/wishlist" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsAccountDropdownOpen(false)}>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                    Wishlist
-                  </Link>
-                  <div className="h-px bg-[#F3F4F6]" />
-                  <Link href="/orders" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsAccountDropdownOpen(false)}>
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                    Orders
-                  </Link>
-                </div>
+                <AccountDropdownContent onClose={closeAccount} dropdownRef={mobileDropdownRef} />
               )}
             </div>
 

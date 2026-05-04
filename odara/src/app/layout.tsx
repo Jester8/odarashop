@@ -1,7 +1,7 @@
 // app/layout.tsx
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/ui/Navbar";
+
 import MobileNav from "@/components/ui/MobileNav";
 
 const geistSans = Geist({
@@ -27,10 +27,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        {/* Navbar — fixed on mobile, sticky on desktop.
-            The spacer div inside Navbar (h-[108px] block md:hidden) handles
-            the top offset on mobile so content isn't hidden behind the fixed bar. */}
-        <Navbar />
+      
+     
 
         {/* Main content:
             - pb-16 on mobile prevents content hiding behind the bottom MobileNav
