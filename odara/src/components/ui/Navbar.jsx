@@ -55,50 +55,7 @@ const CATEGORIES = [
   { label: 'Health',        icon: '💊', href: '/category/health' },
 ];
 
-// ─── Shared Account Dropdown Content ─────────────────────────────────────────
-const AccountDropdownContent = ({ onClose, dropdownRef }) => (
-  <div ref={dropdownRef} className="absolute right-0 top-full mt-2.5 bg-white border border-[#EDE9F6] rounded-xl shadow-lg overflow-hidden z-50 w-[200px] animate-[nb-dropIn_0.15s_ease]">
-    {/* Sign In CTA */}
-    <div className="px-3.5 py-3 bg-[#F5F3FF] border-b border-[#EDE9F6]">
-      <p className="text-[0.7rem] text-[#6B5E8A] font-semibold mb-2">Welcome to Odara</p>
-      <Link
-        href="/login"
-        onClick={onClose}
-        className="flex items-center justify-center gap-1.5 w-full bg-[#2D1B4E] hover:bg-[#3d2568] text-white text-xs font-extrabold py-2 px-3 rounded-lg transition-colors no-underline"
-      >
-        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
-        </svg>
-        Sign In
-      </Link>
-      <p className="text-center text-[0.65rem] text-[#9C8EC1] mt-1.5">
-        No account?{' '}
-        <Link href="/signup" onClick={onClose} className="text-[#2D1B4E] font-bold hover:underline">
-          Register
-        </Link>
-      </p>
-    </div>
-
-    {/* Menu Items */}
-    <Link href="/account" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={onClose}>
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-      My Account
-    </Link>
-    <div className="h-px bg-[#F3F4F6]" />
-    <Link href="/wishlist" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={onClose}>
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-      Wishlist
-    </Link>
-    <div className="h-px bg-[#F3F4F6]" />
-    <Link href="/orders" className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-[#374151] font-['Manrope'] font-medium hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={onClose}>
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-      Orders
-    </Link>
-  </div>
-);
-
 const Navbar = () => {
-  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen]       = useState(false);
   const [isDrawerOpen, setIsDrawerOpen]                   = useState(false);
   const [drawerLangOpen, setDrawerLangOpen]               = useState(false);
@@ -106,12 +63,8 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled]                       = useState(false);
   const [selectedLang, setSelectedLang]                   = useState(LANGUAGES[0]);
 
-  const dropdownRef            = useRef(null);
-  const accountButtonRef       = useRef(null);
   const langDropdownRef        = useRef(null);
   const langButtonRef          = useRef(null);
-  const mobileDropdownRef      = useRef(null);
-  const mobileAccountButtonRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 10);
@@ -121,15 +74,9 @@ const Navbar = () => {
 
   useEffect(() => {
     const onOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target) &&
-          accountButtonRef.current && !accountButtonRef.current.contains(e.target))
-        setIsAccountDropdownOpen(false);
       if (langDropdownRef.current && !langDropdownRef.current.contains(e.target) &&
           langButtonRef.current && !langButtonRef.current.contains(e.target))
         setIsLangDropdownOpen(false);
-      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(e.target) &&
-          mobileAccountButtonRef.current && !mobileAccountButtonRef.current.contains(e.target))
-        setIsAccountDropdownOpen(false);
     };
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
@@ -145,8 +92,6 @@ const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) console.log('Search:', searchQuery);
   };
-
-  const closeAccount = () => setIsAccountDropdownOpen(false);
 
   return (
     <>
@@ -238,23 +183,14 @@ const Navbar = () => {
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                {/* Account — desktop */}
-                <div className="relative">
-                  <button
-                    ref={accountButtonRef}
-                    onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
-                    className="flex flex-col items-center gap-0.5 text-[#2D1B4E] bg-none border-none cursor-pointer px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all"
-                  >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="8" r="4" />
-                      <path d="M5 20a7 7 0 0 1 14 0" />
-                    </svg>
-                    <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Account</span>
-                  </button>
-                  {isAccountDropdownOpen && (
-                    <AccountDropdownContent onClose={closeAccount} dropdownRef={dropdownRef} />
-                  )}
-                </div>
+                {/* Account — desktop - now links directly to login */}
+                <Link href="/login" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M5 20a7 7 0 0 1 14 0" />
+                  </svg>
+                  <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Account</span>
+                </Link>
 
                 {/* Cart — desktop */}
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
@@ -301,23 +237,13 @@ const Navbar = () => {
 
             <div className="flex-1" />
 
-            {/* Account — mobile */}
-            <div className="relative flex-shrink-0">
-              <button
-                ref={mobileAccountButtonRef}
-                onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
-                className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all"
-                aria-label="Account"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M5 20a7 7 0 0 1 14 0" />
-                </svg>
-              </button>
-              {isAccountDropdownOpen && (
-                <AccountDropdownContent onClose={closeAccount} dropdownRef={mobileDropdownRef} />
-              )}
-            </div>
+            {/* Account — mobile - now links directly to login */}
+            <Link href="/login" className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 20a7 7 0 0 1 14 0" />
+              </svg>
+            </Link>
 
             {/* Cart — mobile */}
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
@@ -356,27 +282,6 @@ const Navbar = () => {
                 <button onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors" aria-label="Close menu">
                   <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
-              </div>
-
-              {/* Login/Register in Drawer - Mobile */}
-              <div className="px-4 py-3 bg-[#F5F3FF] border-b border-[#EDE9F6]">
-                <p className="text-[0.7rem] text-[#6B5E8A] font-semibold mb-2">Welcome to Odara</p>
-                <Link
-                  href="/login"
-                  onClick={() => setIsDrawerOpen(false)}
-                  className="flex items-center justify-center gap-1.5 w-full bg-[#2D1B4E] hover:bg-[#3d2568] text-white text-xs font-extrabold py-2 px-3 rounded-lg transition-colors no-underline"
-                >
-                  <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" />
-                  </svg>
-                  Sign In
-                </Link>
-                <p className="text-center text-[0.65rem] text-[#9C8EC1] mt-1.5">
-                  No account?{' '}
-                  <Link href="/signup" onClick={() => setIsDrawerOpen(false)} className="text-[#2D1B4E] font-bold hover:underline">
-                    Register
-                  </Link>
-                </p>
               </div>
 
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Categories</div>
@@ -427,19 +332,6 @@ const Navbar = () => {
 
               <div className="h-px bg-[#F0EEF4] my-1.5 mx-4" />
 
-              <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">My Account</div>
-              <Link href="/account" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">👤</span>My Account
-              </Link>
-              <Link href="/wishlist" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">❤️</span>Wishlist
-              </Link>
-              <Link href="/orders" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">📦</span>Orders
-              </Link>
-
-              <div className="h-px bg-[#F0EEF4] my-1.5 mx-4" />
-
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Support</div>
               <Link href="/contact" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
                 <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">💬</span>Contact Us
@@ -448,7 +340,7 @@ const Navbar = () => {
                 <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">❓</span>FAQs
               </Link>
               <Link href="/track-order" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">🔍</span>Track My Order
+                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">📦</span>Track My Order
               </Link>
 
               <div className="mt-auto pt-4 pb-4 px-4 border-t border-[#F0EEF4] flex-shrink-0">
