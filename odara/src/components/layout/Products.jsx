@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, Star, Heart } from "lucide-react";
 import { create } from "zustand";
@@ -149,10 +150,18 @@ function StarRating({ rating, size, starClass }) {
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
 function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, theme }) {
+  const router = useRouter();
   const { discountPercent, hasDiscount, oldPrice } = getDiscount(product);
+
+  const handleCardClick = (e) => {
+    // Don't navigate if clicking on buttons
+    if (e.target.closest('button')) return;
+    router.push(`/product/${product.id}`);
+  };
 
   return (
     <div
+      onClick={handleCardClick}
       className={`
         group rounded-2xl p-2 md:p-3 bg-white
         transition-all duration-300 ease-out cursor-pointer
@@ -221,7 +230,10 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
             )}
           </div>
           <button
-            onClick={() => addToCart(product)}
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+            }}
             className="shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center active:scale-95 transition"
             aria-label="Add to cart"
           >
