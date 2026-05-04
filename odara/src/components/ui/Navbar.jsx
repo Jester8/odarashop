@@ -27,11 +27,25 @@ const FlagIcon = ({ code, size = 20 }) => {
   return <FlagNG size={size} />;
 };
 
-const ShoppingBagIcon = ({ size = 22 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-    <line x1="3" y1="6" x2="21" y2="6" />
-    <path d="M16 10a4 4 0 0 1-8 0" />
+/* ── Proper shopping cart icon (trolley with wheels) ── */
+const CartIcon = ({ size = 22 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.8}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    {/* cart body */}
+    <path d="M6 2H3" />
+    <path d="M3 2l1.5 9h11l1.5-9" />
+    <path d="M4.5 11l-1 5h15l-1-5" />
+    {/* wheels */}
+    <circle cx="9" cy="19.5" r="1.5" />
+    <circle cx="17" cy="19.5" r="1.5" />
   </svg>
 );
 
@@ -56,15 +70,18 @@ const CATEGORIES = [
 ];
 
 const Navbar = () => {
-  const [isLangDropdownOpen, setIsLangDropdownOpen]       = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen]                   = useState(false);
-  const [drawerLangOpen, setDrawerLangOpen]               = useState(false);
-  const [searchQuery, setSearchQuery]                     = useState('');
-  const [isScrolled, setIsScrolled]                       = useState(false);
-  const [selectedLang, setSelectedLang]                   = useState(LANGUAGES[0]);
+  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen]             = useState(false);
+  const [drawerLangOpen, setDrawerLangOpen]         = useState(false);
+  const [searchQuery, setSearchQuery]               = useState('');
+  const [isScrolled, setIsScrolled]                 = useState(false);
+  const [selectedLang, setSelectedLang]             = useState(LANGUAGES[0]);
 
-  const langDropdownRef        = useRef(null);
-  const langButtonRef          = useRef(null);
+  const langDropdownRef = useRef(null);
+  const langButtonRef   = useRef(null);
+
+  // Demo cart count — replace with your real cart state / context
+  const cartCount = 0;
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 10);
@@ -74,9 +91,10 @@ const Navbar = () => {
 
   useEffect(() => {
     const onOutside = (e) => {
-      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target) &&
-          langButtonRef.current && !langButtonRef.current.contains(e.target))
-        setIsLangDropdownOpen(false);
+      if (
+        langDropdownRef.current && !langDropdownRef.current.contains(e.target) &&
+        langButtonRef.current  && !langButtonRef.current.contains(e.target)
+      ) setIsLangDropdownOpen(false);
     };
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
@@ -183,7 +201,7 @@ const Navbar = () => {
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                {/* Account — desktop - now links directly to login */}
+                {/* Account — desktop */}
                 <Link href="/login" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="8" r="4" />
@@ -195,8 +213,10 @@ const Navbar = () => {
                 {/* Cart — desktop */}
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
                   <span className="relative inline-flex">
-                    <ShoppingBagIcon size={22} />
-                    <span className="absolute -top-1 -right-1 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-3.5 min-w-[14px] flex items-center justify-center border-[1.5px] border-white">0</span>
+                    <CartIcon size={22} />
+                    <span className="absolute -top-1 -right-1 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-3.5 min-w-[14px] flex items-center justify-center border-[1.5px] border-white">
+                      {cartCount}
+                    </span>
                   </span>
                   <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Cart</span>
                 </Link>
@@ -237,7 +257,7 @@ const Navbar = () => {
 
             <div className="flex-1" />
 
-            {/* Account — mobile - now links directly to login */}
+            {/* Account — mobile */}
             <Link href="/login" className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="4" />
@@ -247,8 +267,10 @@ const Navbar = () => {
 
             {/* Cart — mobile */}
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
-              <ShoppingBagIcon size={24} />
-              <span className="absolute top-0.5 right-0.5 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] flex items-center justify-center px-0.5">0</span>
+              <CartIcon size={24} />
+              <span className="absolute top-0.5 right-0.5 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] flex items-center justify-center px-0.5">
+                {cartCount}
+              </span>
             </Link>
           </div>
 
@@ -358,15 +380,15 @@ const Navbar = () => {
       <style jsx global>{`
         @keyframes nb-dropIn {
           from { opacity: 0; transform: translateY(-6px); }
-          to { opacity: 1; transform: translateY(0); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes nb-fadeIn {
           from { opacity: 0; }
-          to { opacity: 1; }
+          to   { opacity: 1; }
         }
         @keyframes nb-slideIn {
           from { transform: translateX(-100%); }
-          to { transform: translateX(0); }
+          to   { transform: translateX(0); }
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
