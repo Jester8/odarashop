@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ShoppingCart } from 'lucide-react';
 
 const FlagNG = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" style={{ borderRadius: 3, flexShrink: 0 }}>
@@ -26,28 +27,6 @@ const FlagIcon = ({ code, size = 20 }) => {
   if (code === 'en') return <FlagGB size={size} />;
   return <FlagNG size={size} />;
 };
-
-/* ── Proper shopping cart icon (trolley with wheels) ── */
-const CartIcon = ({ size = 22 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={1.8}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {/* cart body */}
-    <path d="M6 2H3" />
-    <path d="M3 2l1.5 9h11l1.5-9" />
-    <path d="M4.5 11l-1 5h15l-1-5" />
-    {/* wheels */}
-    <circle cx="9" cy="19.5" r="1.5" />
-    <circle cx="17" cy="19.5" r="1.5" />
-  </svg>
-);
 
 const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
@@ -213,7 +192,7 @@ const Navbar = () => {
                 {/* Cart — desktop */}
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
                   <span className="relative inline-flex">
-                    <CartIcon size={22} />
+                    <ShoppingCart size={22} strokeWidth={1.8} />
                     <span className="absolute -top-1 -right-1 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-3.5 min-w-[14px] flex items-center justify-center border-[1.5px] border-white">
                       {cartCount}
                     </span>
@@ -267,7 +246,7 @@ const Navbar = () => {
 
             {/* Cart — mobile */}
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
-              <CartIcon size={24} />
+              <ShoppingCart size={24} strokeWidth={1.8} />
               <span className="absolute top-0.5 right-0.5 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] flex items-center justify-center px-0.5">
                 {cartCount}
               </span>

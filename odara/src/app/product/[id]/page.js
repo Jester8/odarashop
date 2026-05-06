@@ -17,7 +17,6 @@ import {
   AlertCircle,
   MessageCircle,
   Send,
-  Zap,
 } from "lucide-react";
 import { create } from "zustand";
 import products from "@/data/products";
@@ -182,48 +181,88 @@ function ReviewForm({ onSubmit }) {
   );
 }
 
-// ─── Related Product Card ─────────────────────────────────────────────────────
+// ─── Related Product Card (consistent with Products component) ────────────────
 function RelatedProductCard({ product, onClick }) {
+  const router = useRouter();
   const { hasDiscount, discountPercent, oldPrice } = getDiscount(product);
   const { wishlist, toggleWishlist, addToCart } = useStore();
   const isInWishlist = wishlist.includes(product.id);
 
+  const handleCardClick = (e) => {
+    if (e.target.closest('button')) return;
+    onClick(product.id);
+  };
+
   return (
     <div
-      onClick={(e) => { if (!e.target.closest("button")) onClick(product.id); }}
-      className="group cursor-pointer"
+      onClick={handleCardClick}
+      className="group rounded-2xl p-2 md:p-3 bg-white transition-all duration-300 ease-out cursor-pointer md:hover:-translate-y-2 md:hover:scale-[1.03] md:hover:shadow-[0_12px_40px_rgba(0,0,0,0.13)] md:hover:z-10 relative"
     >
-      <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden mb-2">
+      <div className="relative w-full h-32 md:h-44 bg-gray-100 rounded-xl overflow-hidden">
         <Image
           src={product.image}
           alt={product.name}
           fill
-          className="object-cover group-hover:scale-105 transition duration-400"
+          className="object-cover group-hover:scale-110 transition duration-500"
         />
         {hasDiscount && (
-          <span className="absolute top-2 left-2 bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-md font-bold">
+          <span className="absolute top-1.5 left-1.5 bg-orange-500 text-white text-[9px] md:text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded-md font-semibold">
             -{discountPercent}%
+          </span>
+        )}
+        {product.stock <= 5 && product.stock > 0 && (
+          <span className="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-[8px] md:text-[10px] px-1.5 py-0.5 rounded-md font-semibold">
+            Only {product.stock} left!
           </span>
         )}
         <button
           onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
-          className="absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center hover:scale-110 transition shadow-sm"
+          className="absolute top-1.5 right-1.5 w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition"
+          aria-label="Toggle wishlist"
         >
-          <Heart size={11} className={isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"} />
+          <Heart
+            size={13}
+            className={isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"}
+          />
         </button>
       </div>
-      <h4 className="text-xs font-semibold text-gray-900 line-clamp-1 mb-0.5">{product.name}</h4>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-bold text-gray-900">₦{product.price.toLocaleString()}</p>
-          {hasDiscount && <p className="text-[10px] text-gray-400 line-through">₦{oldPrice.toLocaleString()}</p>}
+
+      <div className="pt-2">
+        <h4 className="text-[11px] md:text-sm font-semibold text-black line-clamp-1 mb-0.5">
+          {product.name}
+        </h4>
+        <p className="text-[10px] md:text-xs text-gray-500 line-clamp-2 mb-1.5">
+          Premium quality product built for everyday use.
+        </p>
+        <div className="mb-1.5">
+          <StarRating
+            rating={parseFloat(product.rating)}
+            size={11}
+            showCount={true}
+          />
         </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); addToCart(product); }}
-          className="w-7 h-7 bg-[#2D1B4E] hover:bg-[#3d2568] text-white rounded-lg flex items-center justify-center transition active:scale-90"
-        >
-          <ShoppingCart size={11} />
-        </button>
+        <div className="flex items-center justify-between gap-1">
+          <div className="min-w-0">
+            <p className="text-black font-bold text-[11px] md:text-sm truncate">
+              ₦{product.price.toLocaleString()}
+            </p>
+            {hasDiscount && (
+              <p className="text-[9px] md:text-xs text-gray-400 line-through">
+                ₦{oldPrice.toLocaleString()}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+            }}
+            className="shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center active:scale-95 transition"
+            aria-label="Add to cart"
+          >
+            <ShoppingCart size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -343,7 +382,6 @@ export default function ProductPage() {
             <ChevronLeft size={17} className="group-hover:-translate-x-0.5 transition" />
             Back
           </button>
-          {/* Mobile: product name in top bar */}
           <p className="md:hidden text-xs font-semibold text-gray-700 line-clamp-1 max-w-[200px]">{product.name}</p>
           <div className="w-16" />
         </div>
@@ -394,13 +432,11 @@ export default function ProductPage() {
             {/* Right — Info */}
             <div className="flex flex-col gap-4">
 
-              {/* Category + Title */}
               <div>
                 <span className="text-xs font-bold text-[#7C5CBF] uppercase tracking-wider">{product.category}</span>
                 <h1 className="text-xl md:text-2xl font-bold text-gray-900 mt-1 leading-snug">{product.name}</h1>
               </div>
 
-              {/* Rating row */}
               <div className="flex items-center gap-3">
                 <StarRating rating={parseFloat(avgRating)} size={15} showCount={false} />
                 <span className="text-xs font-semibold text-gray-700">{avgRating}</span>
@@ -412,7 +448,6 @@ export default function ProductPage() {
                 </span>
               </div>
 
-              {/* Price */}
               <div className="flex items-baseline gap-3">
                 <span className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">
                   ₦{product.price.toLocaleString()}
@@ -427,12 +462,10 @@ export default function ProductPage() {
                 )}
               </div>
 
-              {/* Description */}
               <p className="text-gray-600 text-sm leading-relaxed">
                 Experience premium quality with the <strong className="text-gray-800">{product.name}</strong>. Designed for everyday use, combining durability with style — whether at home, work, or on the go.
               </p>
 
-              {/* Features — compact chips */}
               <div className="flex flex-wrap gap-2">
                 {["Premium Quality", "1-Year Warranty", "Free Shipping over ₦50k", "30-Day Returns"].map((f) => (
                   <span key={f} className="inline-flex items-center gap-1 text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg">
@@ -441,7 +474,6 @@ export default function ProductPage() {
                 ))}
               </div>
 
-              {/* Quantity + Wishlist row */}
               {inStock && (
                 <div className="flex items-center gap-3">
                   <QuantitySelector quantity={quantity} setQuantity={setQuantity} stock={product.stock} />
@@ -454,7 +486,6 @@ export default function ProductPage() {
                 </div>
               )}
 
-              {/* CTA Buttons */}
               {inStock ? (
                 <div className="flex gap-2.5">
                   <button
@@ -468,7 +499,6 @@ export default function ProductPage() {
                     onClick={handleBuyNow}
                     className="flex-1 flex items-center justify-center gap-2 bg-orange-500 text-white px-5 py-3 rounded-xl text-sm font-bold hover:bg-orange-600 transition active:scale-95"
                   >
-                    
                     Buy Now
                   </button>
                 </div>
@@ -479,7 +509,6 @@ export default function ProductPage() {
                 </div>
               )}
 
-              {/* Trust badges */}
               <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-100">
                 {[
                   { icon: <Truck size={15} />, label: "Free Delivery" },
@@ -548,10 +577,9 @@ export default function ProductPage() {
 
       <Footer />
 
-      {/* Toast */}
       {addedToCart && (
         <div className="fixed bottom-6 right-4 z-50 animate-slide-up">
-          <div className="bg-[#2D1B4E] text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm font-medium">
+          <div className="bg-white text-black px-4 py-3 rounded-xl shadow-sm flex items-center gap-2 text-sm font-medium">
             <CheckCircle size={16} className="text-emerald-400" />
             Added to cart!
           </div>
