@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const FlagNG = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" style={{ borderRadius: 3, flexShrink: 0 }}>
@@ -16,8 +16,8 @@ const FlagNG = ({ size = 20 }) => (
 const FlagGB = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 60 40" style={{ borderRadius: 3, flexShrink: 0 }}>
     <rect width="60" height="40" fill="#012169" />
-    <path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" strokeWidth="8" />
-    <path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" strokeWidth="4" />
+    <path d="M0,0 L60,40 M60,0 L40,20" stroke="#fff" strokeWidth="8" />
+    <path d="M0,0 L60,40 M60,0 L40,20" stroke="#C8102E" strokeWidth="4" />
     <path d="M30,0 V40 M0,20 H60" stroke="#fff" strokeWidth="12" />
     <path d="M30,0 V40 M0,20 H60" stroke="#C8102E" strokeWidth="8" />
   </svg>
@@ -36,17 +36,306 @@ const LANGUAGES = [
 ];
 
 const CATEGORIES = [
-  { label: 'Electronics',   icon: '📱', href: '/category/electronics' },
-  { label: 'Fashion',       icon: '👗', href: '/category/fashion' },
-  { label: 'Home & Living', icon: '🏠', href: '/category/home-living' },
-  { label: 'Beauty',        icon: '💄', href: '/category/beauty' },
-  { label: 'Sports',        icon: '⚽', href: '/category/sports' },
-  { label: 'Groceries',     icon: '🛒', href: '/category/groceries' },
-  { label: 'Books',         icon: '📚', href: '/category/books' },
-  { label: 'Toys & Kids',   icon: '🧸', href: '/category/toys-kids' },
-  { label: 'Automotive',    icon: '🚗', href: '/category/automotive' },
-  { label: 'Health',        icon: '💊', href: '/category/health' },
+  {
+    label: 'Electronics', icon: '📱', href: '/category/electronics',
+    subcategories: [
+      { label: 'Smartphones',       icon: '📱', href: '/category/electronics/smartphones' },
+      { label: 'Laptops',           icon: '💻', href: '/category/electronics/laptops' },
+      { label: 'Tablets',           icon: '📟', href: '/category/electronics/tablets' },
+      { label: 'Headphones',        icon: '🎧', href: '/category/electronics/headphones' },
+      { label: 'Smart Watches',     icon: '⌚', href: '/category/electronics/smart-watches' },
+      { label: 'Cameras',           icon: '📷', href: '/category/electronics/cameras' },
+      { label: 'TVs & Monitors',    icon: '📺', href: '/category/electronics/tvs' },
+      { label: 'Gaming',            icon: '🎮', href: '/category/electronics/gaming' },
+      { label: 'Speakers',          icon: '🔊', href: '/category/electronics/speakers' },
+      { label: 'Accessories',       icon: '🔌', href: '/category/electronics/accessories' },
+      { label: 'Printers',          icon: '🖨️', href: '/category/electronics/printers' },
+      { label: 'Networking',        icon: '📡', href: '/category/electronics/networking' },
+      { label: 'Power Banks',       icon: '🔋', href: '/category/electronics/power-banks' },
+      { label: 'Memory & Storage',  icon: '💾', href: '/category/electronics/storage' },
+      { label: 'Smart Home',        icon: '🏡', href: '/category/electronics/smart-home' },
+      { label: 'Drones',            icon: '🚁', href: '/category/electronics/drones' },
+      { label: 'Projectors',        icon: '🎬', href: '/category/electronics/projectors' },
+      { label: 'Office Equipment',  icon: '🖥️', href: '/category/electronics/office' },
+      { label: 'Cables & Hubs',     icon: '🔗', href: '/category/electronics/cables' },
+      { label: 'Wearables',         icon: '💍', href: '/category/electronics/wearables' },
+    ],
+  },
+  {
+    label: 'Fashion', icon: '👗', href: '/category/fashion',
+    subcategories: [
+      { label: "Men's Clothing",   icon: '👔', href: '/category/fashion/mens' },
+      { label: "Women's Clothing", icon: '👗', href: '/category/fashion/womens' },
+      { label: 'Kids Fashion',     icon: '🧒', href: '/category/fashion/kids' },
+      { label: 'Shoes',            icon: '👟', href: '/category/fashion/shoes' },
+      { label: 'Bags & Purses',    icon: '👜', href: '/category/fashion/bags' },
+      { label: 'Watches',          icon: '⌚', href: '/category/fashion/watches' },
+      { label: 'Sunglasses',       icon: '🕶️', href: '/category/fashion/sunglasses' },
+      { label: 'Jewellery',        icon: '💎', href: '/category/fashion/jewellery' },
+      { label: 'Belts',            icon: '🪢', href: '/category/fashion/belts' },
+      { label: 'Hats & Caps',      icon: '🧢', href: '/category/fashion/hats' },
+      { label: 'Ankara & Native',  icon: '🎨', href: '/category/fashion/ankara' },
+      { label: 'Lingerie',         icon: '🌸', href: '/category/fashion/lingerie' },
+      { label: 'Swimwear',         icon: '🩱', href: '/category/fashion/swimwear' },
+      { label: 'Sports Wear',      icon: '🏃', href: '/category/fashion/sportswear' },
+      { label: 'Formal Wear',      icon: '🤵', href: '/category/fashion/formal' },
+      { label: 'Dresses',          icon: '👘', href: '/category/fashion/dresses' },
+      { label: 'Jackets & Coats',  icon: '🧥', href: '/category/fashion/jackets' },
+      { label: 'Scarves',          icon: '🧣', href: '/category/fashion/scarves' },
+      { label: 'Socks & Hosiery',  icon: '🧦', href: '/category/fashion/socks' },
+      { label: 'Accessories',      icon: '✨', href: '/category/fashion/accessories' },
+    ],
+  },
+  {
+    label: 'Home & Living', icon: '🏠', href: '/category/home-living',
+    subcategories: [
+      { label: 'Furniture',        icon: '🛋️', href: '/category/home/furniture' },
+      { label: 'Bedding',          icon: '🛏️', href: '/category/home/bedding' },
+      { label: 'Kitchen',          icon: '🍳', href: '/category/home/kitchen' },
+      { label: 'Lighting',         icon: '💡', href: '/category/home/lighting' },
+      { label: 'Bathroom',         icon: '🚿', href: '/category/home/bathroom' },
+      { label: 'Cleaning',         icon: '🧹', href: '/category/home/cleaning' },
+      { label: 'Decor',            icon: '🖼️', href: '/category/home/decor' },
+      { label: 'Storage',          icon: '📦', href: '/category/home/storage' },
+      { label: 'Garden & Outdoor', icon: '🌿', href: '/category/home/garden' },
+      { label: 'Cookware',         icon: '🥘', href: '/category/home/cookware' },
+      { label: 'Appliances',       icon: '🧺', href: '/category/home/appliances' },
+      { label: 'Curtains & Blinds',icon: '🪟', href: '/category/home/curtains' },
+      { label: 'Rugs & Carpets',   icon: '🟥', href: '/category/home/rugs' },
+      { label: 'Tools & Hardware', icon: '🔧', href: '/category/home/tools' },
+      { label: 'Pet Supplies',     icon: '🐾', href: '/category/home/pets' },
+      { label: 'Air Conditioning', icon: '❄️', href: '/category/home/ac' },
+      { label: 'Generators',       icon: '⚡', href: '/category/home/generators' },
+      { label: 'Candles & Scents', icon: '🕯️', href: '/category/home/candles' },
+      { label: 'Baby Gear',        icon: '🍼', href: '/category/home/baby' },
+      { label: 'Office Supplies',  icon: '📎', href: '/category/home/office' },
+    ],
+  },
+  {
+    label: 'Beauty', icon: '💄', href: '/category/beauty',
+    subcategories: [
+      { label: 'Skincare',         icon: '🧴', href: '/category/beauty/skincare' },
+      { label: 'Makeup',           icon: '💄', href: '/category/beauty/makeup' },
+      { label: 'Hair Care',        icon: '💇', href: '/category/beauty/hair' },
+      { label: 'Fragrances',       icon: '🌹', href: '/category/beauty/fragrance' },
+      { label: 'Nail Care',        icon: '💅', href: '/category/beauty/nails' },
+      { label: 'Body Care',        icon: '🧼', href: '/category/beauty/body' },
+      { label: 'Shaving',          icon: '🪒', href: '/category/beauty/shaving' },
+      { label: 'Oral Care',        icon: '🦷', href: '/category/beauty/oral' },
+      { label: 'Hair Extensions',  icon: '👱', href: '/category/beauty/extensions' },
+      { label: 'Beauty Tools',     icon: '🪞', href: '/category/beauty/tools' },
+      { label: 'Men\'s Grooming',  icon: '🧔', href: '/category/beauty/mens-grooming' },
+      { label: 'Sunscreen',        icon: '☀️', href: '/category/beauty/sunscreen' },
+      { label: 'Lip Care',         icon: '💋', href: '/category/beauty/lips' },
+      { label: 'Eye Care',         icon: '👁️', href: '/category/beauty/eyes' },
+      { label: 'Foundation',       icon: '🎨', href: '/category/beauty/foundation' },
+      { label: 'Wigs',             icon: '🦱', href: '/category/beauty/wigs' },
+      { label: 'Brushes & Sponges',icon: '🖌️', href: '/category/beauty/brushes' },
+      { label: 'Toners',           icon: '💧', href: '/category/beauty/toners' },
+      { label: 'Anti-Ageing',      icon: '✨', href: '/category/beauty/anti-ageing' },
+      { label: 'Natural & Organic',icon: '🌿', href: '/category/beauty/organic' },
+    ],
+  },
+  {
+    label: 'Sports', icon: '⚽', href: '/category/sports',
+    subcategories: [
+      { label: 'Football',         icon: '⚽', href: '/category/sports/football' },
+      { label: 'Basketball',       icon: '🏀', href: '/category/sports/basketball' },
+      { label: 'Tennis',           icon: '🎾', href: '/category/sports/tennis' },
+      { label: 'Fitness & Gym',    icon: '🏋️', href: '/category/sports/gym' },
+      { label: 'Cycling',          icon: '🚴', href: '/category/sports/cycling' },
+      { label: 'Running',          icon: '🏃', href: '/category/sports/running' },
+      { label: 'Swimming',         icon: '🏊', href: '/category/sports/swimming' },
+      { label: 'Martial Arts',     icon: '🥋', href: '/category/sports/martial-arts' },
+      { label: 'Yoga',             icon: '🧘', href: '/category/sports/yoga' },
+      { label: 'Outdoor Sports',   icon: '🏕️', href: '/category/sports/outdoor' },
+      { label: 'Cricket',          icon: '🏏', href: '/category/sports/cricket' },
+      { label: 'Table Tennis',     icon: '🏓', href: '/category/sports/table-tennis' },
+      { label: 'Badminton',        icon: '🏸', href: '/category/sports/badminton' },
+      { label: 'Volleyball',       icon: '🏐', href: '/category/sports/volleyball' },
+      { label: 'Boxing',           icon: '🥊', href: '/category/sports/boxing' },
+      { label: 'Skipping Ropes',   icon: '🪢', href: '/category/sports/skipping' },
+      { label: 'Sports Nutrition', icon: '💊', href: '/category/sports/nutrition' },
+      { label: 'Water Sports',     icon: '🚣', href: '/category/sports/water' },
+      { label: 'Team Jerseys',     icon: '👕', href: '/category/sports/jerseys' },
+      { label: 'Sports Bags',      icon: '🎒', href: '/category/sports/bags' },
+    ],
+  },
+  {
+    label: 'Groceries', icon: '🛒', href: '/category/groceries',
+    subcategories: [
+      { label: 'Rice & Grains',    icon: '🌾', href: '/category/groceries/rice' },
+      { label: 'Cooking Oil',      icon: '🫙', href: '/category/groceries/oil' },
+      { label: 'Beverages',        icon: '☕', href: '/category/groceries/beverages' },
+      { label: 'Snacks',           icon: '🍫', href: '/category/groceries/snacks' },
+      { label: 'Dairy & Eggs',     icon: '🥚', href: '/category/groceries/dairy' },
+      { label: 'Frozen Foods',     icon: '🧊', href: '/category/groceries/frozen' },
+      { label: 'Seasoning',        icon: '🧂', href: '/category/groceries/seasoning' },
+      { label: 'Cereals',          icon: '🥣', href: '/category/groceries/cereals' },
+      { label: 'Pasta & Noodles',  icon: '🍝', href: '/category/groceries/pasta' },
+      { label: 'Canned Foods',     icon: '🥫', href: '/category/groceries/canned' },
+      { label: 'Bread & Bakery',   icon: '🍞', href: '/category/groceries/bakery' },
+      { label: 'Baby Food',        icon: '🍼', href: '/category/groceries/baby-food' },
+      { label: 'Sauces',           icon: '🍯', href: '/category/groceries/sauces' },
+      { label: 'Nuts & Dried',     icon: '🥜', href: '/category/groceries/nuts' },
+      { label: 'Sugar & Sweetener',icon: '🍬', href: '/category/groceries/sugar' },
+      { label: 'Flour & Starch',   icon: '🌽', href: '/category/groceries/flour' },
+      { label: 'Water & Drinks',   icon: '💧', href: '/category/groceries/water' },
+      { label: 'Tea & Coffee',     icon: '🍵', href: '/category/groceries/tea' },
+      { label: 'Organic Foods',    icon: '🌿', href: '/category/groceries/organic' },
+      { label: 'Hygiene Products', icon: '🧻', href: '/category/groceries/hygiene' },
+    ],
+  },
+  {
+    label: 'Books', icon: '📚', href: '/category/books',
+    subcategories: [
+      { label: 'Fiction',          icon: '📖', href: '/category/books/fiction' },
+      { label: 'Non-Fiction',      icon: '📘', href: '/category/books/non-fiction' },
+      { label: 'Children\'s',      icon: '🧒', href: '/category/books/children' },
+      { label: 'Textbooks',        icon: '📗', href: '/category/books/textbooks' },
+      { label: 'Business',         icon: '💼', href: '/category/books/business' },
+      { label: 'Self Help',        icon: '🌟', href: '/category/books/self-help' },
+      { label: 'Religion',         icon: '✝️', href: '/category/books/religion' },
+      { label: 'Science',          icon: '🔬', href: '/category/books/science' },
+      { label: 'History',          icon: '🏛️', href: '/category/books/history' },
+      { label: 'Biographies',      icon: '👤', href: '/category/books/biographies' },
+      { label: 'Arts & Music',     icon: '🎨', href: '/category/books/arts' },
+      { label: 'Travel',           icon: '✈️', href: '/category/books/travel' },
+      { label: 'Cooking',          icon: '🍳', href: '/category/books/cooking' },
+      { label: 'Technology',       icon: '💻', href: '/category/books/technology' },
+      { label: 'Law',              icon: '⚖️', href: '/category/books/law' },
+      { label: 'Health & Medicine',icon: '🏥', href: '/category/books/health' },
+      { label: 'African Authors',  icon: '🌍', href: '/category/books/african' },
+      { label: 'Poetry',           icon: '🖊️', href: '/category/books/poetry' },
+      { label: 'Comics & Manga',   icon: '💥', href: '/category/books/comics' },
+      { label: 'E-Books',          icon: '📱', href: '/category/books/ebooks' },
+    ],
+  },
+  {
+    label: 'Toys & Kids', icon: '🧸', href: '/category/toys-kids',
+    subcategories: [
+      { label: 'Action Figures',   icon: '🦸', href: '/category/toys/action-figures' },
+      { label: 'Dolls',            icon: '🪆', href: '/category/toys/dolls' },
+      { label: 'Board Games',      icon: '🎲', href: '/category/toys/board-games' },
+      { label: 'Puzzles',          icon: '🧩', href: '/category/toys/puzzles' },
+      { label: 'Building Blocks',  icon: '🧱', href: '/category/toys/blocks' },
+      { label: 'Remote Control',   icon: '🚗', href: '/category/toys/remote-control' },
+      { label: 'Educational Toys', icon: '🎓', href: '/category/toys/educational' },
+      { label: 'Outdoor Play',     icon: '🛝', href: '/category/toys/outdoor' },
+      { label: 'Arts & Crafts',    icon: '🎨', href: '/category/toys/arts-crafts' },
+      { label: 'Baby Toys',        icon: '🍼', href: '/category/toys/baby' },
+      { label: 'Stuffed Animals',  icon: '🧸', href: '/category/toys/stuffed' },
+      { label: 'Musical Toys',     icon: '🎵', href: '/category/toys/musical' },
+      { label: 'Science Kits',     icon: '🔭', href: '/category/toys/science' },
+      { label: 'Card Games',       icon: '🃏', href: '/category/toys/card-games' },
+      { label: 'Role Play',        icon: '🎭', href: '/category/toys/role-play' },
+      { label: 'Sports Toys',      icon: '⚽', href: '/category/toys/sports' },
+      { label: 'School Supplies',  icon: '✏️', href: '/category/toys/school' },
+      { label: 'Bikes & Scooters', icon: '🛴', href: '/category/toys/bikes' },
+      { label: 'Kids Clothing',    icon: '👕', href: '/category/toys/clothing' },
+      { label: 'Feeding & Nursing',icon: '🤱', href: '/category/toys/nursing' },
+    ],
+  },
+  {
+    label: 'Automotive', icon: '🚗', href: '/category/automotive',
+    subcategories: [
+      { label: 'Car Parts',        icon: '⚙️', href: '/category/auto/parts' },
+      { label: 'Tyres',            icon: '🔄', href: '/category/auto/tyres' },
+      { label: 'Car Accessories',  icon: '🚗', href: '/category/auto/accessories' },
+      { label: 'Car Care',         icon: '🧽', href: '/category/auto/care' },
+      { label: 'Oils & Fluids',    icon: '🛢️', href: '/category/auto/oils' },
+      { label: 'Tools & Equipment',icon: '🔧', href: '/category/auto/tools' },
+      { label: 'Car Audio',        icon: '🔊', href: '/category/auto/audio' },
+      { label: 'GPS & Tracking',   icon: '📍', href: '/category/auto/gps' },
+      { label: 'Dash Cams',        icon: '📷', href: '/category/auto/dashcams' },
+      { label: 'Seat Covers',      icon: '💺', href: '/category/auto/seat-covers' },
+      { label: 'Car Chargers',     icon: '🔋', href: '/category/auto/chargers' },
+      { label: 'Motorcycle Parts', icon: '🏍️', href: '/category/auto/moto' },
+      { label: 'Lighting',         icon: '💡', href: '/category/auto/lighting' },
+      { label: 'Air Fresheners',   icon: '🌸', href: '/category/auto/fresheners' },
+      { label: 'Wiper Blades',     icon: '🌧️', href: '/category/auto/wipers' },
+      { label: 'Security Systems', icon: '🔒', href: '/category/auto/security' },
+      { label: 'Jump Starters',    icon: '⚡', href: '/category/auto/jump-start' },
+      { label: 'Covers & Tents',   icon: '⛺', href: '/category/auto/covers' },
+      { label: 'Floor Mats',       icon: '🟫', href: '/category/auto/mats' },
+      { label: 'Batteries',        icon: '🔋', href: '/category/auto/batteries' },
+    ],
+  },
+  {
+    label: 'Health', icon: '💊', href: '/category/health',
+    subcategories: [
+      { label: 'Vitamins',         icon: '💊', href: '/category/health/vitamins' },
+      { label: 'Pain Relief',      icon: '🩹', href: '/category/health/pain-relief' },
+      { label: 'First Aid',        icon: '🩺', href: '/category/health/first-aid' },
+      { label: 'Blood Pressure',   icon: '❤️', href: '/category/health/blood-pressure' },
+      { label: 'Diabetes Care',    icon: '🩸', href: '/category/health/diabetes' },
+      { label: 'Weight Loss',      icon: '⚖️', href: '/category/health/weight-loss' },
+      { label: 'Digestive Health', icon: '🫃', href: '/category/health/digestive' },
+      { label: 'Eye Care',         icon: '👁️', href: '/category/health/eyes' },
+      { label: 'Fitness Equipment',icon: '🏋️', href: '/category/health/fitness' },
+      { label: 'Pregnancy',        icon: '🤰', href: '/category/health/pregnancy' },
+      { label: 'Sleep Aids',       icon: '😴', href: '/category/health/sleep' },
+      { label: 'Immunity',         icon: '🛡️', href: '/category/health/immunity' },
+      { label: 'Protein & Shakes', icon: '💪', href: '/category/health/protein' },
+      { label: 'Mental Wellness',  icon: '🧠', href: '/category/health/mental' },
+      { label: 'Herbal Remedies',  icon: '🌿', href: '/category/health/herbal' },
+      { label: 'Medical Devices',  icon: '🔬', href: '/category/health/devices' },
+      { label: 'Sexual Health',    icon: '💑', href: '/category/health/sexual' },
+      { label: 'Bone & Joint',     icon: '🦴', href: '/category/health/bone' },
+      { label: 'Kids Health',      icon: '👶', href: '/category/health/kids' },
+      { label: 'Thermometers',     icon: '🌡️', href: '/category/health/thermometers' },
+    ],
+  },
 ];
+
+// ─── Mega-Menu Panel ────────────────────────────────────────────────────────
+function MegaMenu({ category, visible }) {
+  if (!category) return null;
+  return (
+    <div
+      className={`absolute left-0 right-0 top-full z-[200] transition-all duration-200 ease-out ${
+        visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'
+      }`}
+    >
+      <div className="h-[2px] bg-gradient-to-r from-transparent via-[#2D1B4E] to-transparent opacity-10" />
+      <div className="bg-white shadow-2xl shadow-[rgba(45,27,78,0.12)] border-b border-[#F0EEF4]">
+        <div className="max-w-[1280px] mx-auto px-6 py-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl">{category.icon}</span>
+              <h3 className="text-[0.9rem] font-extrabold text-[#2D1B4E] tracking-tight">{category.label}</h3>
+            </div>
+            <Link
+              href={category.href}
+              className="text-[0.75rem] font-bold text-[#2D1B4E] hover:underline flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity"
+            >
+              View all
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-5 gap-1">
+            {category.subcategories.map((sub, i) => (
+              <Link
+                key={sub.href}
+                href={sub.href}
+                style={{ animationDelay: `${i * 18}ms` }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[0.8125rem] font-semibold text-[#374151] hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-all group animate-[megaFadeIn_0.22s_ease_both]"
+              >
+                <span className="text-[15px] w-7 h-7 flex items-center justify-center bg-[#F8F6FF] rounded-lg group-hover:bg-[#EDE9FF] transition-colors flex-shrink-0">
+                  {sub.icon}
+                </span>
+                <span className="leading-tight">{sub.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const Navbar = () => {
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
@@ -56,11 +345,24 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled]                 = useState(false);
   const [selectedLang, setSelectedLang]             = useState(LANGUAGES[0]);
 
+  // Mobile subcategory drawer state (slides in from right)
+  const [mobileSubDrawerOpen, setMobileSubDrawerOpen] = useState(false);
+  const [selectedMobileCategory, setSelectedMobileCategory] = useState(null);
+
+  // Mega-menu state
+  const [hoveredCat, setHoveredCat]   = useState(null);
+  const [pinnedCat, setPinnedCat]     = useState(null);
+  const hoverTimerRef                  = useRef(null);
+  const megaMenuRef                    = useRef(null);
+  const categoryBarRef                 = useRef(null);
+
   const langDropdownRef = useRef(null);
   const langButtonRef   = useRef(null);
-
-  // Demo cart count — replace with your real cart state / context
   const cartCount = 0;
+
+  const activeCatLabel = pinnedCat ?? hoveredCat;
+  const activeCat = CATEGORIES.find(c => c.label === activeCatLabel) ?? null;
+  const megaVisible = !!activeCatLabel;
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 10);
@@ -80,36 +382,85 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = isDrawerOpen ? 'hidden' : 'unset';
+    const onOutside = (e) => {
+      if (
+        megaMenuRef.current && !megaMenuRef.current.contains(e.target)
+      ) {
+        setPinnedCat(null);
+        setHoveredCat(null);
+      }
+    };
+    document.addEventListener('mousedown', onOutside);
+    return () => document.removeEventListener('mousedown', onOutside);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = isDrawerOpen || mobileSubDrawerOpen ? 'hidden' : 'unset';
     if (!isDrawerOpen) setDrawerLangOpen(false);
+    if (!mobileSubDrawerOpen) setSelectedMobileCategory(null);
     return () => { document.body.style.overflow = 'unset'; };
-  }, [isDrawerOpen]);
+  }, [isDrawerOpen, mobileSubDrawerOpen]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) console.log('Search:', searchQuery);
   };
 
+  const handleCatMouseEnter = (label) => {
+    clearTimeout(hoverTimerRef.current);
+    setHoveredCat(label);
+  };
+
+  const handleCatMouseLeave = () => {
+    hoverTimerRef.current = setTimeout(() => {
+      setHoveredCat(null);
+    }, 120);
+  };
+
+  const handleMegaMouseEnter = () => {
+    clearTimeout(hoverTimerRef.current);
+  };
+
+  const handleMegaMouseLeave = () => {
+    hoverTimerRef.current = setTimeout(() => {
+      setHoveredCat(null);
+    }, 120);
+  };
+
+  const handleCatClick = (label) => {
+    setPinnedCat(prev => prev === label ? null : label);
+  };
+
+  const handleMobileCategoryClick = (cat) => {
+    setSelectedMobileCategory(cat);
+    setMobileSubDrawerOpen(true);
+  };
+
+  const closeMobileSubDrawer = () => {
+    setMobileSubDrawerOpen(false);
+    setSelectedMobileCategory(null);
+  };
+
   return (
     <>
-      {/* ── Fixed mobile offset spacer ── */}
       <div className="block md:hidden h-[108px]" aria-hidden="true" />
 
-      <nav className={`fixed md:sticky top-0 left-0 right-0 z-50 bg-white font-['Manrope'] transition-shadow duration-300 ${
-        isScrolled ? 'shadow-lg shadow-[rgba(45,27,78,.08)]' : ''
-      }`}>
+      <nav
+        ref={megaMenuRef}
+        className={`fixed md:sticky top-0 left-0 right-0 z-50 bg-white font-['Manrope'] transition-shadow duration-300 ${
+          isScrolled ? 'shadow-lg shadow-[rgba(45,27,78,.08)]' : ''
+        }`}
+      >
 
         {/* ══ DESKTOP ══ */}
         <div className="hidden md:block">
           <div className="border-b border-[#F0EEF4]">
             <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center gap-4">
 
-              {/* Logo */}
               <Link href="/" className="flex-shrink-0">
                 <Image src="/logo.png" alt="Odara Logo" width={150} height={32} priority />
               </Link>
 
-              {/* Search */}
               <div className="relative flex-1 max-w-[680px]">
                 <form onSubmit={handleSearch} className="flex w-full relative items-center">
                   <input
@@ -128,21 +479,17 @@ const Navbar = () => {
                 </form>
               </div>
 
-              {/* Right */}
               <div className="flex items-center gap-1 ml-auto">
                 <Link href="/deals" className="relative text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors group">
                   Deals
                   <span className="absolute -top-1 -right-0.5 bg-[#FF4C4C] text-white text-[0.48rem] font-extrabold px-1 py-px rounded-full">HOT</span>
-                  <span className="absolute left-2.5 bottom-0.5 w-0 h-0.5 bg-[#2D1B4E] rounded-full transition-all duration-200 group-hover:w-[calc(100%-20px)]"></span>
                 </Link>
                 <Link href="/new-arrivals" className="text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors group relative">
                   New Arrivals
-                  <span className="absolute left-2.5 bottom-0.5 w-0 h-0.5 bg-[#2D1B4E] rounded-full transition-all duration-200 group-hover:w-[calc(100%-20px)]"></span>
                 </Link>
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                {/* Language */}
                 <div className="relative">
                   <button
                     ref={langButtonRef}
@@ -180,7 +527,6 @@ const Navbar = () => {
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                {/* Account — desktop */}
                 <Link href="/login" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="8" r="4" />
@@ -189,7 +535,6 @@ const Navbar = () => {
                   <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Account</span>
                 </Link>
 
-                {/* Cart — desktop */}
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
                   <span className="relative inline-flex">
                     <ShoppingCart size={22} strokeWidth={1.8} />
@@ -203,22 +548,47 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Category Bar */}
-          <div className="border-b border-[#F0EEF4] bg-[#FAFAFC]">
+          {/* ── Category Bar ── */}
+          <div
+            ref={categoryBarRef}
+            className="border-b border-[#F0EEF4] bg-[#FAFAFC] relative"
+            onMouseLeave={handleCatMouseLeave}
+          >
             <div className="max-w-[1280px] mx-auto px-6 flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
-              {CATEGORIES.map((cat) => (
-                <Link key={cat.label} href={cat.href} className="flex items-center gap-1.5 px-3.5 py-2 text-[0.8125rem] font-bold text-[#374151] no-underline whitespace-nowrap rounded-lg hover:bg-[#F0EEFB] hover:text-[#2D1B4E] transition-all flex-shrink-0">
-                  <span className="text-[15px] leading-none">{cat.icon}</span>
-                  {cat.label}
-                </Link>
-              ))}
+              {CATEGORIES.map((cat) => {
+                const isActive = activeCatLabel === cat.label;
+                const isPinned = pinnedCat === cat.label;
+                return (
+                  <button
+                    key={cat.label}
+                    onMouseEnter={() => handleCatMouseEnter(cat.label)}
+                    onClick={() => handleCatClick(cat.label)}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 text-[0.8125rem] font-bold whitespace-nowrap rounded-lg transition-all flex-shrink-0 cursor-pointer bg-transparent border-none outline-none ${
+                      isActive
+                        ? 'bg-[#F0EEFB] text-[#2D1B4E]'
+                        : 'text-[#374151] hover:bg-[#F0EEFB] hover:text-[#2D1B4E]'
+                    }`}
+                  >
+                    <span className="text-[15px] leading-none">{cat.icon}</span>
+                    {cat.label}
+                    {isPinned && (
+                      <svg className="w-3 h-3 opacity-60 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div onMouseEnter={handleMegaMouseEnter} onMouseLeave={handleMegaMouseLeave}>
+              <MegaMenu category={activeCat} visible={megaVisible} />
             </div>
           </div>
         </div>
 
         {/* ══ MOBILE ══ */}
         <div className="md:hidden border-b border-[#F0EEF4] bg-white">
-          {/* Row 1 */}
           <div className="px-4 h-14 flex items-center gap-3">
             <button
               onClick={() => setIsDrawerOpen(true)}
@@ -236,7 +606,6 @@ const Navbar = () => {
 
             <div className="flex-1" />
 
-            {/* Account — mobile */}
             <Link href="/login" className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="4" />
@@ -244,7 +613,6 @@ const Navbar = () => {
               </svg>
             </Link>
 
-            {/* Cart — mobile */}
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
               <ShoppingCart size={24} strokeWidth={1.8} />
               <span className="absolute top-0.5 right-0.5 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] flex items-center justify-center px-0.5">
@@ -253,7 +621,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Row 2: Search */}
           <div className="px-4 pb-3">
             <form onSubmit={handleSearch} className="relative flex items-center w-full">
               <input
@@ -272,7 +639,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* ══ DRAWER ══ */}
+        {/* ══ MAIN MOBILE DRAWER (LEFT) ══ */}
         {isDrawerOpen && (
           <>
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[300] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={() => setIsDrawerOpen(false)} />
@@ -286,11 +653,18 @@ const Navbar = () => {
               </div>
 
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Categories</div>
+
+              {/* Category list - clicking opens right drawer */}
               {CATEGORIES.map((cat) => (
-                <Link key={cat.label} href={cat.href} className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
+                <button
+                  key={cat.label}
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-left cursor-pointer bg-transparent border-none transition-colors text-[#1F2937] hover:bg-[#F5F3FF] hover:text-[#2D1B4E]"
+                  onClick={() => handleMobileCategoryClick(cat)}
+                >
                   <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">{cat.icon}</span>
-                  {cat.label}
-                </Link>
+                  <span className="flex-1">{cat.label}</span>
+                  <ChevronRight size={18} className="text-[#B0A8C8]" />
+                </button>
               ))}
 
               <div className="h-px bg-[#F0EEF4] my-1.5 mx-4" />
@@ -354,6 +728,61 @@ const Navbar = () => {
             </div>
           </>
         )}
+
+        {/* ══ MOBILE SUB-DRAWER (RIGHT SIDE FOR SUBCATEGORIES) ══ */}
+        {mobileSubDrawerOpen && selectedMobileCategory && (
+          <>
+            <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[350] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={closeMobileSubDrawer} />
+            <div className="fixed top-0 right-0 h-full w-[300px] max-w-[85vw] bg-white z-[351] flex flex-col overflow-y-auto animate-[nb-slideInRight_0.26s_cubic-bezier(.32,.72,0,1)]">
+              
+              {/* Header with back button */}
+              <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0">
+                <button
+                  onClick={closeMobileSubDrawer}
+                  className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors"
+                  aria-label="Go back"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{selectedMobileCategory.icon}</span>
+                  <span className="text-[0.9rem] font-extrabold text-[#2D1B4E]">{selectedMobileCategory.label}</span>
+                </div>
+              </div>
+
+              {/* View all link */}
+              <div className="px-4 pt-3 pb-2">
+                <Link
+                  href={selectedMobileCategory.href}
+                  className="flex items-center gap-2 text-[0.8rem] font-bold text-[#2D1B4E] hover:opacity-70 transition-opacity"
+                  onClick={closeMobileSubDrawer}
+                >
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                  View all {selectedMobileCategory.label}
+                </Link>
+              </div>
+              
+              <div className="h-px bg-[#EDE9F6] mx-4 mb-2" />
+
+              {/* Subcategories list */}
+              <div className="flex-1 pb-4">
+                {selectedMobileCategory.subcategories.map((sub) => (
+                  <Link
+                    key={sub.href}
+                    href={sub.href}
+                    className="flex items-center gap-3 px-4 py-3 text-[0.84rem] font-medium font-['Manrope'] text-[#374151] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors"
+                    onClick={closeMobileSubDrawer}
+                  >
+                    <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F8F6FF] rounded-lg flex-shrink-0">{sub.icon}</span>
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </nav>
 
       <style jsx global>{`
@@ -368,6 +797,14 @@ const Navbar = () => {
         @keyframes nb-slideIn {
           from { transform: translateX(-100%); }
           to   { transform: translateX(0); }
+        }
+        @keyframes nb-slideInRight {
+          from { transform: translateX(100%); }
+          to   { transform: translateX(0); }
+        }
+        @keyframes megaFadeIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
