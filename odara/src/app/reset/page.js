@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/lib/firebase/useAuth';
 
 const inputCls = "w-full bg-white border border-[#DDD5F8] rounded-xl px-4 py-3 text-[0.9rem] font-medium text-[#111827] outline-none placeholder:text-[#C4BAD8] focus:border-[#6D4DB2] focus:ring-2 focus:ring-[#6D4DB2]/10 transition-all";
 const labelCls = "block text-[0.72rem] font-bold text-[#4B3B72] uppercase tracking-[0.055em] mb-2";
@@ -9,26 +10,30 @@ const btnCls   = "w-full flex items-center justify-center bg-[#2D1B4E] hover:bg-
 
 const MailSentIcon = () => (
   <svg width="52" height="52" fill="none" stroke="#2D1B4E" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/>
-    <path d="M14.5 2.5c1.5 0 3 .5 4.5 2 1.5 1.5 2 3 2 4.5M14.5 6.5A3.5 3.5 0 0118 10"/>
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+    <polyline points="22,6 12,13 2,6"/>
   </svg>
 );
 
 export default function ResetPasswordPage() {
-  const [email, setEmail]   = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError]   = useState('');
-  const [sent, setSent]     = useState(false);
+  const { resetPassword, loading, error, setError } = useAuth();
 
+  const [email, setEmail] = useState('');
+  const [sent,  setSent]  = useState(false);
+
+  // ── Submit ───────────────────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     if (!email) { setError('Please enter your email address.'); return; }
-    setLoading(true);
-    setTimeout(() => { setLoading(false); setSent(true); }, 1500);
+
+    // 🔥 Firebase password reset
+    const ok = await resetPassword(email);
+    if (ok) setSent(true);
   };
 
-  // ── Success state ──
+  // ── Success state ────────────────────────────────────────────────────────
   const successContent = (
     <div className="flex flex-col items-center text-center">
       <div className="w-20 h-20 rounded-full bg-[#EDE9F6] flex items-center justify-center mb-5">
@@ -41,19 +46,26 @@ export default function ResetPasswordPage() {
       <p className="text-[0.9rem] font-extrabold text-[#2D1B4E] mb-6 break-all">{email}</p>
       <p className="text-[0.8rem] font-medium text-[#B0A8C8] mb-8">
         Didn&apos;t receive it? Check your spam folder or{' '}
-        <button onClick={() => { setSent(false); }} className="text-[#6D4DB2] font-bold hover:underline bg-transparent border-none cursor-pointer p-0">
+        <button
+          onClick={() => { setSent(false); setError(''); }}
+          className="text-[#6D4DB2] font-bold hover:underline bg-transparent border-none cursor-pointer p-0"
+        >
           try again
         </button>
         .
       </p>
-      <Link href="/login" className={`${btnCls} no-underline`}>Back to Sign In</Link>
+      <Link href="/login" className={`${btnCls} no-underline`}>
+        Back to Sign In
+      </Link>
     </div>
   );
 
-  // ── Form content ──
+  // ── Form content ─────────────────────────────────────────────────────────
   const formContent = (eId) => (
     <>
       <form onSubmit={handleSubmit} noValidate>
+
+        {/* Error banner */}
         {error && (
           <div className="flex items-center gap-2 bg-[#FFF0F0] border border-[#FFD5D5] rounded-xl px-3.5 py-2.5 mb-4 text-[0.82rem] font-semibold text-[#C0392B]" role="alert">
             <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" className="shrink-0">
@@ -63,20 +75,35 @@ export default function ResetPasswordPage() {
           </div>
         )}
 
+        {/* Email */}
         <div className="mb-6">
           <label htmlFor={eId} className={labelCls}>Email Address</label>
-          <input id={eId} type="email" placeholder="you@example.com" value={email}
-            onChange={(e) => setEmail(e.target.value)} autoComplete="email" required className={inputCls} />
+          <input
+            id={eId}
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
+            required
+            className={inputCls}
+          />
           <p className="text-[0.75rem] font-medium text-[#B0A8C8] mt-2 leading-snug">
             We&apos;ll send a secure link to reset your password.
           </p>
         </div>
 
+        {/* Submit */}
         <button type="submit" disabled={loading} className={btnCls}>
-          {loading
-            ? <><svg className="animate-spin w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>Sending link…</>
-            : 'Send Reset Link'
-          }
+          {loading ? (
+            <>
+              <svg className="animate-spin w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+              </svg>
+              Sending link…
+            </>
+          ) : 'Send Reset Link'}
         </button>
       </form>
 
@@ -89,6 +116,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-dvh bg-[#F7F5FF]">
+
       {/* Mobile */}
       <div className="md:hidden flex flex-col min-h-dvh px-6 pt-12 pb-10">
         {sent ? (
@@ -127,6 +155,7 @@ export default function ResetPasswordPage() {
           )}
         </div>
       </div>
+
     </div>
   );
 }

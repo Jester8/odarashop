@@ -3,7 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ShoppingCart, ChevronRight, ChevronLeft } from 'lucide-react';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase/firebase';
+import { useUser } from '@/lib/firebase/useAuth';
 
 const FlagNG = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" style={{ borderRadius: 3, flexShrink: 0 }}>
@@ -288,15 +292,38 @@ const CATEGORIES = [
   },
 ];
 
+// ─── Default Avatar SVG Icon ─────────────────────────────────────────────────
+// Shown when user has no photoURL
+const DefaultAvatarIcon = ({ size = 28 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 28 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Circular background */}
+    <circle cx="14" cy="14" r="14" fill="#2D1B4E" />
+    {/* Head */}
+    <circle cx="14" cy="11" r="4" fill="white" fillOpacity="0.9" />
+    {/* Body / shoulders */}
+    <path
+      d="M6 24c0-4.418 3.582-8 8-8s8 3.582 8 8"
+      stroke="white"
+      strokeOpacity="0.9"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
 // ─── Mega-Menu Panel ────────────────────────────────────────────────────────
 function MegaMenu({ category, visible }) {
   if (!category) return null;
   return (
-    <div
-      className={`absolute left-0 right-0 top-full z-[200] transition-all duration-200 ease-out ${
-        visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'
-      }`}
-    >
+    <div className={`absolute left-0 right-0 top-full z-[200] transition-all duration-200 ease-out ${
+      visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-1 pointer-events-none'
+    }`}>
       <div className="h-[2px] bg-gradient-to-r from-transparent via-[#2D1B4E] to-transparent opacity-10" />
       <div className="bg-white shadow-2xl shadow-[rgba(45,27,78,0.12)] border-b border-[#F0EEF4]">
         <div className="max-w-[1280px] mx-auto px-6 py-5">
@@ -305,25 +332,17 @@ function MegaMenu({ category, visible }) {
               <span className="text-xl">{category.icon}</span>
               <h3 className="text-[0.9rem] font-extrabold text-[#2D1B4E] tracking-tight">{category.label}</h3>
             </div>
-            <Link
-              href={category.href}
-              className="text-[0.75rem] font-bold text-[#2D1B4E] hover:underline flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity"
-            >
+            <Link href={category.href} className="text-[0.75rem] font-bold text-[#2D1B4E] hover:underline flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity">
               View all
               <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
           </div>
-
           <div className="grid grid-cols-5 gap-1">
             {category.subcategories.map((sub, i) => (
-              <Link
-                key={sub.href}
-                href={sub.href}
-                style={{ animationDelay: `${i * 18}ms` }}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[0.8125rem] font-semibold text-[#374151] hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-all group animate-[megaFadeIn_0.22s_ease_both]"
-              >
+              <Link key={sub.href} href={sub.href} style={{ animationDelay: `${i * 18}ms` }}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[0.8125rem] font-semibold text-[#374151] hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-all group animate-[megaFadeIn_0.22s_ease_both]">
                 <span className="text-[15px] w-7 h-7 flex items-center justify-center bg-[#F8F6FF] rounded-lg group-hover:bg-[#EDE9FF] transition-colors flex-shrink-0">
                   {sub.icon}
                 </span>
@@ -337,32 +356,201 @@ function MegaMenu({ category, visible }) {
   );
 }
 
+// ─── Account Button ──────────────────────────────────────────────────────────
+function AccountButton({ user, profile, onLogout, isMobile = false }) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const router = useRouter();
+
+  const firstName = (profile?.fullName || user?.displayName || '').split(' ')[0];
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // ── Not logged in ──
+  if (!user) {
+    if (isMobile) {
+      return (
+        <Link href="/login" className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M5 20a7 7 0 0 1 14 0" />
+          </svg>
+        </Link>
+      );
+    }
+    return (
+      <Link href="/login" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M5 20a7 7 0 0 1 14 0" />
+        </svg>
+        <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Account</span>
+      </Link>
+    );
+  }
+
+  // ── Logged in — Avatar: photo > initials > default icon ──
+  const avatarLetter = firstName?.[0]?.toUpperCase();
+
+  const Avatar = ({ size = 28 }) => {
+    if (user.photoURL) {
+      return (
+        <img
+          src={user.photoURL}
+          alt={firstName}
+          width={size}
+          height={size}
+          className="rounded-full object-cover flex-shrink-0"
+          style={{ width: size, height: size }}
+        />
+      );
+    }
+    if (avatarLetter) {
+      return (
+        <div
+          className="rounded-full bg-[#2D1B4E] flex items-center justify-center flex-shrink-0"
+          style={{ width: size, height: size }}
+        >
+          <span className="text-white font-extrabold" style={{ fontSize: size * 0.36 }}>
+            {avatarLetter}
+          </span>
+        </div>
+      );
+    }
+    // Fallback: default SVG person icon
+    return <DefaultAvatarIcon size={size} />;
+  };
+
+  if (isMobile) {
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all"
+          aria-label="Account menu"
+        >
+          <Avatar size={28} />
+        </button>
+
+        {dropdownOpen && (
+          <div className="absolute right-0 top-full mt-2 w-[200px] bg-white border border-[#EDE9F6] rounded-xl shadow-xl z-[999] overflow-hidden animate-[nb-dropIn_0.15s_ease]">
+            <MiniDropdown firstName={firstName} onLogout={onLogout} router={router} setDropdownOpen={setDropdownOpen} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Desktop logged-in button: avatar + "Hi, {firstName}" label ──
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setDropdownOpen(!dropdownOpen)}
+        className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all"
+        aria-label="Account menu"
+      >
+        <Avatar size={26} />
+        {/* "Hi, Name" welcome label under the avatar */}
+        <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E] max-w-[64px] truncate leading-none">
+          Hi, {firstName || 'You'}
+        </span>
+      </button>
+
+      {dropdownOpen && (
+        <div className="absolute right-0 top-full mt-2 w-[200px] bg-white border border-[#EDE9F6] rounded-xl shadow-xl z-[999] overflow-hidden animate-[nb-dropIn_0.15s_ease]">
+          <MiniDropdown firstName={firstName} onLogout={onLogout} router={router} setDropdownOpen={setDropdownOpen} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Dropdown Menu Items ─────────────────────────────────────────────────────
+function MiniDropdown({ firstName, onLogout, router, setDropdownOpen }) {
+  const items = [
+    { label: 'My Profile',   icon: '👤', href: '/profile' },
+    { label: 'My Orders',    icon: '📦', href: '/orders' },
+    { label: 'Wishlist',     icon: '❤️',  href: '/wishlist' },
+    { label: 'Settings',     icon: '⚙️',  href: '/settings' },
+  ];
+
+  return (
+    <>
+      {/* Welcome header */}
+      <div className="px-4 py-3 border-b border-[#F0EEF4] bg-[#FAFAFC]">
+        <p className="text-[0.65rem] font-bold text-[#B0A8C8] uppercase tracking-wider">Welcome back</p>
+        <p className="text-[0.88rem] font-extrabold text-[#2D1B4E] truncate">{firstName || 'there'}</p>
+      </div>
+
+      {items.map((item, i) => (
+        <div key={item.href}>
+          <button
+            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] font-semibold text-[#374151] hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors text-left"
+            onClick={() => { router.push(item.href); setDropdownOpen(false); }}
+          >
+            <span className="text-sm">{item.icon}</span>
+            {item.label}
+          </button>
+          {i < items.length - 1 && <div className="h-px bg-[#F3F4F6] mx-3" />}
+        </div>
+      ))}
+
+      <div className="border-t border-[#F0EEF4]">
+        <button
+          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] font-semibold text-[#C0392B] hover:bg-[#FFF0F0] transition-colors"
+          onClick={onLogout}
+        >
+          <span className="text-sm">🚪</span>
+          Sign Out
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ─── Main Navbar ─────────────────────────────────────────────────────────────
 const Navbar = () => {
+  const router = useRouter();
+  const { user, profile } = useUser();
+
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen]             = useState(false);
   const [drawerLangOpen, setDrawerLangOpen]         = useState(false);
   const [searchQuery, setSearchQuery]               = useState('');
   const [isScrolled, setIsScrolled]                 = useState(false);
   const [selectedLang, setSelectedLang]             = useState(LANGUAGES[0]);
-
-  // Mobile subcategory drawer state (slides in from right)
   const [mobileSubDrawerOpen, setMobileSubDrawerOpen] = useState(false);
   const [selectedMobileCategory, setSelectedMobileCategory] = useState(null);
-
-  // Mega-menu state
   const [hoveredCat, setHoveredCat]   = useState(null);
   const [pinnedCat, setPinnedCat]     = useState(null);
   const hoverTimerRef                  = useRef(null);
   const megaMenuRef                    = useRef(null);
   const categoryBarRef                 = useRef(null);
-
-  const langDropdownRef = useRef(null);
-  const langButtonRef   = useRef(null);
+  const langDropdownRef                = useRef(null);
+  const langButtonRef                  = useRef(null);
   const cartCount = 0;
 
   const activeCatLabel = pinnedCat ?? hoveredCat;
   const activeCat = CATEGORIES.find(c => c.label === activeCatLabel) ?? null;
   const megaVisible = !!activeCatLabel;
+
+  // ── Logout handler — uses static imports, no dynamic import needed ──
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 10);
@@ -383,9 +571,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const onOutside = (e) => {
-      if (
-        megaMenuRef.current && !megaMenuRef.current.contains(e.target)
-      ) {
+      if (megaMenuRef.current && !megaMenuRef.current.contains(e.target)) {
         setPinnedCat(null);
         setHoveredCat(null);
       }
@@ -412,24 +598,16 @@ const Navbar = () => {
   };
 
   const handleCatMouseLeave = () => {
-    hoverTimerRef.current = setTimeout(() => {
-      setHoveredCat(null);
-    }, 120);
+    hoverTimerRef.current = setTimeout(() => setHoveredCat(null), 120);
   };
 
-  const handleMegaMouseEnter = () => {
-    clearTimeout(hoverTimerRef.current);
-  };
+  const handleMegaMouseEnter = () => clearTimeout(hoverTimerRef.current);
 
   const handleMegaMouseLeave = () => {
-    hoverTimerRef.current = setTimeout(() => {
-      setHoveredCat(null);
-    }, 120);
+    hoverTimerRef.current = setTimeout(() => setHoveredCat(null), 120);
   };
 
-  const handleCatClick = (label) => {
-    setPinnedCat(prev => prev === label ? null : label);
-  };
+  const handleCatClick = (label) => setPinnedCat(prev => prev === label ? null : label);
 
   const handleMobileCategoryClick = (cat) => {
     setSelectedMobileCategory(cat);
@@ -480,16 +658,17 @@ const Navbar = () => {
               </div>
 
               <div className="flex items-center gap-1 ml-auto">
-                <Link href="/deals" className="relative text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors group">
+                <Link href="/deals" className="relative text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors">
                   Deals
                   <span className="absolute -top-1 -right-0.5 bg-[#FF4C4C] text-white text-[0.48rem] font-extrabold px-1 py-px rounded-full">HOT</span>
                 </Link>
-                <Link href="/new-arrivals" className="text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors group relative">
+                <Link href="/new-arrivals" className="text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors">
                   New Arrivals
                 </Link>
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
+                {/* Language dropdown */}
                 <div className="relative">
                   <button
                     ref={langButtonRef}
@@ -527,13 +706,8 @@ const Navbar = () => {
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                <Link href="/login" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M5 20a7 7 0 0 1 14 0" />
-                  </svg>
-                  <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Account</span>
-                </Link>
+                {/* Account button */}
+                <AccountButton user={user} profile={profile} onLogout={handleLogout} />
 
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
                   <span className="relative inline-flex">
@@ -548,7 +722,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* ── Category Bar ── */}
+          {/* Category bar */}
           <div
             ref={categoryBarRef}
             className="border-b border-[#F0EEF4] bg-[#FAFAFC] relative"
@@ -564,9 +738,7 @@ const Navbar = () => {
                     onMouseEnter={() => handleCatMouseEnter(cat.label)}
                     onClick={() => handleCatClick(cat.label)}
                     className={`flex items-center gap-1.5 px-3.5 py-2 text-[0.8125rem] font-bold whitespace-nowrap rounded-lg transition-all flex-shrink-0 cursor-pointer bg-transparent border-none outline-none ${
-                      isActive
-                        ? 'bg-[#F0EEFB] text-[#2D1B4E]'
-                        : 'text-[#374151] hover:bg-[#F0EEFB] hover:text-[#2D1B4E]'
+                      isActive ? 'bg-[#F0EEFB] text-[#2D1B4E]' : 'text-[#374151] hover:bg-[#F0EEFB] hover:text-[#2D1B4E]'
                     }`}
                   >
                     <span className="text-[15px] leading-none">{cat.icon}</span>
@@ -580,7 +752,6 @@ const Navbar = () => {
                 );
               })}
             </div>
-
             <div onMouseEnter={handleMegaMouseEnter} onMouseLeave={handleMegaMouseLeave}>
               <MegaMenu category={activeCat} visible={megaVisible} />
             </div>
@@ -606,12 +777,8 @@ const Navbar = () => {
 
             <div className="flex-1" />
 
-            <Link href="/login" className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M5 20a7 7 0 0 1 14 0" />
-              </svg>
-            </Link>
+            {/* Mobile account button */}
+            <AccountButton user={user} profile={profile} onLogout={handleLogout} isMobile />
 
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
               <ShoppingCart size={24} strokeWidth={1.8} />
@@ -639,7 +806,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* ══ MAIN MOBILE DRAWER (LEFT) ══ */}
+        {/* ══ MOBILE DRAWER ══ */}
         {isDrawerOpen && (
           <>
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[300] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={() => setIsDrawerOpen(false)} />
@@ -652,9 +819,58 @@ const Navbar = () => {
                 </button>
               </div>
 
+              {/* Auth section in drawer */}
+              {user ? (
+                <div className="px-4 py-3 bg-[#F8F6FF] border-b border-[#EDE9F6]">
+                  {/* Avatar + welcome row */}
+                  <div className="flex items-center gap-2.5 mb-2">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="avatar" className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                      <DefaultAvatarIcon size={36} />
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-[0.62rem] font-bold text-[#B0A8C8] uppercase tracking-wider leading-none mb-0.5">Welcome back</p>
+                      <p className="text-[0.9rem] font-extrabold text-[#2D1B4E] truncate">
+                        {(profile?.fullName || user?.displayName || '').split(' ')[0] || 'there'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 mt-1">
+                    <button
+                      onClick={() => { router.push('/profile'); setIsDrawerOpen(false); }}
+                      className="text-[0.72rem] font-bold text-[#6D4DB2] hover:underline bg-transparent border-none cursor-pointer p-0"
+                    >
+                      My Profile
+                    </button>
+                    <button
+                      onClick={() => { router.push('/orders'); setIsDrawerOpen(false); }}
+                      className="text-[0.72rem] font-bold text-[#6D4DB2] hover:underline bg-transparent border-none cursor-pointer p-0"
+                    >
+                      My Orders
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="text-[0.72rem] font-bold text-[#C0392B] hover:underline bg-transparent border-none cursor-pointer p-0 ml-auto"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-4 py-3 border-b border-[#EDE9F6]">
+                  <Link
+                    href="/login"
+                    onClick={() => setIsDrawerOpen(false)}
+                    className="w-full flex items-center justify-center bg-[#2D1B4E] text-white text-[0.82rem] font-extrabold rounded-xl py-2.5 no-underline hover:bg-[#3d2568] transition-colors"
+                  >
+                    Sign In / Sign Up
+                  </Link>
+                </div>
+              )}
+
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Categories</div>
 
-              {/* Category list - clicking opens right drawer */}
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.label}
@@ -729,19 +945,13 @@ const Navbar = () => {
           </>
         )}
 
-        {/* ══ MOBILE SUB-DRAWER (RIGHT SIDE FOR SUBCATEGORIES) ══ */}
+        {/* ══ MOBILE SUB-DRAWER ══ */}
         {mobileSubDrawerOpen && selectedMobileCategory && (
           <>
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[350] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={closeMobileSubDrawer} />
             <div className="fixed top-0 right-0 h-full w-[300px] max-w-[85vw] bg-white z-[351] flex flex-col overflow-y-auto animate-[nb-slideInRight_0.26s_cubic-bezier(.32,.72,0,1)]">
-              
-              {/* Header with back button */}
               <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0">
-                <button
-                  onClick={closeMobileSubDrawer}
-                  className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors"
-                  aria-label="Go back"
-                >
+                <button onClick={closeMobileSubDrawer} className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors" aria-label="Go back">
                   <ChevronLeft size={18} />
                 </button>
                 <div className="flex items-center gap-2">
@@ -749,32 +959,18 @@ const Navbar = () => {
                   <span className="text-[0.9rem] font-extrabold text-[#2D1B4E]">{selectedMobileCategory.label}</span>
                 </div>
               </div>
-
-              {/* View all link */}
               <div className="px-4 pt-3 pb-2">
-                <Link
-                  href={selectedMobileCategory.href}
-                  className="flex items-center gap-2 text-[0.8rem] font-bold text-[#2D1B4E] hover:opacity-70 transition-opacity"
-                  onClick={closeMobileSubDrawer}
-                >
+                <Link href={selectedMobileCategory.href} className="flex items-center gap-2 text-[0.8rem] font-bold text-[#2D1B4E] hover:opacity-70 transition-opacity" onClick={closeMobileSubDrawer}>
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                   </svg>
                   View all {selectedMobileCategory.label}
                 </Link>
               </div>
-              
               <div className="h-px bg-[#EDE9F6] mx-4 mb-2" />
-
-              {/* Subcategories list */}
               <div className="flex-1 pb-4">
                 {selectedMobileCategory.subcategories.map((sub) => (
-                  <Link
-                    key={sub.href}
-                    href={sub.href}
-                    className="flex items-center gap-3 px-4 py-3 text-[0.84rem] font-medium font-['Manrope'] text-[#374151] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors"
-                    onClick={closeMobileSubDrawer}
-                  >
+                  <Link key={sub.href} href={sub.href} className="flex items-center gap-3 px-4 py-3 text-[0.84rem] font-medium font-['Manrope'] text-[#374151] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={closeMobileSubDrawer}>
                     <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F8F6FF] rounded-lg flex-shrink-0">{sub.icon}</span>
                     {sub.label}
                   </Link>
