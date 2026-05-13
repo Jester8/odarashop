@@ -1,0 +1,503 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ChevronRight, ChevronLeft, Search, Grid3x3, LayoutList } from "lucide-react";
+
+const CATEGORIES = [
+  {
+    label: 'Electronics', icon: '📱', href: '/category/electronics',
+    subcategories: [
+      { label: 'Smartphones', icon: '📱', href: '/category/electronics/smartphones' },
+      { label: 'Laptops', icon: '💻', href: '/category/electronics/laptops' },
+      { label: 'Tablets', icon: '📟', href: '/category/electronics/tablets' },
+      { label: 'Headphones', icon: '🎧', href: '/category/electronics/headphones' },
+      { label: 'Smart Watches', icon: '⌚', href: '/category/electronics/smart-watches' },
+      { label: 'Cameras', icon: '📷', href: '/category/electronics/cameras' },
+      { label: 'TVs & Monitors', icon: '📺', href: '/category/electronics/tvs' },
+      { label: 'Gaming', icon: '🎮', href: '/category/electronics/gaming' },
+      { label: 'Speakers', icon: '🔊', href: '/category/electronics/speakers' },
+      { label: 'Accessories', icon: '🔌', href: '/category/electronics/accessories' },
+      { label: 'Printers', icon: '🖨️', href: '/category/electronics/printers' },
+      { label: 'Networking', icon: '📡', href: '/category/electronics/networking' },
+      { label: 'Power Banks', icon: '🔋', href: '/category/electronics/power-banks' },
+      { label: 'Memory & Storage', icon: '💾', href: '/category/electronics/storage' },
+      { label: 'Smart Home', icon: '🏡', href: '/category/electronics/smart-home' },
+      { label: 'Drones', icon: '🚁', href: '/category/electronics/drones' },
+      { label: 'Projectors', icon: '🎬', href: '/category/electronics/projectors' },
+      { label: 'Office Equipment', icon: '🖥️', href: '/category/electronics/office' },
+      { label: 'Cables & Hubs', icon: '🔗', href: '/category/electronics/cables' },
+      { label: 'Wearables', icon: '💍', href: '/category/electronics/wearables' },
+    ],
+  },
+  {
+    label: 'Fashion', icon: '👗', href: '/category/fashion',
+    subcategories: [
+      { label: "Men's Clothing", icon: '👔', href: '/category/fashion/mens' },
+      { label: "Women's Clothing", icon: '👗', href: '/category/fashion/womens' },
+      { label: 'Kids Fashion', icon: '🧒', href: '/category/fashion/kids' },
+      { label: 'Shoes', icon: '👟', href: '/category/fashion/shoes' },
+      { label: 'Bags & Purses', icon: '👜', href: '/category/fashion/bags' },
+      { label: 'Watches', icon: '⌚', href: '/category/fashion/watches' },
+      { label: 'Sunglasses', icon: '🕶️', href: '/category/fashion/sunglasses' },
+      { label: 'Jewellery', icon: '💎', href: '/category/fashion/jewellery' },
+      { label: 'Belts', icon: '🪢', href: '/category/fashion/belts' },
+      { label: 'Hats & Caps', icon: '🧢', href: '/category/fashion/hats' },
+      { label: 'Ankara & Native', icon: '🎨', href: '/category/fashion/ankara' },
+      { label: 'Lingerie', icon: '🌸', href: '/category/fashion/lingerie' },
+      { label: 'Swimwear', icon: '🩱', href: '/category/fashion/swimwear' },
+      { label: 'Sports Wear', icon: '🏃', href: '/category/fashion/sportswear' },
+      { label: 'Formal Wear', icon: '🤵', href: '/category/fashion/formal' },
+      { label: 'Dresses', icon: '👘', href: '/category/fashion/dresses' },
+      { label: 'Jackets & Coats', icon: '🧥', href: '/category/fashion/jackets' },
+      { label: 'Scarves', icon: '🧣', href: '/category/fashion/scarves' },
+      { label: 'Socks & Hosiery', icon: '🧦', href: '/category/fashion/socks' },
+      { label: 'Accessories', icon: '✨', href: '/category/fashion/accessories' },
+    ],
+  },
+  {
+    label: 'Home & Living', icon: '🏠', href: '/category/home-living',
+    subcategories: [
+      { label: 'Furniture', icon: '🛋️', href: '/category/home/furniture' },
+      { label: 'Bedding', icon: '🛏️', href: '/category/home/bedding' },
+      { label: 'Kitchen', icon: '🍳', href: '/category/home/kitchen' },
+      { label: 'Lighting', icon: '💡', href: '/category/home/lighting' },
+      { label: 'Bathroom', icon: '🚿', href: '/category/home/bathroom' },
+      { label: 'Cleaning', icon: '🧹', href: '/category/home/cleaning' },
+      { label: 'Decor', icon: '🖼️', href: '/category/home/decor' },
+      { label: 'Storage', icon: '📦', href: '/category/home/storage' },
+      { label: 'Garden & Outdoor', icon: '🌿', href: '/category/home/garden' },
+      { label: 'Cookware', icon: '🥘', href: '/category/home/cookware' },
+      { label: 'Appliances', icon: '🧺', href: '/category/home/appliances' },
+      { label: 'Curtains & Blinds', icon: '🪟', href: '/category/home/curtains' },
+      { label: 'Rugs & Carpets', icon: '🟥', href: '/category/home/rugs' },
+      { label: 'Tools & Hardware', icon: '🔧', href: '/category/home/tools' },
+      { label: 'Pet Supplies', icon: '🐾', href: '/category/home/pets' },
+      { label: 'Air Conditioning', icon: '❄️', href: '/category/home/ac' },
+      { label: 'Generators', icon: '⚡', href: '/category/home/generators' },
+      { label: 'Candles & Scents', icon: '🕯️', href: '/category/home/candles' },
+      { label: 'Baby Gear', icon: '🍼', href: '/category/home/baby' },
+      { label: 'Office Supplies', icon: '📎', href: '/category/home/office' },
+    ],
+  },
+  {
+    label: 'Beauty', icon: '💄', href: '/category/beauty',
+    subcategories: [
+      { label: 'Skincare', icon: '🧴', href: '/category/beauty/skincare' },
+      { label: 'Makeup', icon: '💄', href: '/category/beauty/makeup' },
+      { label: 'Hair Care', icon: '💇', href: '/category/beauty/hair' },
+      { label: 'Fragrances', icon: '🌹', href: '/category/beauty/fragrance' },
+      { label: 'Nail Care', icon: '💅', href: '/category/beauty/nails' },
+      { label: 'Body Care', icon: '🧼', href: '/category/beauty/body' },
+      { label: 'Shaving', icon: '🪒', href: '/category/beauty/shaving' },
+      { label: 'Oral Care', icon: '🦷', href: '/category/beauty/oral' },
+      { label: 'Hair Extensions', icon: '👱', href: '/category/beauty/extensions' },
+      { label: 'Beauty Tools', icon: '🪞', href: '/category/beauty/tools' },
+      { label: "Men's Grooming", icon: '🧔', href: '/category/beauty/mens-grooming' },
+      { label: 'Sunscreen', icon: '☀️', href: '/category/beauty/sunscreen' },
+      { label: 'Lip Care', icon: '💋', href: '/category/beauty/lips' },
+      { label: 'Eye Care', icon: '👁️', href: '/category/beauty/eyes' },
+      { label: 'Foundation', icon: '🎨', href: '/category/beauty/foundation' },
+      { label: 'Wigs', icon: '🦱', href: '/category/beauty/wigs' },
+      { label: 'Brushes & Sponges', icon: '🖌️', href: '/category/beauty/brushes' },
+      { label: 'Toners', icon: '💧', href: '/category/beauty/toners' },
+      { label: 'Anti-Ageing', icon: '✨', href: '/category/beauty/anti-ageing' },
+      { label: 'Natural & Organic', icon: '🌿', href: '/category/beauty/organic' },
+    ],
+  },
+  {
+    label: 'Sports', icon: '⚽', href: '/category/sports',
+    subcategories: [
+      { label: 'Football', icon: '⚽', href: '/category/sports/football' },
+      { label: 'Basketball', icon: '🏀', href: '/category/sports/basketball' },
+      { label: 'Tennis', icon: '🎾', href: '/category/sports/tennis' },
+      { label: 'Fitness & Gym', icon: '🏋️', href: '/category/sports/gym' },
+      { label: 'Cycling', icon: '🚴', href: '/category/sports/cycling' },
+      { label: 'Running', icon: '🏃', href: '/category/sports/running' },
+      { label: 'Swimming', icon: '🏊', href: '/category/sports/swimming' },
+      { label: 'Martial Arts', icon: '🥋', href: '/category/sports/martial-arts' },
+      { label: 'Yoga', icon: '🧘', href: '/category/sports/yoga' },
+      { label: 'Outdoor Sports', icon: '🏕️', href: '/category/sports/outdoor' },
+      { label: 'Cricket', icon: '🏏', href: '/category/sports/cricket' },
+      { label: 'Table Tennis', icon: '🏓', href: '/category/sports/table-tennis' },
+      { label: 'Badminton', icon: '🏸', href: '/category/sports/badminton' },
+      { label: 'Volleyball', icon: '🏐', href: '/category/sports/volleyball' },
+      { label: 'Boxing', icon: '🥊', href: '/category/sports/boxing' },
+      { label: 'Skipping Ropes', icon: '🪢', href: '/category/sports/skipping' },
+      { label: 'Sports Nutrition', icon: '💊', href: '/category/sports/nutrition' },
+      { label: 'Water Sports', icon: '🚣', href: '/category/sports/water' },
+      { label: 'Team Jerseys', icon: '👕', href: '/category/sports/jerseys' },
+      { label: 'Sports Bags', icon: '🎒', href: '/category/sports/bags' },
+    ],
+  },
+  {
+    label: 'Groceries', icon: '🛒', href: '/category/groceries',
+    subcategories: [
+      { label: 'Rice & Grains', icon: '🌾', href: '/category/groceries/rice' },
+      { label: 'Cooking Oil', icon: '🫙', href: '/category/groceries/oil' },
+      { label: 'Beverages', icon: '☕', href: '/category/groceries/beverages' },
+      { label: 'Snacks', icon: '🍫', href: '/category/groceries/snacks' },
+      { label: 'Dairy & Eggs', icon: '🥚', href: '/category/groceries/dairy' },
+      { label: 'Frozen Foods', icon: '🧊', href: '/category/groceries/frozen' },
+      { label: 'Seasoning', icon: '🧂', href: '/category/groceries/seasoning' },
+      { label: 'Cereals', icon: '🥣', href: '/category/groceries/cereals' },
+      { label: 'Pasta & Noodles', icon: '🍝', href: '/category/groceries/pasta' },
+      { label: 'Canned Foods', icon: '🥫', href: '/category/groceries/canned' },
+      { label: 'Bread & Bakery', icon: '🍞', href: '/category/groceries/bakery' },
+      { label: 'Baby Food', icon: '🍼', href: '/category/groceries/baby-food' },
+      { label: 'Sauces', icon: '🍯', href: '/category/groceries/sauces' },
+      { label: 'Nuts & Dried', icon: '🥜', href: '/category/groceries/nuts' },
+      { label: 'Sugar & Sweetener', icon: '🍬', href: '/category/groceries/sugar' },
+      { label: 'Flour & Starch', icon: '🌽', href: '/category/groceries/flour' },
+      { label: 'Water & Drinks', icon: '💧', href: '/category/groceries/water' },
+      { label: 'Tea & Coffee', icon: '🍵', href: '/category/groceries/tea' },
+      { label: 'Organic Foods', icon: '🌿', href: '/category/groceries/organic' },
+      { label: 'Hygiene Products', icon: '🧻', href: '/category/groceries/hygiene' },
+    ],
+  },
+  {
+    label: 'Books', icon: '📚', href: '/category/books',
+    subcategories: [
+      { label: 'Fiction', icon: '📖', href: '/category/books/fiction' },
+      { label: 'Non-Fiction', icon: '📘', href: '/category/books/non-fiction' },
+      { label: "Children's", icon: '🧒', href: '/category/books/children' },
+      { label: 'Textbooks', icon: '📗', href: '/category/books/textbooks' },
+      { label: 'Business', icon: '💼', href: '/category/books/business' },
+      { label: 'Self Help', icon: '🌟', href: '/category/books/self-help' },
+      { label: 'Religion', icon: '✝️', href: '/category/books/religion' },
+      { label: 'Science', icon: '🔬', href: '/category/books/science' },
+      { label: 'History', icon: '🏛️', href: '/category/books/history' },
+      { label: 'Biographies', icon: '👤', href: '/category/books/biographies' },
+      { label: 'Arts & Music', icon: '🎨', href: '/category/books/arts' },
+      { label: 'Travel', icon: '✈️', href: '/category/books/travel' },
+      { label: 'Cooking', icon: '🍳', href: '/category/books/cooking' },
+      { label: 'Technology', icon: '💻', href: '/category/books/technology' },
+      { label: 'Law', icon: '⚖️', href: '/category/books/law' },
+      { label: 'Health & Medicine', icon: '🏥', href: '/category/books/health' },
+      { label: 'African Authors', icon: '🌍', href: '/category/books/african' },
+      { label: 'Poetry', icon: '🖊️', href: '/category/books/poetry' },
+      { label: 'Comics & Manga', icon: '💥', href: '/category/books/comics' },
+      { label: 'E-Books', icon: '📱', href: '/category/books/ebooks' },
+    ],
+  },
+  {
+    label: 'Toys & Kids', icon: '🧸', href: '/category/toys-kids',
+    subcategories: [
+      { label: 'Action Figures', icon: '🦸', href: '/category/toys/action-figures' },
+      { label: 'Dolls', icon: '🪆', href: '/category/toys/dolls' },
+      { label: 'Board Games', icon: '🎲', href: '/category/toys/board-games' },
+      { label: 'Puzzles', icon: '🧩', href: '/category/toys/puzzles' },
+      { label: 'Building Blocks', icon: '🧱', href: '/category/toys/blocks' },
+      { label: 'Remote Control', icon: '🚗', href: '/category/toys/remote-control' },
+      { label: 'Educational Toys', icon: '🎓', href: '/category/toys/educational' },
+      { label: 'Outdoor Play', icon: '🛝', href: '/category/toys/outdoor' },
+      { label: 'Arts & Crafts', icon: '🎨', href: '/category/toys/arts-crafts' },
+      { label: 'Baby Toys', icon: '🍼', href: '/category/toys/baby' },
+      { label: 'Stuffed Animals', icon: '🧸', href: '/category/toys/stuffed' },
+      { label: 'Musical Toys', icon: '🎵', href: '/category/toys/musical' },
+      { label: 'Science Kits', icon: '🔭', href: '/category/toys/science' },
+      { label: 'Card Games', icon: '🃏', href: '/category/toys/card-games' },
+      { label: 'Role Play', icon: '🎭', href: '/category/toys/role-play' },
+      { label: 'Sports Toys', icon: '⚽', href: '/category/toys/sports' },
+      { label: 'School Supplies', icon: '✏️', href: '/category/toys/school' },
+      { label: 'Bikes & Scooters', icon: '🛴', href: '/category/toys/bikes' },
+      { label: 'Kids Clothing', icon: '👕', href: '/category/toys/clothing' },
+      { label: 'Feeding & Nursing', icon: '🤱', href: '/category/toys/nursing' },
+    ],
+  },
+  {
+    label: 'Automotive', icon: '🚗', href: '/category/automotive',
+    subcategories: [
+      { label: 'Car Parts', icon: '⚙️', href: '/category/auto/parts' },
+      { label: 'Tyres', icon: '🔄', href: '/category/auto/tyres' },
+      { label: 'Car Accessories', icon: '🚗', href: '/category/auto/accessories' },
+      { label: 'Car Care', icon: '🧽', href: '/category/auto/care' },
+      { label: 'Oils & Fluids', icon: '🛢️', href: '/category/auto/oils' },
+      { label: 'Tools & Equipment', icon: '🔧', href: '/category/auto/tools' },
+      { label: 'Car Audio', icon: '🔊', href: '/category/auto/audio' },
+      { label: 'GPS & Tracking', icon: '📍', href: '/category/auto/gps' },
+      { label: 'Dash Cams', icon: '📷', href: '/category/auto/dashcams' },
+      { label: 'Seat Covers', icon: '💺', href: '/category/auto/seat-covers' },
+      { label: 'Car Chargers', icon: '🔋', href: '/category/auto/chargers' },
+      { label: 'Motorcycle Parts', icon: '🏍️', href: '/category/auto/moto' },
+      { label: 'Lighting', icon: '💡', href: '/category/auto/lighting' },
+      { label: 'Air Fresheners', icon: '🌸', href: '/category/auto/fresheners' },
+      { label: 'Wiper Blades', icon: '🌧️', href: '/category/auto/wipers' },
+      { label: 'Security Systems', icon: '🔒', href: '/category/auto/security' },
+      { label: 'Jump Starters', icon: '⚡', href: '/category/auto/jump-start' },
+      { label: 'Covers & Tents', icon: '⛺', href: '/category/auto/covers' },
+      { label: 'Floor Mats', icon: '🟫', href: '/category/auto/mats' },
+      { label: 'Batteries', icon: '🔋', href: '/category/auto/batteries' },
+    ],
+  },
+  {
+    label: 'Health', icon: '💊', href: '/category/health',
+    subcategories: [
+      { label: 'Vitamins', icon: '💊', href: '/category/health/vitamins' },
+      { label: 'Pain Relief', icon: '🩹', href: '/category/health/pain-relief' },
+      { label: 'First Aid', icon: '🩺', href: '/category/health/first-aid' },
+      { label: 'Blood Pressure', icon: '❤️', href: '/category/health/blood-pressure' },
+      { label: 'Diabetes Care', icon: '🩸', href: '/category/health/diabetes' },
+      { label: 'Weight Loss', icon: '⚖️', href: '/category/health/weight-loss' },
+      { label: 'Digestive Health', icon: '🫃', href: '/category/health/digestive' },
+      { label: 'Eye Care', icon: '👁️', href: '/category/health/eyes' },
+      { label: 'Fitness Equipment', icon: '🏋️', href: '/category/health/fitness' },
+      { label: 'Pregnancy', icon: '🤰', href: '/category/health/pregnancy' },
+      { label: 'Sleep Aids', icon: '😴', href: '/category/health/sleep' },
+      { label: 'Immunity', icon: '🛡️', href: '/category/health/immunity' },
+      { label: 'Protein & Shakes', icon: '💪', href: '/category/health/protein' },
+      { label: 'Mental Wellness', icon: '🧠', href: '/category/health/mental' },
+      { label: 'Herbal Remedies', icon: '🌿', href: '/category/health/herbal' },
+      { label: 'Medical Devices', icon: '🔬', href: '/category/health/devices' },
+      { label: 'Sexual Health', icon: '💑', href: '/category/health/sexual' },
+      { label: 'Bone & Joint', icon: '🦴', href: '/category/health/bone' },
+      { label: 'Kids Health', icon: '👶', href: '/category/health/kids' },
+      { label: 'Thermometers', icon: '🌡️', href: '/category/health/thermometers' },
+    ],
+  },
+];
+
+export default function CategoriesPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isMobileView, setIsMobileView] = useState(false);
+  const [viewMode, setViewMode] = useState("grid"); // grid or list
+
+  // Detect mobile view for subcategory drawer
+  useEffect(() => {
+    const checkMobile = () => setIsMobileView(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const filteredCategories = CATEGORIES.filter(cat =>
+    cat.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cat.subcategories.some(sub => sub.label.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const handleCategoryClick = (cat) => {
+    if (isMobileView) {
+      setSelectedCategory(cat);
+    }
+  };
+
+  const closeSubcategoryDrawer = () => {
+    setSelectedCategory(null);
+  };
+
+  return (
+    <>
+      {/* Hero Header */}
+      <div className="bg-gradient-to-r from-[#2D1B4E] to-[#4B3B72] text-white pt-12 pb-10 md:pt-16 md:pb-14">
+        <div className="max-w-[1280px] mx-auto px-4 md:px-6">
+          <h1 className="text-2xl md:text-4xl font-extrabold mb-3 md:mb-4 tracking-tight">
+            Shop by Category
+          </h1>
+          <p className="text-[#DDD5F8] text-sm md:text-base max-w-[500px]">
+            Discover thousands of products across our curated categories
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-6 md:py-8">
+        {/* Search and View Controls */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 md:mb-8">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C4BAD8] w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search categories or subcategories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white border border-[#DDD5F8] rounded-xl py-2.5 pl-10 pr-4 text-[0.9rem] font-medium text-[#111827] outline-none focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/10 transition-all"
+            />
+          </div>
+          
+          {/* View Toggle - Desktop only */}
+          <div className="hidden md:flex items-center gap-2 bg-[#F7F5FF] rounded-xl p-1">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.8rem] font-bold transition-all ${
+                viewMode === "grid" 
+                  ? "bg-white text-[#2D1B4E] shadow-sm" 
+                  : "text-[#9C8EC1] hover:text-[#2D1B4E]"
+              }`}
+            >
+              <Grid3x3 size={14} />
+              Grid
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.8rem] font-bold transition-all ${
+                viewMode === "list" 
+                  ? "bg-white text-[#2D1B4E] shadow-sm" 
+                  : "text-[#9C8EC1] hover:text-[#2D1B4E]"
+              }`}
+            >
+              <LayoutList size={14} />
+              List
+            </button>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="text-[0.75rem] font-semibold text-[#9C8EC1] mb-4">
+          {filteredCategories.length} categories found
+        </div>
+
+        {/* Categories Grid/List */}
+        <div className={`${
+          viewMode === "grid" 
+            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" 
+            : "flex flex-col gap-3"
+        }`}>
+          {filteredCategories.map((category) => (
+            <div
+              key={category.label}
+              className={`
+                bg-white border border-[#EDE9FF] rounded-2xl overflow-hidden transition-all hover:border-[#F59E0B]/40
+                ${viewMode === "grid" ? "" : "hover:shadow-md"}
+              `}
+            >
+              {/* Category Header */}
+              <Link
+                href={category.href}
+                onClick={(e) => {
+                  if (isMobileView) {
+                    e.preventDefault();
+                    handleCategoryClick(category);
+                  }
+                }}
+                className={`
+                  flex items-center justify-between p-4 md:p-5 bg-[#FAFAFC] border-b border-[#EDE9FF] group
+                  ${viewMode === "list" ? "cursor-pointer" : ""}
+                `}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#F0ECFF] flex items-center justify-center text-xl md:text-2xl">
+                    {category.icon}
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-[#1F1235] text-[0.95rem] md:text-[1rem]">
+                      {category.label}
+                    </h2>
+                    <p className="text-[0.7rem] text-[#9C8EC1] font-medium">
+                      {category.subcategories.length} subcategories
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight className="text-[#C4BAD8] group-hover:text-[#F59E0B] transition-colors w-4 h-4 md:w-5 md:h-5" />
+              </Link>
+
+              {/* Subcategories - Show in grid view or always on desktop */}
+              {viewMode === "grid" && (
+                <div className="p-4 md:p-5">
+                  <div className="flex flex-wrap gap-2">
+                    {category.subcategories.slice(0, 8).map((sub) => (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#F7F5FF] rounded-lg text-[0.7rem] font-semibold text-[#4B3B72] hover:bg-[#EDE9FF] hover:text-[#2D1B4E] transition-colors"
+                      >
+                        <span className="text-[0.8rem]">{sub.icon}</span>
+                        {sub.label}
+                      </Link>
+                    ))}
+                    {category.subcategories.length > 8 && (
+                      <Link
+                        href={category.href}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[0.7rem] font-bold text-[#F59E0B] hover:underline transition-colors"
+                      >
+                        +{category.subcategories.length - 8} more
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* No Results */}
+        {filteredCategories.length === 0 && (
+          <div className="text-center py-12 md:py-16">
+            <div className="w-16 h-16 bg-[#F0ECFF] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Search size={28} className="text-[#9C8EC1]" />
+            </div>
+            <p className="font-extrabold text-[#2D1B4E] text-lg mb-2">No categories found</p>
+            <p className="text-[#9C8EC1] text-sm">Try searching with different keywords</p>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Subcategory Drawer */}
+      {isMobileView && selectedCategory && (
+        <>
+          <div 
+            className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[350] animate-[fadeIn_0.2s_ease] backdrop-blur-[2px]" 
+            onClick={closeSubcategoryDrawer} 
+          />
+          <div className="fixed top-0 right-0 h-full w-[300px] max-w-[85vw] bg-white z-[351] flex flex-col overflow-y-auto animate-[slideInRight_0.26s_cubic-bezier(.32,.72,0,1)]">
+            {/* Drawer Header */}
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0">
+              <button 
+                onClick={closeSubcategoryDrawer} 
+                className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] rounded-lg text-[#2D1B4E] hover:bg-[#EDE9FF] transition-colors"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{selectedCategory.icon}</span>
+                <span className="text-[0.9rem] font-extrabold text-[#2D1B4E]">{selectedCategory.label}</span>
+              </div>
+            </div>
+
+            {/* View All Link */}
+            <div className="px-4 pt-3 pb-2">
+              <Link 
+                href={selectedCategory.href} 
+                className="flex items-center gap-2 text-[0.8rem] font-bold text-[#F59E0B] hover:opacity-70 transition-opacity"
+                onClick={closeSubcategoryDrawer}
+              >
+                <ChevronRight size={14} />
+                View all {selectedCategory.label}
+              </Link>
+            </div>
+
+            <div className="h-px bg-[#EDE9F6] mx-4 mb-2" />
+
+            {/* Subcategories List */}
+            <div className="flex-1 pb-4">
+              {selectedCategory.subcategories.map((sub) => (
+                <Link
+                  key={sub.href}
+                  href={sub.href}
+                  className="flex items-center gap-3 px-4 py-3 text-[0.84rem] font-medium text-[#374151] hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors"
+                  onClick={closeSubcategoryDrawer}
+                >
+                  <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F8F6FF] rounded-lg flex-shrink-0">
+                    {sub.icon}
+                  </span>
+                  {sub.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+      `}</style>
+    </>
+  );
+}
