@@ -17,35 +17,38 @@ import {
   AlertCircle,
   MessageCircle,
   Send,
+  X,
 } from "lucide-react";
-import { create } from "zustand";
+import { useCart } from "@/lib/context/CartContext";
 import products from "@/data/products";
 import Footer from "@/components/layout/Footer";
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-const useStore = create((set) => ({
-  wishlist: [],
-  cart: [],
-  toggleWishlist: (id) =>
-    set((state) => ({
-      wishlist: state.wishlist.includes(id)
-        ? state.wishlist.filter((item) => item !== id)
-        : [...state.wishlist, id],
-    })),
-  addToCart: (product) =>
-    set((state) => ({ cart: [...state.cart, product] })),
-}));
+// ─── Toast Component ──────────────────────────────────────────────────────────
+function Toast({ message, type = "success", onClose }) {
+  useEffect(() => {
+    const timer = setTimeout(() => onClose(), 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const DISCOUNTS = [10, 15, 20, 30];
-
-function getDiscount(product) {
-  const discountPercent = DISCOUNTS[product.id % 4];
-  const hasDiscount = product.id % 2 === 0;
-  const oldPrice = hasDiscount
-    ? Math.floor(product.price / (1 - discountPercent / 100))
-    : null;
-  return { discountPercent, hasDiscount, oldPrice };
+  return (
+    <div className="fixed bottom-6 right-4 z-50 animate-slide-up">
+      <div className={`flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg ${
+        type === "success" 
+          ? "bg-emerald-500 text-white" 
+          : "bg-red-500 text-white"
+      }`}>
+        {type === "success" ? (
+          <CheckCircle size={18} />
+        ) : (
+          <AlertCircle size={18} />
+        )}
+        <span className="text-sm font-medium">{message}</span>
+        <button onClick={onClose} className="ml-2 hover:opacity-80">
+          <X size={14} />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ─── Star Rating ──────────────────────────────────────────────────────────────
@@ -181,90 +184,104 @@ function ReviewForm({ onSubmit }) {
   );
 }
 
-// ─── Related Product Card (consistent with Products component) ────────────────
+// ─── Related Product Card ─────────────────────────────────────────────────────
 function RelatedProductCard({ product, onClick }) {
   const router = useRouter();
-  const { hasDiscount, discountPercent, oldPrice } = getDiscount(product);
-  const { wishlist, toggleWishlist, addToCart } = useStore();
-  const isInWishlist = wishlist.includes(product.id);
+  const { addToCart, toggleWishlist, isInWishlist } = useCart();
+  const [showToast, setShowToast] = useState(false);
+  
+  const discountPercent = 15;
+  const hasDiscount = product.id % 2 === 0;
+  const oldPrice = hasDiscount ? Math.floor(product.price / (1 - discountPercent / 100)) : null;
 
   const handleCardClick = (e) => {
     if (e.target.closest('button')) return;
     onClick(product.id);
   };
 
-  return (
-    <div
-      onClick={handleCardClick}
-      className="group rounded-2xl p-2 md:p-3 bg-white transition-all duration-300 ease-out cursor-pointer md:hover:-translate-y-2 md:hover:scale-[1.03] md:hover:shadow-[0_12px_40px_rgba(0,0,0,0.13)] md:hover:z-10 relative"
-    >
-      <div className="relative w-full h-32 md:h-44 bg-gray-100 rounded-xl overflow-hidden">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover group-hover:scale-110 transition duration-500"
-        />
-        {hasDiscount && (
-          <span className="absolute top-1.5 left-1.5 bg-orange-500 text-white text-[9px] md:text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded-md font-semibold">
-            -{discountPercent}%
-          </span>
-        )}
-        {product.stock <= 5 && product.stock > 0 && (
-          <span className="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-[8px] md:text-[10px] px-1.5 py-0.5 rounded-md font-semibold">
-            Only {product.stock} left!
-          </span>
-        )}
-        <button
-          onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
-          className="absolute top-1.5 right-1.5 w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition"
-          aria-label="Toggle wishlist"
-        >
-          <Heart
-            size={13}
-            className={isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"}
-          />
-        </button>
-      </div>
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    addToCart(product);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
+  };
 
-      <div className="pt-2">
-        <h4 className="text-[11px] md:text-sm font-semibold text-black line-clamp-1 mb-0.5">
-          {product.name}
-        </h4>
-        <p className="text-[10px] md:text-xs text-gray-500 line-clamp-2 mb-1.5">
-          Premium quality product built for everyday use.
-        </p>
-        <div className="mb-1.5">
-          <StarRating
-            rating={parseFloat(product.rating)}
-            size={11}
-            showCount={true}
+  const inWishlist = isInWishlist(product.id);
+
+  return (
+    <>
+      <div
+        onClick={handleCardClick}
+        className="group rounded-2xl p-2 md:p-3 bg-white transition-all duration-300 ease-out cursor-pointer md:hover:-translate-y-2 md:hover:scale-[1.03] md:hover:shadow-[0_12px_40px_rgba(0,0,0,0.13)] md:hover:z-10 relative"
+      >
+        <div className="relative w-full h-32 md:h-44 bg-gray-100 rounded-xl overflow-hidden">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-110 transition duration-500"
           />
-        </div>
-        <div className="flex items-center justify-between gap-1">
-          <div className="min-w-0">
-            <p className="text-black font-bold text-[11px] md:text-sm truncate">
-              ₦{product.price.toLocaleString()}
-            </p>
-            {hasDiscount && (
-              <p className="text-[9px] md:text-xs text-gray-400 line-through">
-                ₦{oldPrice.toLocaleString()}
-              </p>
-            )}
-          </div>
+          {hasDiscount && (
+            <span className="absolute top-1.5 left-1.5 bg-orange-500 text-white text-[9px] md:text-xs px-1.5 py-0.5 md:px-2 md:py-1 rounded-md font-semibold">
+              -{discountPercent}%
+            </span>
+          )}
+          {product.stock <= 5 && product.stock > 0 && (
+            <span className="absolute bottom-1.5 left-1.5 bg-red-500 text-white text-[8px] md:text-[10px] px-1.5 py-0.5 rounded-md font-semibold">
+              Only {product.stock} left!
+            </span>
+          )}
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart(product);
-            }}
-            className="shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center active:scale-95 transition"
-            aria-label="Add to cart"
+            onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id); }}
+            className="absolute top-1.5 right-1.5 w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition"
+            aria-label="Toggle wishlist"
           >
-            <ShoppingCart size={14} />
+            <Heart
+              size={13}
+              className={inWishlist ? "fill-red-500 text-red-500" : "text-gray-400"}
+            />
           </button>
         </div>
+
+        <div className="pt-2">
+          <h4 className="text-[11px] md:text-sm font-semibold text-black line-clamp-1 mb-0.5">
+            {product.name}
+          </h4>
+          <p className="text-[10px] md:text-xs text-gray-500 line-clamp-2 mb-1.5">
+            Premium quality product built for everyday use.
+          </p>
+          <div className="mb-1.5">
+            <StarRating
+              rating={parseFloat(product.rating)}
+              size={11}
+              showCount={true}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-1">
+            <div className="min-w-0">
+              <p className="text-black font-bold text-[11px] md:text-sm truncate">
+                ₦{product.price.toLocaleString()}
+              </p>
+              {hasDiscount && (
+                <p className="text-[9px] md:text-xs text-gray-400 line-through">
+                  ₦{oldPrice.toLocaleString()}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={handleAddToCart}
+              className="shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center active:scale-95 transition"
+              aria-label="Add to cart"
+            >
+              <ShoppingCart size={14} />
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+      {showToast && (
+        <Toast message="Added to cart!" onClose={() => setShowToast(false)} />
+      )}
+    </>
   );
 }
 
@@ -295,10 +312,11 @@ export default function ProductPage() {
   const router = useRouter();
   const productId = parseInt(params.id);
 
-  const { wishlist, toggleWishlist, addToCart } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, cartItems } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [addedToCart, setAddedToCart] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -317,6 +335,18 @@ export default function ProductPage() {
     const t = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(t);
   }, [productId]);
+
+  const handleAddToCart = () => {
+    addToCart({ ...product, quantity });
+    setToastMessage(`${quantity} × ${product.name} added to cart`);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleBuyNow = () => {
+    addToCart({ ...product, quantity });
+    router.push("/cart");
+  };
 
   if (loading) return (
     <div className="min-h-screen bg-white pt-14">
@@ -345,8 +375,10 @@ export default function ProductPage() {
     </>
   );
 
-  const { hasDiscount, discountPercent, oldPrice } = getDiscount(product);
-  const isInWishlist = wishlist.includes(product.id);
+  const discountPercent = 15;
+  const hasDiscount = product.id % 2 === 0;
+  const oldPrice = hasDiscount ? Math.floor(product.price / (1 - discountPercent / 100)) : null;
+  const inWishlist = isInWishlist(product.id);
   const inStock = product.stock > 0;
   const avgRating = reviews.length
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
@@ -354,17 +386,6 @@ export default function ProductPage() {
   const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3);
 
   const productImages = [product.image, product.image, product.image, product.image];
-
-  const handleAddToCart = () => {
-    addToCart({ ...product, quantity });
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
-  };
-
-  const handleBuyNow = () => {
-    addToCart({ ...product, quantity });
-    router.push("/cart");
-  };
 
   const relatedProducts = products
     .filter((p) => p.category === product.category && p.id !== product.id)
@@ -481,7 +502,7 @@ export default function ProductPage() {
                     onClick={() => toggleWishlist(product.id)}
                     className="h-9 w-9 flex items-center justify-center border-2 border-gray-200 rounded-xl hover:border-red-300 transition"
                   >
-                    <Heart size={16} className={isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"} />
+                    <Heart size={16} className={inWishlist ? "fill-red-500 text-red-500" : "text-gray-400"} />
                   </button>
                 </div>
               )}
@@ -493,7 +514,7 @@ export default function ProductPage() {
                     className="flex-1 flex items-center justify-center gap-2 bg-[#2D1B4E] text-white px-5 py-3 rounded-xl text-sm font-bold hover:bg-[#3d2568] transition active:scale-95"
                   >
                     <ShoppingCart size={16} />
-                    {addedToCart ? "Added!" : "Add to Cart"}
+                    Add to Cart
                   </button>
                   <button
                     onClick={handleBuyNow}
@@ -577,13 +598,8 @@ export default function ProductPage() {
 
       <Footer />
 
-      {addedToCart && (
-        <div className="fixed bottom-6 right-4 z-50 animate-slide-up">
-          <div className="bg-white text-black px-4 py-3 rounded-xl shadow-sm flex items-center gap-2 text-sm font-medium">
-            <CheckCircle size={16} className="text-emerald-400" />
-            Added to cart!
-          </div>
-        </div>
+      {showToast && (
+        <Toast message={toastMessage} onClose={() => setShowToast(false)} />
       )}
 
       <style jsx global>{`

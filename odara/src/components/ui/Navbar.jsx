@@ -8,6 +8,7 @@ import { ShoppingCart, ChevronRight, ChevronLeft } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase/firebase';
 import { useUser } from '@/lib/firebase/useAuth';
+import { useCart } from '@/lib/context/CartContext';
 
 const FlagNG = ({ size = 20 }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" style={{ borderRadius: 3, flexShrink: 0 }}>
@@ -355,6 +356,7 @@ function MiniDropdown({ firstName, onLogout, router, setDropdownOpen }) {
 const Navbar = () => {
   const router = useRouter();
   const { user, profile } = useUser();
+  const { cartCount } = useCart();
 
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -371,7 +373,6 @@ const Navbar = () => {
   const categoryBarRef = useRef(null);
   const langDropdownRef = useRef(null);
   const langButtonRef = useRef(null);
-  const cartCount = 0;
 
   const activeCatLabel = pinnedCat ?? hoveredCat;
   const activeCat = CATEGORIES.find(c => c.label === activeCatLabel) ?? null;
@@ -543,8 +544,8 @@ const Navbar = () => {
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
                   <span className="relative inline-flex">
                     <ShoppingCart size={22} strokeWidth={1.8} />
-                    <span className="absolute -top-1 -right-1 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-3.5 min-w-[14px] flex items-center justify-center border-[1.5px] border-white">
-                      {cartCount}
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] font-extrabold rounded-full h-3.5 min-w-[14px] flex items-center justify-center border-[1.5px] border-white shadow-sm">
+                      {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   </span>
                   <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Cart</span>
@@ -610,9 +611,11 @@ const Navbar = () => {
 
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
               <ShoppingCart size={24} strokeWidth={1.8} />
-              <span className="absolute top-0.5 right-0.5 bg-[#2D1B4E] text-white text-[9px] font-extrabold rounded-full h-4 min-w-[16px] flex items-center justify-center px-0.5">
-                {cartCount}
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[9px] font-extrabold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 shadow-sm">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
             </Link>
           </div>
 

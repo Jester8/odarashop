@@ -4,24 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, Star, Heart } from "lucide-react";
-import { create } from "zustand";
+import { useCart } from "@/lib/context/CartContext";
 import products from "@/data/products";
-
-// ─── Store ────────────────────────────────────────────────────────────────────
-const useStore = create((set) => ({
-  wishlist: [],
-  cart: [],
-  toggleWishlist: (id) =>
-    set((state) => ({
-      wishlist: state.wishlist.includes(id)
-        ? state.wishlist.filter((item) => item !== id)
-        : [...state.wishlist, id],
-    })),
-  addToCart: (product) =>
-    set((state) => ({
-      cart: [...state.cart, product],
-    })),
-}));
 
 // ─── Category Themes ──────────────────────────────────────────────────────────
 const CATEGORY_COLORS = {
@@ -104,13 +88,11 @@ function CategorySkeleton({ colorKey = "orange" }) {
         <div className="h-3 w-12 rounded bg-white/70 animate-pulse" />
       </div>
       <div className="bg-white md:rounded-b-2xl p-3 md:p-4">
-        {/* mobile */}
         <div className="md:hidden flex gap-2 overflow-hidden pb-2">
           {[...Array(3)].map((_, i) => (
             <CardSkeleton key={i} isMobile={true} />
           ))}
         </div>
-        {/* desktop — 5 columns */}
         <div className="hidden md:grid grid-cols-5 gap-4">
           {[...Array(5)].map((_, i) => (
             <CardSkeleton key={i} isMobile={false} />
@@ -149,12 +131,13 @@ function StarRating({ rating, size, starClass }) {
 }
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
-function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, theme }) {
+function ProductCard({ product, isMobile, theme }) {
   const router = useRouter();
+  const { addToCart, toggleWishlist, isInWishlist } = useCart();
   const { discountPercent, hasDiscount, oldPrice } = getDiscount(product);
+  const inWishlist = isInWishlist(product.id);
 
   const handleCardClick = (e) => {
-    // Don't navigate if clicking on buttons
     if (e.target.closest('button')) return;
     router.push(`/product/${product.id}`);
   };
@@ -189,14 +172,17 @@ function ProductCard({ product, isMobile, wishlist, toggleWishlist, addToCart, t
           </span>
         )}
         <button
-          onClick={() => toggleWishlist(product.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product.id);
+          }}
           className="absolute top-1.5 right-1.5 w-6 h-6 md:w-7 md:h-7 rounded-full bg-white/90 flex items-center justify-center hover:scale-110 transition"
           aria-label="Toggle wishlist"
         >
           <Heart
             size={isMobile ? 10 : 13}
             className={
-              wishlist.includes(product.id)
+              inWishlist
                 ? "fill-red-500 text-red-500"
                 : "text-gray-400"
             }
@@ -264,7 +250,6 @@ function MoreComingCard() {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Products() {
-  const { wishlist, toggleWishlist, addToCart } = useStore();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -274,7 +259,6 @@ export default function Products() {
 
   const groupedProducts = groupByCategory(products);
 
-  // ── Skeleton state ──
   if (!loaded) {
     return (
       <section className="w-full px-0 md:px-8 py-10 bg-white">
@@ -287,18 +271,14 @@ export default function Products() {
     );
   }
 
-  // ── Loaded state ──
   return (
     <section className="w-full px-0 md:px-8 py-10 bg-white">
       <div className="max-w-7xl mx-auto">
-
         {Object.entries(groupedProducts).map(([category, categoryProducts]) => {
           const theme = getCategoryTheme(category);
 
           return (
             <div key={category} className="mb-10">
-
-              {/* Category Header */}
               <div
                 className={`
                   flex items-center justify-between
@@ -315,47 +295,33 @@ export default function Products() {
                 </button>
               </div>
 
-              {/* Products body */}
-              {/* overflow-visible so pop-out shadow/scale isn't clipped */}
               <div className="bg-white md:rounded-b-2xl p-3 md:p-4 overflow-visible">
-
-                {/* Mobile: Horizontal Carousel */}
                 <div className="md:hidden flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
                   {categoryProducts.map((product) => (
                     <ProductCard
                       key={`mobile-${product.id}`}
                       product={product}
                       isMobile={true}
-                      wishlist={wishlist}
-                      toggleWishlist={toggleWishlist}
-                      addToCart={addToCart}
                       theme={theme}
                     />
                   ))}
                 </div>
 
-                {/* Desktop: 5-column Grid */}
-                {/* py-3 gives vertical room for the translate-up on hover */}
                 <div className="hidden md:grid grid-cols-5 gap-3 py-3">
                   {categoryProducts.map((product) => (
                     <ProductCard
                       key={`desktop-${product.id}`}
                       product={product}
                       isMobile={false}
-                      wishlist={wishlist}
-                      toggleWishlist={toggleWishlist}
-                      addToCart={addToCart}
                       theme={theme}
                     />
                   ))}
                 </div>
-
               </div>
             </div>
           );
         })}
-
-        <MoreComingCard />
+          <MoreComingCard />
       </div>
     </section>
   );

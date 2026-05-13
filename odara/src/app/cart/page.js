@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ShoppingCart,
-  Heart,
   Star,
   Minus,
   Plus,
@@ -14,51 +13,11 @@ import {
   ShieldCheck,
   RefreshCw,
   ChevronLeft,
-  CheckCircle,
-  AlertCircle,
   X,
   ArrowRight,
 } from "lucide-react";
-import { create } from "zustand";
+import { useCart } from "@/lib/context/CartContext";
 
-// ─── Store ────────────────────────────────────────────────────────────────────
-const useStore = create((set) => ({
-  wishlist: [],
-  cart: [],
-  toggleWishlist: (id) =>
-    set((state) => ({
-      wishlist: state.wishlist.includes(id)
-        ? state.wishlist.filter((item) => item !== id)
-        : [...state.wishlist, id],
-    })),
-  addToCart: (product) =>
-    set((state) => ({ cart: [...state.cart, product] })),
-  removeFromCart: (id) =>
-    set((state) => ({
-      cart: state.cart.filter((item) => item.id !== id),
-    })),
-  updateQuantity: (id, quantity) =>
-    set((state) => ({
-      cart: state.cart.map((item) =>
-        item.id === id ? { ...item, quantity } : item
-      ),
-    })),
-  clearCart: () => set({ cart: [] }),
-}));
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const DISCOUNTS = [10, 15, 20, 30];
-
-function getDiscount(product) {
-  const discountPercent = DISCOUNTS[product.id % 4];
-  const hasDiscount = product.id % 2 === 0;
-  const oldPrice = hasDiscount
-    ? Math.floor(product.price / (1 - discountPercent / 100))
-    : null;
-  return { discountPercent, hasDiscount, oldPrice };
-}
-
-// ─── Star Rating ──────────────────────────────────────────────────────────────
 function StarRating({ rating, size = 14 }) {
   const full = Math.floor(rating);
   const half = rating - full >= 0.5;
@@ -81,7 +40,6 @@ function StarRating({ rating, size = 14 }) {
   );
 }
 
-// ─── Quantity Selector ────────────────────────────────────────────────────────
 function QuantitySelector({ quantity, setQuantity, stock }) {
   return (
     <div className="inline-flex items-center bg-gray-100 rounded-xl overflow-hidden">
@@ -104,29 +62,20 @@ function QuantitySelector({ quantity, setQuantity, stock }) {
   );
 }
 
-// ─── Cart Item ─────────────────────────────────────────────────────────────────
 function CartItem({ item, onUpdateQuantity, onRemove }) {
-  const { hasDiscount, oldPrice } = getDiscount(item);
-  const itemTotal = item.price * item.quantity;
+  const itemTotal = item.price * (item.quantity || 1);
 
   return (
     <div className="flex gap-4 py-5 border-b border-gray-100 last:border-0">
-      {/* Image */}
       <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
         <Image
-          src={item.image}
+          src={item.image || "/placeholder.jpg"}
           alt={item.name}
           fill
           className="object-cover"
         />
-        {hasDiscount && (
-          <span className="absolute top-1 left-1 bg-orange-500 text-white text-[8px] px-1 py-0.5 rounded-md font-bold">
-            -{getDiscount(item).discountPercent}%
-          </span>
-        )}
       </div>
 
-      {/* Details */}
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap justify-between gap-2">
           <div className="flex-1 min-w-0">
@@ -137,15 +86,10 @@ function CartItem({ item, onUpdateQuantity, onRemove }) {
               {item.name}
             </Link>
             <div className="flex items-center gap-2 mt-1">
-              <StarRating rating={parseFloat(item.rating)} size={12} />
-              <span className="text-[10px] text-gray-400">{item.rating}</span>
+              <StarRating rating={parseFloat(item.rating || 4.5)} size={12} />
+              <span className="text-[10px] text-gray-400">{item.rating || 4.5}</span>
             </div>
             <div className="mt-1.5">
-              {hasDiscount && (
-                <span className="text-xs text-gray-400 line-through mr-2">
-                  ₦{oldPrice.toLocaleString()}
-                </span>
-              )}
               <span className="text-sm font-bold text-[#2D1B4E]">
                 ₦{item.price.toLocaleString()}
               </span>
@@ -160,12 +104,11 @@ function CartItem({ item, onUpdateQuantity, onRemove }) {
           </button>
         </div>
 
-        {/* Quantity + Total row */}
         <div className="flex items-center justify-between mt-3">
           <QuantitySelector
-            quantity={item.quantity}
+            quantity={item.quantity || 1}
             setQuantity={(q) => onUpdateQuantity(item.id, q)}
-            stock={item.stock || 99}
+            stock={99}
           />
           <span className="text-sm font-bold text-gray-900">
             ₦{itemTotal.toLocaleString()}
@@ -176,7 +119,6 @@ function CartItem({ item, onUpdateQuantity, onRemove }) {
   );
 }
 
-// ─── Empty Cart ────────────────────────────────────────────────────────────────
 function EmptyCart() {
   const router = useRouter();
   return (
@@ -198,7 +140,6 @@ function EmptyCart() {
   );
 }
 
-// ─── Order Summary ─────────────────────────────────────────────────────────────
 function OrderSummary({ subtotal, shipping, tax, total, onCheckout }) {
   return (
     <div className="bg-gray-50 rounded-2xl p-5 md:p-6">
@@ -236,7 +177,6 @@ function OrderSummary({ subtotal, shipping, tax, total, onCheckout }) {
         Proceed to Checkout
       </button>
 
-      {/* Trust badges */}
       <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-gray-200">
         <div className="flex items-center gap-1.5">
           <ShieldCheck size={14} className="text-green-600" />
@@ -255,91 +195,26 @@ function OrderSummary({ subtotal, shipping, tax, total, onCheckout }) {
   );
 }
 
-// ─── Recommended Products (from real product data) ─────────────────────────────
-function RecommendedProducts({ products, onAddToCart }) {
+export default function CartPage() {
   const router = useRouter();
-  const displayed = products.slice(0, 4);
-
-  if (displayed.length === 0) return null;
-
-  return (
-    <div className="mt-10 pt-6 border-t border-gray-100">
-      <h3 className="text-base font-bold text-gray-900 mb-4">You May Also Like</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {displayed.map((product) => {
-          const { hasDiscount, discountPercent } = getDiscount(product);
-          return (
-            <div
-              key={product.id}
-              onClick={() => router.push(`/product/${product.id}`)}
-              className="group cursor-pointer"
-            >
-              <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden mb-2">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition duration-300"
-                />
-                {hasDiscount && (
-                  <span className="absolute top-1 left-1 bg-orange-500 text-white text-[8px] px-1 py-0.5 rounded-md font-bold">
-                    -{discountPercent}%
-                  </span>
-                )}
-              </div>
-              <h4 className="text-xs font-semibold text-gray-900 line-clamp-1 mb-0.5">
-                {product.name}
-              </h4>
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-bold text-gray-900">₦{product.price.toLocaleString()}</p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddToCart(product);
-                  }}
-                  className="w-6 h-6 bg-[#2D1B4E] hover:bg-[#3d2568] text-white rounded-lg flex items-center justify-center transition active:scale-90"
-                >
-                  <ShoppingCart size={10} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ─── Main Component ───────────────────────────────────────────────────────────
-export default function Cart({ products = [] }) {
-  const router = useRouter();
-  const { cart, removeFromCart, updateQuantity, addToCart, clearCart } = useStore();
+  const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  // Calculate totals
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
   const shipping = subtotal > 50000 ? 0 : 2500;
   const tax = Math.round(subtotal * 0.075);
   const total = subtotal + shipping + tax;
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
-    // Simulate checkout process
     setTimeout(() => {
-      alert("Order placed successfully! (Demo)");
-      clearCart();
+      router.push("/checkout");
       setIsCheckingOut(false);
-      router.push("/products");
-    }, 1500);
+    }, 500);
   };
-
-  // Get recommended products from the passed products prop, excluding items already in cart
-  const cartIds = new Set(cart.map((item) => item.id));
-  const recommended = products.filter((p) => !cartIds.has(p.id));
 
   return (
     <>
-      {/* Top Bar */}
       <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-12 flex items-center justify-between">
           <button
@@ -356,15 +231,12 @@ export default function Cart({ products = [] }) {
 
       <div className="min-h-screen bg-white pb-12">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
-
-          {cart.length === 0 ? (
+          {cartItems.length === 0 ? (
             <EmptyCart />
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Cart Items */}
               <div className="lg:col-span-2">
                 <div className="bg-white rounded-2xl">
-                  {/* Header */}
                   <div className="hidden md:flex justify-between text-xs font-semibold text-gray-400 uppercase pb-3 border-b border-gray-100 mb-2 px-1">
                     <span className="flex-1">Product</span>
                     <span className="w-20 text-center">Quantity</span>
@@ -372,9 +244,8 @@ export default function Cart({ products = [] }) {
                     <span className="w-8" />
                   </div>
 
-                  {/* Items */}
                   <div>
-                    {cart.map((item) => (
+                    {cartItems.map((item) => (
                       <CartItem
                         key={item.id}
                         item={item}
@@ -384,7 +255,6 @@ export default function Cart({ products = [] }) {
                     ))}
                   </div>
 
-                  {/* Coupon section */}
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <div className="flex gap-2">
                       <input
@@ -398,12 +268,8 @@ export default function Cart({ products = [] }) {
                     </div>
                   </div>
                 </div>
-
-                {/* Recommended Products */}
-                <RecommendedProducts products={recommended} onAddToCart={addToCart} />
               </div>
 
-              {/* Order Summary */}
               <div>
                 <OrderSummary
                   subtotal={subtotal}
@@ -413,7 +279,6 @@ export default function Cart({ products = [] }) {
                   onCheckout={handleCheckout}
                 />
 
-                {/* Note */}
                 <p className="text-xs text-gray-400 text-center mt-4">
                   By completing your purchase, you agree to our <Link href="/terms" className="underline">Terms of Service</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.
                 </p>
@@ -423,23 +288,14 @@ export default function Cart({ products = [] }) {
         </div>
       </div>
 
-      {/* Checkout loading overlay */}
       {isCheckingOut && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-3 border-[#2D1B4E] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm font-medium text-gray-700">Processing your order...</p>
+            <p className="text-sm font-medium text-gray-700">Redirecting to checkout...</p>
           </div>
         </div>
       )}
-
-      <style jsx global>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up { animation: slideUp 0.25s ease-out; }
-      `}</style>
     </>
   );
 }

@@ -16,4 +16,4 @@ async function setAdminClaim(email) {
 }
 
 // Replace with your admin email
-setAdminClaim('admin@example.com');
+setAdminClaim('samuelolu407@gmail.com');
