@@ -305,13 +305,7 @@ export default function CategoriesPage() {
             <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             Back to Home
           </Link>
-          <Link 
-            href="/" 
-            className="flex items-center gap-1.5 text-[0.85rem] font-bold text-[#2D1B4E] hover:text-[#F59E0B] transition-colors"
-          >
-            <Home size={16} />
-            Odara
-          </Link>
+          
         </div>
       </div>
 
