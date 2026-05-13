@@ -41,259 +41,107 @@ const LANGUAGES = [
 
 const CATEGORIES = [
   {
-    label: 'Electronics', icon: '📱', href: '/category/electronics',
+    label: 'Fashion & Apparel', icon: '👗', href: '/category/fashion-apparel',
     subcategories: [
-      { label: 'Smartphones',       icon: '📱', href: '/category/electronics/smartphones' },
-      { label: 'Laptops',           icon: '💻', href: '/category/electronics/laptops' },
-      { label: 'Tablets',           icon: '📟', href: '/category/electronics/tablets' },
-      { label: 'Headphones',        icon: '🎧', href: '/category/electronics/headphones' },
-      { label: 'Smart Watches',     icon: '⌚', href: '/category/electronics/smart-watches' },
-      { label: 'Cameras',           icon: '📷', href: '/category/electronics/cameras' },
-      { label: 'TVs & Monitors',    icon: '📺', href: '/category/electronics/tvs' },
-      { label: 'Gaming',            icon: '🎮', href: '/category/electronics/gaming' },
-      { label: 'Speakers',          icon: '🔊', href: '/category/electronics/speakers' },
-      { label: 'Accessories',       icon: '🔌', href: '/category/electronics/accessories' },
-      { label: 'Printers',          icon: '🖨️', href: '/category/electronics/printers' },
-      { label: 'Networking',        icon: '📡', href: '/category/electronics/networking' },
-      { label: 'Power Banks',       icon: '🔋', href: '/category/electronics/power-banks' },
-      { label: 'Memory & Storage',  icon: '💾', href: '/category/electronics/storage' },
-      { label: 'Smart Home',        icon: '🏡', href: '/category/electronics/smart-home' },
-      { label: 'Drones',            icon: '🚁', href: '/category/electronics/drones' },
-      { label: 'Projectors',        icon: '🎬', href: '/category/electronics/projectors' },
-      { label: 'Office Equipment',  icon: '🖥️', href: '/category/electronics/office' },
-      { label: 'Cables & Hubs',     icon: '🔗', href: '/category/electronics/cables' },
-      { label: 'Wearables',         icon: '💍', href: '/category/electronics/wearables' },
+      { label: 'Traditional Clothing', icon: '👘', href: '/category/fashion-apparel/traditional' },
+      { label: 'Contemporary African Fashion', icon: '👔', href: '/category/fashion-apparel/contemporary' },
+      { label: 'Footwear', icon: '👟', href: '/category/fashion-apparel/footwear' },
+      { label: 'Accessories', icon: '💍', href: '/category/fashion-apparel/accessories' },
+      { label: 'Bags & Purses', icon: '👜', href: '/category/fashion-apparel/bags' },
     ],
   },
   {
-    label: 'Fashion', icon: '👗', href: '/category/fashion',
+    label: 'Arts & Crafts', icon: '🎨', href: '/category/arts-crafts',
     subcategories: [
-      { label: "Men's Clothing",   icon: '👔', href: '/category/fashion/mens' },
-      { label: "Women's Clothing", icon: '👗', href: '/category/fashion/womens' },
-      { label: 'Kids Fashion',     icon: '🧒', href: '/category/fashion/kids' },
-      { label: 'Shoes',            icon: '👟', href: '/category/fashion/shoes' },
-      { label: 'Bags & Purses',    icon: '👜', href: '/category/fashion/bags' },
-      { label: 'Watches',          icon: '⌚', href: '/category/fashion/watches' },
-      { label: 'Sunglasses',       icon: '🕶️', href: '/category/fashion/sunglasses' },
-      { label: 'Jewellery',        icon: '💎', href: '/category/fashion/jewellery' },
-      { label: 'Belts',            icon: '🪢', href: '/category/fashion/belts' },
-      { label: 'Hats & Caps',      icon: '🧢', href: '/category/fashion/hats' },
-      { label: 'Ankara & Native',  icon: '🎨', href: '/category/fashion/ankara' },
-      { label: 'Lingerie',         icon: '🌸', href: '/category/fashion/lingerie' },
-      { label: 'Swimwear',         icon: '🩱', href: '/category/fashion/swimwear' },
-      { label: 'Sports Wear',      icon: '🏃', href: '/category/fashion/sportswear' },
-      { label: 'Formal Wear',      icon: '🤵', href: '/category/fashion/formal' },
-      { label: 'Dresses',          icon: '👘', href: '/category/fashion/dresses' },
-      { label: 'Jackets & Coats',  icon: '🧥', href: '/category/fashion/jackets' },
-      { label: 'Scarves',          icon: '🧣', href: '/category/fashion/scarves' },
-      { label: 'Socks & Hosiery',  icon: '🧦', href: '/category/fashion/socks' },
-      { label: 'Accessories',      icon: '✨', href: '/category/fashion/accessories' },
+      { label: 'Sculptures & Carvings', icon: '🗿', href: '/category/arts-crafts/sculptures' },
+      { label: 'Paintings & Prints', icon: '🖼️', href: '/category/arts-crafts/paintings' },
+      { label: 'Textile Art', icon: '🧵', href: '/category/arts-crafts/textile' },
+      { label: 'Pottery & Ceramics', icon: '🏺', href: '/category/arts-crafts/pottery' },
+      { label: 'Beadwork', icon: '📿', href: '/category/arts-crafts/beadwork' },
+    ],
+  },
+  {
+    label: 'Jewelry', icon: '💎', href: '/category/jewelry',
+    subcategories: [
+      { label: 'Beaded Jewelry', icon: '📿', href: '/category/jewelry/beaded' },
+      { label: 'Metalwork', icon: '⚜️', href: '/category/jewelry/metalwork' },
+      { label: 'Natural Materials', icon: '🌿', href: '/category/jewelry/natural' },
+      { label: 'Statement Pieces', icon: '✨', href: '/category/jewelry/statement' },
+      { label: 'Custom Designs', icon: '✏️', href: '/category/jewelry/custom' },
+    ],
+  },
+  {
+    label: 'Food & Beverages', icon: '🍲', href: '/category/food-beverages',
+    subcategories: [
+      { label: 'Spices & Seasonings', icon: '🌶️', href: '/category/food-beverages/spices' },
+      { label: 'Packaged Foods', icon: '📦', href: '/category/food-beverages/packaged' },
+      { label: 'Beverages', icon: '🍵', href: '/category/food-beverages/beverages' },
+      { label: 'Snacks', icon: '🍪', href: '/category/food-beverages/snacks' },
+      { label: 'Preserves & Sauces', icon: '🥫', href: '/category/food-beverages/preserves' },
+    ],
+  },
+  {
+    label: 'Beauty & Personal Care', icon: '💄', href: '/category/beauty-personal-care',
+    subcategories: [
+      { label: 'Skincare', icon: '🧴', href: '/category/beauty-personal-care/skincare' },
+      { label: 'Haircare', icon: '💇', href: '/category/beauty-personal-care/haircare' },
+      { label: 'Cosmetics', icon: '💄', href: '/category/beauty-personal-care/cosmetics' },
+      { label: 'Bath & Body', icon: '🛁', href: '/category/beauty-personal-care/bath-body' },
+      { label: "Men's Grooming", icon: '🧔', href: '/category/beauty-personal-care/mens-grooming' },
     ],
   },
   {
     label: 'Home & Living', icon: '🏠', href: '/category/home-living',
     subcategories: [
-      { label: 'Furniture',        icon: '🛋️', href: '/category/home/furniture' },
-      { label: 'Bedding',          icon: '🛏️', href: '/category/home/bedding' },
-      { label: 'Kitchen',          icon: '🍳', href: '/category/home/kitchen' },
-      { label: 'Lighting',         icon: '💡', href: '/category/home/lighting' },
-      { label: 'Bathroom',         icon: '🚿', href: '/category/home/bathroom' },
-      { label: 'Cleaning',         icon: '🧹', href: '/category/home/cleaning' },
-      { label: 'Decor',            icon: '🖼️', href: '/category/home/decor' },
-      { label: 'Storage',          icon: '📦', href: '/category/home/storage' },
-      { label: 'Garden & Outdoor', icon: '🌿', href: '/category/home/garden' },
-      { label: 'Cookware',         icon: '🥘', href: '/category/home/cookware' },
-      { label: 'Appliances',       icon: '🧺', href: '/category/home/appliances' },
-      { label: 'Curtains & Blinds',icon: '🪟', href: '/category/home/curtains' },
-      { label: 'Rugs & Carpets',   icon: '🟥', href: '/category/home/rugs' },
-      { label: 'Tools & Hardware', icon: '🔧', href: '/category/home/tools' },
-      { label: 'Pet Supplies',     icon: '🐾', href: '/category/home/pets' },
-      { label: 'Air Conditioning', icon: '❄️', href: '/category/home/ac' },
-      { label: 'Generators',       icon: '⚡', href: '/category/home/generators' },
-      { label: 'Candles & Scents', icon: '🕯️', href: '/category/home/candles' },
-      { label: 'Baby Gear',        icon: '🍼', href: '/category/home/baby' },
-      { label: 'Office Supplies',  icon: '📎', href: '/category/home/office' },
+      { label: 'Furniture', icon: '🛋️', href: '/category/home-living/furniture' },
+      { label: 'Textiles', icon: '🪡', href: '/category/home-living/textiles' },
+      { label: 'Kitchenware', icon: '🍳', href: '/category/home-living/kitchenware' },
+      { label: 'Decor Accents', icon: '🖼️', href: '/category/home-living/decor' },
+      { label: 'Storage & Organization', icon: '📦', href: '/category/home-living/storage' },
     ],
   },
   {
-    label: 'Beauty', icon: '💄', href: '/category/beauty',
+    label: 'Health & Wellness', icon: '💊', href: '/category/health-wellness',
     subcategories: [
-      { label: 'Skincare',         icon: '🧴', href: '/category/beauty/skincare' },
-      { label: 'Makeup',           icon: '💄', href: '/category/beauty/makeup' },
-      { label: 'Hair Care',        icon: '💇', href: '/category/beauty/hair' },
-      { label: 'Fragrances',       icon: '🌹', href: '/category/beauty/fragrance' },
-      { label: 'Nail Care',        icon: '💅', href: '/category/beauty/nails' },
-      { label: 'Body Care',        icon: '🧼', href: '/category/beauty/body' },
-      { label: 'Shaving',          icon: '🪒', href: '/category/beauty/shaving' },
-      { label: 'Oral Care',        icon: '🦷', href: '/category/beauty/oral' },
-      { label: 'Hair Extensions',  icon: '👱', href: '/category/beauty/extensions' },
-      { label: 'Beauty Tools',     icon: '🪞', href: '/category/beauty/tools' },
-      { label: 'Men\'s Grooming',  icon: '🧔', href: '/category/beauty/mens-grooming' },
-      { label: 'Sunscreen',        icon: '☀️', href: '/category/beauty/sunscreen' },
-      { label: 'Lip Care',         icon: '💋', href: '/category/beauty/lips' },
-      { label: 'Eye Care',         icon: '👁️', href: '/category/beauty/eyes' },
-      { label: 'Foundation',       icon: '🎨', href: '/category/beauty/foundation' },
-      { label: 'Wigs',             icon: '🦱', href: '/category/beauty/wigs' },
-      { label: 'Brushes & Sponges',icon: '🖌️', href: '/category/beauty/brushes' },
-      { label: 'Toners',           icon: '💧', href: '/category/beauty/toners' },
-      { label: 'Anti-Ageing',      icon: '✨', href: '/category/beauty/anti-ageing' },
-      { label: 'Natural & Organic',icon: '🌿', href: '/category/beauty/organic' },
+      { label: 'Herbal Remedies', icon: '🌿', href: '/category/health-wellness/herbal' },
+      { label: 'Essential Oils', icon: '🫙', href: '/category/health-wellness/essential-oils' },
+      { label: 'Wellness Teas', icon: '🍵', href: '/category/health-wellness/teas' },
+      { label: 'Natural Supplements', icon: '💊', href: '/category/health-wellness/supplements' },
+      { label: 'Aromatherapy', icon: '🕯️', href: '/category/health-wellness/aromatherapy' },
     ],
   },
   {
-    label: 'Sports', icon: '⚽', href: '/category/sports',
+    label: 'Literature & Stationery', icon: '📚', href: '/category/literature-stationery',
     subcategories: [
-      { label: 'Football',         icon: '⚽', href: '/category/sports/football' },
-      { label: 'Basketball',       icon: '🏀', href: '/category/sports/basketball' },
-      { label: 'Tennis',           icon: '🎾', href: '/category/sports/tennis' },
-      { label: 'Fitness & Gym',    icon: '🏋️', href: '/category/sports/gym' },
-      { label: 'Cycling',          icon: '🚴', href: '/category/sports/cycling' },
-      { label: 'Running',          icon: '🏃', href: '/category/sports/running' },
-      { label: 'Swimming',         icon: '🏊', href: '/category/sports/swimming' },
-      { label: 'Martial Arts',     icon: '🥋', href: '/category/sports/martial-arts' },
-      { label: 'Yoga',             icon: '🧘', href: '/category/sports/yoga' },
-      { label: 'Outdoor Sports',   icon: '🏕️', href: '/category/sports/outdoor' },
-      { label: 'Cricket',          icon: '🏏', href: '/category/sports/cricket' },
-      { label: 'Table Tennis',     icon: '🏓', href: '/category/sports/table-tennis' },
-      { label: 'Badminton',        icon: '🏸', href: '/category/sports/badminton' },
-      { label: 'Volleyball',       icon: '🏐', href: '/category/sports/volleyball' },
-      { label: 'Boxing',           icon: '🥊', href: '/category/sports/boxing' },
-      { label: 'Skipping Ropes',   icon: '🪢', href: '/category/sports/skipping' },
-      { label: 'Sports Nutrition', icon: '💊', href: '/category/sports/nutrition' },
-      { label: 'Water Sports',     icon: '🚣', href: '/category/sports/water' },
-      { label: 'Team Jerseys',     icon: '👕', href: '/category/sports/jerseys' },
-      { label: 'Sports Bags',      icon: '🎒', href: '/category/sports/bags' },
+      { label: 'Books', icon: '📖', href: '/category/literature-stationery/books' },
+      { label: 'Journals & Notebooks', icon: '📓', href: '/category/literature-stationery/journals' },
+      { label: 'Stationery', icon: '✏️', href: '/category/literature-stationery/stationery' },
+      { label: 'Educational Materials', icon: '🎓', href: '/category/literature-stationery/educational' },
+      { label: 'Art Prints', icon: '🖼️', href: '/category/literature-stationery/art-prints' },
     ],
   },
   {
-    label: 'Groceries', icon: '🛒', href: '/category/groceries',
+    label: 'Music & Instruments', icon: '🎵', href: '/category/music-instruments',
     subcategories: [
-      { label: 'Rice & Grains',    icon: '🌾', href: '/category/groceries/rice' },
-      { label: 'Cooking Oil',      icon: '🫙', href: '/category/groceries/oil' },
-      { label: 'Beverages',        icon: '☕', href: '/category/groceries/beverages' },
-      { label: 'Snacks',           icon: '🍫', href: '/category/groceries/snacks' },
-      { label: 'Dairy & Eggs',     icon: '🥚', href: '/category/groceries/dairy' },
-      { label: 'Frozen Foods',     icon: '🧊', href: '/category/groceries/frozen' },
-      { label: 'Seasoning',        icon: '🧂', href: '/category/groceries/seasoning' },
-      { label: 'Cereals',          icon: '🥣', href: '/category/groceries/cereals' },
-      { label: 'Pasta & Noodles',  icon: '🍝', href: '/category/groceries/pasta' },
-      { label: 'Canned Foods',     icon: '🥫', href: '/category/groceries/canned' },
-      { label: 'Bread & Bakery',   icon: '🍞', href: '/category/groceries/bakery' },
-      { label: 'Baby Food',        icon: '🍼', href: '/category/groceries/baby-food' },
-      { label: 'Sauces',           icon: '🍯', href: '/category/groceries/sauces' },
-      { label: 'Nuts & Dried',     icon: '🥜', href: '/category/groceries/nuts' },
-      { label: 'Sugar & Sweetener',icon: '🍬', href: '/category/groceries/sugar' },
-      { label: 'Flour & Starch',   icon: '🌽', href: '/category/groceries/flour' },
-      { label: 'Water & Drinks',   icon: '💧', href: '/category/groceries/water' },
-      { label: 'Tea & Coffee',     icon: '🍵', href: '/category/groceries/tea' },
-      { label: 'Organic Foods',    icon: '🌿', href: '/category/groceries/organic' },
-      { label: 'Hygiene Products', icon: '🧻', href: '/category/groceries/hygiene' },
+      { label: 'Traditional Instruments', icon: '🥁', href: '/category/music-instruments/traditional' },
+      { label: 'Modern Instruments', icon: '🎸', href: '/category/music-instruments/modern' },
+      { label: 'Music Accessories', icon: '🎧', href: '/category/music-instruments/accessories' },
+      { label: 'Music & Audio', icon: '💿', href: '/category/music-instruments/audio' },
+      { label: 'Instructional Materials', icon: '📘', href: '/category/music-instruments/instructional' },
     ],
   },
   {
-    label: 'Books', icon: '📚', href: '/category/books',
+    label: 'Technology', icon: '📱', href: '/category/technology',
     subcategories: [
-      { label: 'Fiction',          icon: '📖', href: '/category/books/fiction' },
-      { label: 'Non-Fiction',      icon: '📘', href: '/category/books/non-fiction' },
-      { label: 'Children\'s',      icon: '🧒', href: '/category/books/children' },
-      { label: 'Textbooks',        icon: '📗', href: '/category/books/textbooks' },
-      { label: 'Business',         icon: '💼', href: '/category/books/business' },
-      { label: 'Self Help',        icon: '🌟', href: '/category/books/self-help' },
-      { label: 'Religion',         icon: '✝️', href: '/category/books/religion' },
-      { label: 'Science',          icon: '🔬', href: '/category/books/science' },
-      { label: 'History',          icon: '🏛️', href: '/category/books/history' },
-      { label: 'Biographies',      icon: '👤', href: '/category/books/biographies' },
-      { label: 'Arts & Music',     icon: '🎨', href: '/category/books/arts' },
-      { label: 'Travel',           icon: '✈️', href: '/category/books/travel' },
-      { label: 'Cooking',          icon: '🍳', href: '/category/books/cooking' },
-      { label: 'Technology',       icon: '💻', href: '/category/books/technology' },
-      { label: 'Law',              icon: '⚖️', href: '/category/books/law' },
-      { label: 'Health & Medicine',icon: '🏥', href: '/category/books/health' },
-      { label: 'African Authors',  icon: '🌍', href: '/category/books/african' },
-      { label: 'Poetry',           icon: '🖊️', href: '/category/books/poetry' },
-      { label: 'Comics & Manga',   icon: '💥', href: '/category/books/comics' },
-      { label: 'E-Books',          icon: '📱', href: '/category/books/ebooks' },
-    ],
-  },
-  {
-    label: 'Toys & Kids', icon: '🧸', href: '/category/toys-kids',
-    subcategories: [
-      { label: 'Action Figures',   icon: '🦸', href: '/category/toys/action-figures' },
-      { label: 'Dolls',            icon: '🪆', href: '/category/toys/dolls' },
-      { label: 'Board Games',      icon: '🎲', href: '/category/toys/board-games' },
-      { label: 'Puzzles',          icon: '🧩', href: '/category/toys/puzzles' },
-      { label: 'Building Blocks',  icon: '🧱', href: '/category/toys/blocks' },
-      { label: 'Remote Control',   icon: '🚗', href: '/category/toys/remote-control' },
-      { label: 'Educational Toys', icon: '🎓', href: '/category/toys/educational' },
-      { label: 'Outdoor Play',     icon: '🛝', href: '/category/toys/outdoor' },
-      { label: 'Arts & Crafts',    icon: '🎨', href: '/category/toys/arts-crafts' },
-      { label: 'Baby Toys',        icon: '🍼', href: '/category/toys/baby' },
-      { label: 'Stuffed Animals',  icon: '🧸', href: '/category/toys/stuffed' },
-      { label: 'Musical Toys',     icon: '🎵', href: '/category/toys/musical' },
-      { label: 'Science Kits',     icon: '🔭', href: '/category/toys/science' },
-      { label: 'Card Games',       icon: '🃏', href: '/category/toys/card-games' },
-      { label: 'Role Play',        icon: '🎭', href: '/category/toys/role-play' },
-      { label: 'Sports Toys',      icon: '⚽', href: '/category/toys/sports' },
-      { label: 'School Supplies',  icon: '✏️', href: '/category/toys/school' },
-      { label: 'Bikes & Scooters', icon: '🛴', href: '/category/toys/bikes' },
-      { label: 'Kids Clothing',    icon: '👕', href: '/category/toys/clothing' },
-      { label: 'Feeding & Nursing',icon: '🤱', href: '/category/toys/nursing' },
-    ],
-  },
-  {
-    label: 'Automotive', icon: '🚗', href: '/category/automotive',
-    subcategories: [
-      { label: 'Car Parts',        icon: '⚙️', href: '/category/auto/parts' },
-      { label: 'Tyres',            icon: '🔄', href: '/category/auto/tyres' },
-      { label: 'Car Accessories',  icon: '🚗', href: '/category/auto/accessories' },
-      { label: 'Car Care',         icon: '🧽', href: '/category/auto/care' },
-      { label: 'Oils & Fluids',    icon: '🛢️', href: '/category/auto/oils' },
-      { label: 'Tools & Equipment',icon: '🔧', href: '/category/auto/tools' },
-      { label: 'Car Audio',        icon: '🔊', href: '/category/auto/audio' },
-      { label: 'GPS & Tracking',   icon: '📍', href: '/category/auto/gps' },
-      { label: 'Dash Cams',        icon: '📷', href: '/category/auto/dashcams' },
-      { label: 'Seat Covers',      icon: '💺', href: '/category/auto/seat-covers' },
-      { label: 'Car Chargers',     icon: '🔋', href: '/category/auto/chargers' },
-      { label: 'Motorcycle Parts', icon: '🏍️', href: '/category/auto/moto' },
-      { label: 'Lighting',         icon: '💡', href: '/category/auto/lighting' },
-      { label: 'Air Fresheners',   icon: '🌸', href: '/category/auto/fresheners' },
-      { label: 'Wiper Blades',     icon: '🌧️', href: '/category/auto/wipers' },
-      { label: 'Security Systems', icon: '🔒', href: '/category/auto/security' },
-      { label: 'Jump Starters',    icon: '⚡', href: '/category/auto/jump-start' },
-      { label: 'Covers & Tents',   icon: '⛺', href: '/category/auto/covers' },
-      { label: 'Floor Mats',       icon: '🟫', href: '/category/auto/mats' },
-      { label: 'Batteries',        icon: '🔋', href: '/category/auto/batteries' },
-    ],
-  },
-  {
-    label: 'Health', icon: '💊', href: '/category/health',
-    subcategories: [
-      { label: 'Vitamins',         icon: '💊', href: '/category/health/vitamins' },
-      { label: 'Pain Relief',      icon: '🩹', href: '/category/health/pain-relief' },
-      { label: 'First Aid',        icon: '🩺', href: '/category/health/first-aid' },
-      { label: 'Blood Pressure',   icon: '❤️', href: '/category/health/blood-pressure' },
-      { label: 'Diabetes Care',    icon: '🩸', href: '/category/health/diabetes' },
-      { label: 'Weight Loss',      icon: '⚖️', href: '/category/health/weight-loss' },
-      { label: 'Digestive Health', icon: '🫃', href: '/category/health/digestive' },
-      { label: 'Eye Care',         icon: '👁️', href: '/category/health/eyes' },
-      { label: 'Fitness Equipment',icon: '🏋️', href: '/category/health/fitness' },
-      { label: 'Pregnancy',        icon: '🤰', href: '/category/health/pregnancy' },
-      { label: 'Sleep Aids',       icon: '😴', href: '/category/health/sleep' },
-      { label: 'Immunity',         icon: '🛡️', href: '/category/health/immunity' },
-      { label: 'Protein & Shakes', icon: '💪', href: '/category/health/protein' },
-      { label: 'Mental Wellness',  icon: '🧠', href: '/category/health/mental' },
-      { label: 'Herbal Remedies',  icon: '🌿', href: '/category/health/herbal' },
-      { label: 'Medical Devices',  icon: '🔬', href: '/category/health/devices' },
-      { label: 'Sexual Health',    icon: '💑', href: '/category/health/sexual' },
-      { label: 'Bone & Joint',     icon: '🦴', href: '/category/health/bone' },
-      { label: 'Kids Health',      icon: '👶', href: '/category/health/kids' },
-      { label: 'Thermometers',     icon: '🌡️', href: '/category/health/thermometers' },
+      { label: 'Smartphones & Accessories', icon: '📱', href: '/category/technology/smartphones' },
+      { label: 'Wearable Tech', icon: '⌚', href: '/category/technology/wearables' },
+      { label: 'Gadgets & Electronics', icon: '💡', href: '/category/technology/gadgets' },
+      { label: 'EdTech Tools', icon: '📚', href: '/category/technology/edtech' },
+      { label: 'Software & Apps', icon: '💻', href: '/category/technology/software' },
     ],
   },
 ];
 
-// ─── Default Avatar SVG Icon ─────────────────────────────────────────────────
-// Shown when user has no photoURL
 const DefaultAvatarIcon = ({ size = 28 }) => (
   <svg
     width={size}
@@ -302,11 +150,8 @@ const DefaultAvatarIcon = ({ size = 28 }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    {/* Circular background */}
     <circle cx="14" cy="14" r="14" fill="#2D1B4E" />
-    {/* Head */}
     <circle cx="14" cy="11" r="4" fill="white" fillOpacity="0.9" />
-    {/* Body / shoulders */}
     <path
       d="M6 24c0-4.418 3.582-8 8-8s8 3.582 8 8"
       stroke="white"
@@ -317,7 +162,6 @@ const DefaultAvatarIcon = ({ size = 28 }) => (
   </svg>
 );
 
-// ─── Mega-Menu Panel ────────────────────────────────────────────────────────
 function MegaMenu({ category, visible }) {
   if (!category) return null;
   return (
@@ -356,7 +200,6 @@ function MegaMenu({ category, visible }) {
   );
 }
 
-// ─── Account Button ──────────────────────────────────────────────────────────
 function AccountButton({ user, profile, onLogout, isMobile = false }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -374,7 +217,6 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ── Not logged in ──
   if (!user) {
     if (isMobile) {
       return (
@@ -397,7 +239,6 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
     );
   }
 
-  // ── Logged in — Avatar: photo > initials > default icon ──
   const avatarLetter = firstName?.[0]?.toUpperCase();
 
   const Avatar = ({ size = 28 }) => {
@@ -425,7 +266,6 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
         </div>
       );
     }
-    // Fallback: default SVG person icon
     return <DefaultAvatarIcon size={size} />;
   };
 
@@ -449,7 +289,6 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
     );
   }
 
-  // ── Desktop logged-in button: avatar + "Hi, {firstName}" label ──
   return (
     <div className="relative" ref={dropdownRef}>
       <button
@@ -458,7 +297,6 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
         aria-label="Account menu"
       >
         <Avatar size={26} />
-        {/* "Hi, Name" welcome label under the avatar */}
         <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E] max-w-[64px] truncate leading-none">
           Hi, {firstName || 'You'}
         </span>
@@ -473,18 +311,16 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
   );
 }
 
-// ─── Dropdown Menu Items ─────────────────────────────────────────────────────
 function MiniDropdown({ firstName, onLogout, router, setDropdownOpen }) {
   const items = [
-    { label: 'My Profile',   icon: '👤', href: '/profile' },
-    { label: 'My Orders',    icon: '📦', href: '/orders' },
-    { label: 'Wishlist',     icon: '❤️',  href: '/wishlist' },
-    { label: 'Settings',     icon: '⚙️',  href: '/settings' },
+    { label: 'My Profile', icon: '👤', href: '/profile' },
+    { label: 'My Orders', icon: '📦', href: '/orders' },
+    { label: 'Wishlist', icon: '❤️', href: '/wishlist' },
+    { label: 'Settings', icon: '⚙️', href: '/settings' },
   ];
 
   return (
     <>
-      {/* Welcome header */}
       <div className="px-4 py-3 border-b border-[#F0EEF4] bg-[#FAFAFC]">
         <p className="text-[0.65rem] font-bold text-[#B0A8C8] uppercase tracking-wider">Welcome back</p>
         <p className="text-[0.88rem] font-extrabold text-[#2D1B4E] truncate">{firstName || 'there'}</p>
@@ -516,33 +352,31 @@ function MiniDropdown({ firstName, onLogout, router, setDropdownOpen }) {
   );
 }
 
-// ─── Main Navbar ─────────────────────────────────────────────────────────────
 const Navbar = () => {
   const router = useRouter();
   const { user, profile } = useUser();
 
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen]             = useState(false);
-  const [drawerLangOpen, setDrawerLangOpen]         = useState(false);
-  const [searchQuery, setSearchQuery]               = useState('');
-  const [isScrolled, setIsScrolled]                 = useState(false);
-  const [selectedLang, setSelectedLang]             = useState(LANGUAGES[0]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerLangOpen, setDrawerLangOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
   const [mobileSubDrawerOpen, setMobileSubDrawerOpen] = useState(false);
   const [selectedMobileCategory, setSelectedMobileCategory] = useState(null);
-  const [hoveredCat, setHoveredCat]   = useState(null);
-  const [pinnedCat, setPinnedCat]     = useState(null);
-  const hoverTimerRef                  = useRef(null);
-  const megaMenuRef                    = useRef(null);
-  const categoryBarRef                 = useRef(null);
-  const langDropdownRef                = useRef(null);
-  const langButtonRef                  = useRef(null);
+  const [hoveredCat, setHoveredCat] = useState(null);
+  const [pinnedCat, setPinnedCat] = useState(null);
+  const hoverTimerRef = useRef(null);
+  const megaMenuRef = useRef(null);
+  const categoryBarRef = useRef(null);
+  const langDropdownRef = useRef(null);
+  const langButtonRef = useRef(null);
   const cartCount = 0;
 
   const activeCatLabel = pinnedCat ?? hoveredCat;
   const activeCat = CATEGORIES.find(c => c.label === activeCatLabel) ?? null;
   const megaVisible = !!activeCatLabel;
 
-  // ── Logout handler — uses static imports, no dynamic import needed ──
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -562,7 +396,7 @@ const Navbar = () => {
     const onOutside = (e) => {
       if (
         langDropdownRef.current && !langDropdownRef.current.contains(e.target) &&
-        langButtonRef.current  && !langButtonRef.current.contains(e.target)
+        langButtonRef.current && !langButtonRef.current.contains(e.target)
       ) setIsLangDropdownOpen(false);
     };
     document.addEventListener('mousedown', onOutside);
@@ -630,7 +464,6 @@ const Navbar = () => {
         }`}
       >
 
-        {/* ══ DESKTOP ══ */}
         <div className="hidden md:block">
           <div className="border-b border-[#F0EEF4]">
             <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center gap-4">
@@ -668,7 +501,6 @@ const Navbar = () => {
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                {/* Language dropdown */}
                 <div className="relative">
                   <button
                     ref={langButtonRef}
@@ -706,7 +538,6 @@ const Navbar = () => {
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
-                {/* Account button */}
                 <AccountButton user={user} profile={profile} onLogout={handleLogout} />
 
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
@@ -722,7 +553,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Category bar */}
           <div
             ref={categoryBarRef}
             className="border-b border-[#F0EEF4] bg-[#FAFAFC] relative"
@@ -758,7 +588,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* ══ MOBILE ══ */}
         <div className="md:hidden border-b border-[#F0EEF4] bg-white">
           <div className="px-4 h-14 flex items-center gap-3">
             <button
@@ -777,7 +606,6 @@ const Navbar = () => {
 
             <div className="flex-1" />
 
-            {/* Mobile account button */}
             <AccountButton user={user} profile={profile} onLogout={handleLogout} isMobile />
 
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
@@ -806,7 +634,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* ══ MOBILE DRAWER ══ */}
         {isDrawerOpen && (
           <>
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[300] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={() => setIsDrawerOpen(false)} />
@@ -819,10 +646,8 @@ const Navbar = () => {
                 </button>
               </div>
 
-              {/* Auth section in drawer */}
               {user ? (
                 <div className="px-4 py-3 bg-[#F8F6FF] border-b border-[#EDE9F6]">
-                  {/* Avatar + welcome row */}
                   <div className="flex items-center gap-2.5 mb-2">
                     {user.photoURL ? (
                       <img src={user.photoURL} alt="avatar" className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
@@ -945,7 +770,6 @@ const Navbar = () => {
           </>
         )}
 
-        {/* ══ MOBILE SUB-DRAWER ══ */}
         {mobileSubDrawerOpen && selectedMobileCategory && (
           <>
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[350] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={closeMobileSubDrawer} />

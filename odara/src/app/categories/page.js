@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ChevronRight, ChevronLeft, Search, Grid3x3, LayoutList } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, ChevronRight, ChevronLeft, Grid3x3, LayoutList, Home, ArrowLeft } from "lucide-react";
 
 const CATEGORIES = [
   {
@@ -259,12 +259,12 @@ const CATEGORIES = [
 ];
 
 export default function CategoriesPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isMobileView, setIsMobileView] = useState(false);
-  const [viewMode, setViewMode] = useState("grid"); // grid or list
+  const [viewMode, setViewMode] = useState("grid");
 
-  // Detect mobile view for subcategory drawer
   useEffect(() => {
     const checkMobile = () => setIsMobileView(window.innerWidth < 768);
     checkMobile();
@@ -280,6 +280,8 @@ export default function CategoriesPage() {
   const handleCategoryClick = (cat) => {
     if (isMobileView) {
       setSelectedCategory(cat);
+    } else {
+      router.push(cat.href);
     }
   };
 
@@ -287,10 +289,34 @@ export default function CategoriesPage() {
     setSelectedCategory(null);
   };
 
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
   return (
-    <>
+    <div className="min-h-screen bg-[#F7F5FF]">
+      {/* Back to Home Button - Top Bar */}
+      <div className="bg-white border-b border-[#EDE9FF] sticky top-0 z-40">
+        <div className="max-w-[1280px] mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+          <Link 
+            href="/" 
+            className="flex items-center gap-2 text-[0.85rem] font-bold text-[#9C8EC1] hover:text-[#F59E0B] transition-colors group"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+            Back to Home
+          </Link>
+          <Link 
+            href="/" 
+            className="flex items-center gap-1.5 text-[0.85rem] font-bold text-[#2D1B4E] hover:text-[#F59E0B] transition-colors"
+          >
+            <Home size={16} />
+            Odara
+          </Link>
+        </div>
+      </div>
+
       {/* Hero Header */}
-      <div className="bg-gradient-to-r from-[#2D1B4E] to-[#4B3B72] text-white pt-12 pb-10 md:pt-16 md:pb-14">
+      <div className="bg-gradient-to-r from-[#2D1B4E] to-[#4B3B72] text-white pt-10 pb-8 md:pt-14 md:pb-12">
         <div className="max-w-[1280px] mx-auto px-4 md:px-6">
           <h1 className="text-2xl md:text-4xl font-extrabold mb-3 md:mb-4 tracking-tight">
             Shop by Category
@@ -311,12 +337,20 @@ export default function CategoriesPage() {
               placeholder="Search categories or subcategories..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-[#DDD5F8] rounded-xl py-2.5 pl-10 pr-4 text-[0.9rem] font-medium text-[#111827] outline-none focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/10 transition-all"
+              className="w-full bg-white border border-[#DDD5F8] rounded-xl py-2.5 pl-10 pr-10 text-[0.9rem] font-medium text-[#111827] outline-none focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/10 transition-all"
             />
+            {searchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C4BAD8] hover:text-[#2D1B4E] transition-colors"
+              >
+                ✕
+              </button>
+            )}
           </div>
           
           {/* View Toggle - Desktop only */}
-          <div className="hidden md:flex items-center gap-2 bg-[#F7F5FF] rounded-xl p-1">
+          <div className="hidden md:flex items-center gap-2 bg-[#F7F5FF] rounded-xl p-1 border border-[#EDE9FF]">
             <button
               onClick={() => setViewMode("grid")}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[0.8rem] font-bold transition-all ${
@@ -343,91 +377,100 @@ export default function CategoriesPage() {
         </div>
 
         {/* Results Count */}
-        <div className="text-[0.75rem] font-semibold text-[#9C8EC1] mb-4">
-          {filteredCategories.length} categories found
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-[0.75rem] font-semibold text-[#9C8EC1]">
+            {filteredCategories.length} {filteredCategories.length === 1 ? 'category' : 'categories'} found
+          </div>
+          {searchTerm && (
+            <button
+              onClick={clearSearch}
+              className="text-[0.7rem] font-bold text-[#F59E0B] hover:underline"
+            >
+              Clear search
+            </button>
+          )}
         </div>
 
         {/* Categories Grid/List */}
-        <div className={`${
-          viewMode === "grid" 
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" 
-            : "flex flex-col gap-3"
-        }`}>
-          {filteredCategories.map((category) => (
-            <div
-              key={category.label}
-              className={`
-                bg-white border border-[#EDE9FF] rounded-2xl overflow-hidden transition-all hover:border-[#F59E0B]/40
-                ${viewMode === "grid" ? "" : "hover:shadow-md"}
-              `}
-            >
-              {/* Category Header */}
-              <Link
-                href={category.href}
-                onClick={(e) => {
-                  if (isMobileView) {
-                    e.preventDefault();
-                    handleCategoryClick(category);
-                  }
-                }}
+        {filteredCategories.length > 0 ? (
+          <div className={`${
+            viewMode === "grid" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" 
+              : "flex flex-col gap-3"
+          }`}>
+            {filteredCategories.map((category) => (
+              <div
+                key={category.label}
                 className={`
-                  flex items-center justify-between p-4 md:p-5 bg-[#FAFAFC] border-b border-[#EDE9FF] group
-                  ${viewMode === "list" ? "cursor-pointer" : ""}
+                  bg-white border border-[#EDE9FF] rounded-2xl overflow-hidden transition-all hover:border-[#F59E0B]/40
+                  ${viewMode === "grid" ? "hover:shadow-md" : ""}
                 `}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#F0ECFF] flex items-center justify-center text-xl md:text-2xl">
-                    {category.icon}
+                {/* Category Header */}
+                <div
+                  onClick={() => handleCategoryClick(category)}
+                  className={`
+                    flex items-center justify-between p-4 md:p-5 bg-[#FAFAFC] border-b border-[#EDE9FF] group cursor-pointer
+                    ${viewMode === "list" ? "" : ""}
+                  `}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#F0ECFF] flex items-center justify-center text-xl md:text-2xl">
+                      {category.icon}
+                    </div>
+                    <div>
+                      <h2 className="font-extrabold text-[#1F1235] text-[0.95rem] md:text-[1rem]">
+                        {category.label}
+                      </h2>
+                      <p className="text-[0.7rem] text-[#9C8EC1] font-medium">
+                        {category.subcategories.length} subcategories
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="font-extrabold text-[#1F1235] text-[0.95rem] md:text-[1rem]">
-                      {category.label}
-                    </h2>
-                    <p className="text-[0.7rem] text-[#9C8EC1] font-medium">
-                      {category.subcategories.length} subcategories
-                    </p>
-                  </div>
+                  <ChevronRight className="text-[#C4BAD8] group-hover:text-[#F59E0B] transition-colors w-4 h-4 md:w-5 md:h-5" />
                 </div>
-                <ChevronRight className="text-[#C4BAD8] group-hover:text-[#F59E0B] transition-colors w-4 h-4 md:w-5 md:h-5" />
-              </Link>
 
-              {/* Subcategories - Show in grid view or always on desktop */}
-              {viewMode === "grid" && (
-                <div className="p-4 md:p-5">
-                  <div className="flex flex-wrap gap-2">
-                    {category.subcategories.slice(0, 8).map((sub) => (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#F7F5FF] rounded-lg text-[0.7rem] font-semibold text-[#4B3B72] hover:bg-[#EDE9FF] hover:text-[#2D1B4E] transition-colors"
-                      >
-                        <span className="text-[0.8rem]">{sub.icon}</span>
-                        {sub.label}
-                      </Link>
-                    ))}
-                    {category.subcategories.length > 8 && (
-                      <Link
-                        href={category.href}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[0.7rem] font-bold text-[#F59E0B] hover:underline transition-colors"
-                      >
-                        +{category.subcategories.length - 8} more
-                      </Link>
-                    )}
+                {/* Subcategories - Show in grid view or always on desktop */}
+                {viewMode === "grid" && (
+                  <div className="p-4 md:p-5">
+                    <div className="flex flex-wrap gap-2">
+                      {category.subcategories.slice(0, 8).map((sub) => (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#F7F5FF] rounded-lg text-[0.7rem] font-semibold text-[#4B3B72] hover:bg-[#EDE9FF] hover:text-[#2D1B4E] transition-colors"
+                        >
+                          <span className="text-[0.8rem]">{sub.icon}</span>
+                          {sub.label}
+                        </Link>
+                      ))}
+                      {category.subcategories.length > 8 && (
+                        <Link
+                          href={category.href}
+                          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[0.7rem] font-bold text-[#F59E0B] hover:underline transition-colors"
+                        >
+                          +{category.subcategories.length - 8} more
+                        </Link>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* No Results */}
-        {filteredCategories.length === 0 && (
-          <div className="text-center py-12 md:py-16">
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 md:py-16 bg-white rounded-2xl border border-[#EDE9FF]">
             <div className="w-16 h-16 bg-[#F0ECFF] rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Search size={28} className="text-[#9C8EC1]" />
             </div>
             <p className="font-extrabold text-[#2D1B4E] text-lg mb-2">No categories found</p>
-            <p className="text-[#9C8EC1] text-sm">Try searching with different keywords</p>
+            <p className="text-[#9C8EC1] text-sm mb-4">Try searching with different keywords</p>
+            <button
+              onClick={clearSearch}
+              className="text-[0.85rem] font-bold text-[#F59E0B] hover:underline"
+            >
+              Clear search
+            </button>
           </div>
         )}
       </div>
@@ -436,12 +479,12 @@ export default function CategoriesPage() {
       {isMobileView && selectedCategory && (
         <>
           <div 
-            className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[350] animate-[fadeIn_0.2s_ease] backdrop-blur-[2px]" 
+            className="fixed inset-0 bg-black/50 z-[350] animate-[fadeIn_0.2s_ease] backdrop-blur-[2px]" 
             onClick={closeSubcategoryDrawer} 
           />
-          <div className="fixed top-0 right-0 h-full w-[300px] max-w-[85vw] bg-white z-[351] flex flex-col overflow-y-auto animate-[slideInRight_0.26s_cubic-bezier(.32,.72,0,1)]">
+          <div className="fixed top-0 right-0 h-full w-[300px] max-w-[85vw] bg-white z-[351] flex flex-col overflow-y-auto animate-[slideInRight_0.26s_cubic-bezier(.32,.72,0,1)] shadow-xl">
             {/* Drawer Header */}
-            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0">
+            <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0 sticky top-0 bg-white z-10">
               <button 
                 onClick={closeSubcategoryDrawer} 
                 className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] rounded-lg text-[#2D1B4E] hover:bg-[#EDE9FF] transition-colors"
@@ -488,7 +531,7 @@ export default function CategoriesPage() {
         </>
       )}
 
-      <style jsx global>{`
+      <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -498,6 +541,6 @@ export default function CategoriesPage() {
           to { transform: translateX(0); }
         }
       `}</style>
-    </>
+    </div>
   );
 }
