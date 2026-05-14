@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/context/CartContext";
+import MobileNav from "@/components/ui/MobileNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,8 +30,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-full" suppressHydrationWarning>
         <CartProvider>
-          {/* Main content */}
           <main className="min-h-screen">{children}</main>
+          <MobileNav />
         </CartProvider>
       </body>
     </html>
