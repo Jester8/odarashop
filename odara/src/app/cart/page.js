@@ -17,6 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useCart } from "@/lib/context/CartContext";
+import { useUser } from "@/lib/firebase/useAuth";
 
 function StarRating({ rating, size = 14 }) {
   const full = Math.floor(rating);
@@ -140,7 +141,7 @@ function EmptyCart() {
   );
 }
 
-function OrderSummary({ subtotal, shipping, tax, total, onCheckout }) {
+function OrderSummary({ subtotal, shipping, tax, total, onCheckout, isCheckingOut }) {
   return (
     <div className="bg-gray-50 rounded-2xl p-5 md:p-6">
       <h3 className="text-base font-bold text-gray-900 mb-4">Order Summary</h3>
@@ -172,9 +173,10 @@ function OrderSummary({ subtotal, shipping, tax, total, onCheckout }) {
 
       <button
         onClick={onCheckout}
-        className="w-full mt-6 bg-orange-500 text-white py-3 rounded-xl font-bold text-sm hover:bg-orange-600 transition active:scale-95"
+        disabled={isCheckingOut}
+        className="w-full mt-6 bg-orange-500 text-white py-3 rounded-xl font-bold text-sm hover:bg-orange-600 transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        Proceed to Checkout
+        {isCheckingOut ? "Checking..." : "Proceed to Checkout"}
       </button>
 
       <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-gray-200">
@@ -198,6 +200,7 @@ function OrderSummary({ subtotal, shipping, tax, total, onCheckout }) {
 export default function CartPage() {
   const router = useRouter();
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { user, loading: authLoading } = useUser();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
@@ -206,6 +209,15 @@ export default function CartPage() {
   const total = subtotal + shipping + tax;
 
   const handleCheckout = () => {
+    // Check if user is logged in
+    if (!authLoading && !user) {
+      // Store the current cart page URL to redirect back after login
+      sessionStorage.setItem("redirectAfterLogin", "/checkout");
+      router.push("/login");
+      return;
+    }
+
+    // User is logged in, proceed to checkout
     setIsCheckingOut(true);
     setTimeout(() => {
       router.push("/checkout");
@@ -277,6 +289,7 @@ export default function CartPage() {
                   tax={tax}
                   total={total}
                   onCheckout={handleCheckout}
+                  isCheckingOut={isCheckingOut}
                 />
 
                 <p className="text-xs text-gray-400 text-center mt-4">

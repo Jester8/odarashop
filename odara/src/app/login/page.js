@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/firebase/useAuth';
 
+// ─── Icons ───────────────────────────────────────────────────────────────────
 const EyeIcon = ({ open }) =>
   open ? (
     <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -26,7 +27,6 @@ const GoogleIcon = () => (
   </svg>
 );
 
-// ─── Spinner ────────────────────────────────────────────────────────────────
 const Spinner = () => (
   <svg className="animate-spin w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
@@ -34,48 +34,27 @@ const Spinner = () => (
   </svg>
 );
 
-const inputCls = "w-full bg-white border border-[#DDD5F8] rounded-xl px-4 py-3 text-[0.9rem] font-medium text-[#111827] outline-none placeholder:text-[#C4BAD8] focus:border-[#6D4DB2] focus:ring-2 focus:ring-[#6D4DB2]/10 transition-all";
-const labelCls = "block text-[0.72rem] font-bold text-[#4B3B72] uppercase tracking-[0.055em] mb-2";
-const btnCls   = "w-full flex items-center justify-center bg-[#2D1B4E] hover:bg-[#3d2568] text-white font-extrabold text-[0.92rem] rounded-xl py-3.5 transition-all hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed";
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const inputCls   = "w-full bg-white border border-[#DDD5F8] rounded-xl px-4 py-3 text-[0.9rem] font-medium text-[#111827] outline-none placeholder:text-[#C4BAD8] focus:border-[#6D4DB2] focus:ring-2 focus:ring-[#6D4DB2]/10 transition-all";
+const inputClsPr = "w-full bg-white border border-[#DDD5F8] rounded-xl pl-4 pr-12 py-3 text-[0.9rem] font-medium text-[#111827] outline-none placeholder:text-[#C4BAD8] focus:border-[#6D4DB2] focus:ring-2 focus:ring-[#6D4DB2]/10 transition-all";
+const labelCls   = "block text-[0.72rem] font-bold text-[#4B3B72] uppercase tracking-[0.055em] mb-2";
+const btnCls     = "w-full flex items-center justify-center bg-[#2D1B4E] hover:bg-[#3d2568] text-white font-extrabold text-[0.92rem] rounded-xl py-3.5 transition-all hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed";
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { login, loginWithGoogle, loading, error, setError } = useAuth();
-
-  const [email,      setEmail]      = useState('');
-  const [password,   setPassword]   = useState('');
-  const [showPass,   setShowPass]   = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-
-  // Local loading state for Google button
-  const [googleLoading, setGoogleLoading] = useState(false);
-
-  const isAnythingLoading = loading || googleLoading;
-
-  // ── Email / Password login ───────────────────────────────────────────────
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    if (!email || !password) { setError('Please fill in all fields.'); return; }
-
-    const user = await login({ email, password });
-    if (user) router.push('/dashboard');
-  };
-
-  // ── Google login ─────────────────────────────────────────────────────────
-  const handleGoogle = async () => {
-    setError('');
-    setGoogleLoading(true);
-    try {
-      const user = await loginWithGoogle();
-      if (user) router.push('/dashboard');
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
-  // ── Shared form body ──────────────────────────────────────────────────────
-  const FormBody = ({ prefix }) => (
+// ─── Form Body (outside LoginPage to prevent remount on every keystroke) ──────
+function FormBody({
+  prefix,
+  email, setEmail,
+  password, setPassword,
+  showPass, setShowPass,
+  rememberMe, setRememberMe,
+  error,
+  loading,
+  googleLoading,
+  isAnythingLoading,
+  handleSubmit,
+  handleGoogle,
+}) {
+  return (
     <>
       {/* Google button */}
       <div>
@@ -90,6 +69,7 @@ export default function LoginPage() {
         </button>
       </div>
 
+      {/* Divider */}
       <div className="flex items-center gap-2.5 my-5">
         <div className="flex-1 h-px bg-[#DDD5F8]" />
         <span className="text-[0.7rem] font-semibold text-[#C4BAD8] tracking-wide">or continue with email</span>
@@ -135,7 +115,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
-              className={`${inputCls} pr-12`}
+              className={inputClsPr}
             />
             <button
               type="button"
@@ -166,12 +146,7 @@ export default function LoginPage() {
 
         {/* Submit */}
         <button type="submit" disabled={isAnythingLoading} className={btnCls}>
-          {loading ? (
-            <>
-              <Spinner />
-              Signing in…
-            </>
-          ) : 'Sign In'}
+          {loading ? <><Spinner />Signing in…</> : 'Sign In'}
         </button>
       </form>
 
@@ -181,22 +156,69 @@ export default function LoginPage() {
       </p>
     </>
   );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+export default function LoginPage() {
+  const router = useRouter();
+  const { login, loginWithGoogle, loading, error, setError } = useAuth();
+
+  const [email,         setEmail]         = useState('');
+  const [password,      setPassword]      = useState('');
+  const [showPass,      setShowPass]      = useState(false);
+  const [rememberMe,    setRememberMe]    = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const isAnythingLoading = loading || googleLoading;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email || !password) { setError('Please fill in all fields.'); return; }
+    const user = await login({ email, password });
+    if (user) router.push('/');
+  };
+
+  const handleGoogle = async () => {
+    setError('');
+    setGoogleLoading(true);
+    try {
+      const user = await loginWithGoogle();
+      if (user) router.push('/dashboard');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const formProps = {
+    email, setEmail,
+    password, setPassword,
+    showPass, setShowPass,
+    rememberMe, setRememberMe,
+    error,
+    loading,
+    googleLoading,
+    isAnythingLoading,
+    handleSubmit,
+    handleGoogle,
+  };
 
   return (
     <div className="min-h-dvh bg-[#F7F5FF]">
-      {/* Mobile */}
+
+      {/* ── Mobile ── */}
       <div className="md:hidden flex flex-col min-h-dvh px-6 pt-12 pb-10">
         <h1 className="text-2xl font-extrabold text-[#1F1235] mb-1">Welcome back</h1>
         <p className="text-[0.875rem] font-medium text-[#7A6B98] mb-7">Sign in to your account</p>
-        <FormBody prefix="m" />
+        <FormBody prefix="m" {...formProps} />
       </div>
 
-      {/* Desktop */}
+      {/* ── Desktop ── */}
       <div className="hidden md:flex items-center justify-center min-h-dvh px-6 py-16">
         <div className="w-full max-w-[460px]">
           <h1 className="text-[1.85rem] font-extrabold text-[#1F1235] text-center mb-1.5">Welcome back</h1>
           <p className="text-[0.9rem] font-medium text-[#7A6B98] text-center mb-8">Sign in to your Odara account</p>
-          <FormBody prefix="d" />
+          <FormBody prefix="d" {...formProps} />
           <div className="flex justify-center gap-4 mt-10">
             <Link href="/privacy" className="text-[0.7rem] font-medium text-[#C4BAD8] hover:text-[#9C8EC1] transition-colors">Privacy Policy</Link>
             <span className="text-[#DDD5F8]">·</span>
@@ -204,6 +226,7 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
     </div>
   );
 }

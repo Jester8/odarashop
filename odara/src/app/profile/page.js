@@ -38,11 +38,13 @@ const icons = {
 };
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
-const inputCls  = "w-full bg-white border border-[#DDD5F8] rounded-xl px-4 py-3 text-[0.9rem] font-medium text-[#111827] outline-none placeholder:text-[#C4BAD8] focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/10 transition-all";
-const labelCls  = "block text-[0.72rem] font-bold text-[#4B3B72] uppercase tracking-[0.055em] mb-1.5";
-const btnPrimary = "flex items-center justify-center gap-2 bg-[#2D1B4E] hover:bg-[#3d2568] text-white font-extrabold text-[0.88rem] rounded-xl px-5 py-2.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed";
-const btnOrange  = "flex items-center justify-center gap-2 bg-[#2D1B4E] hover:bg-[#3d2568] text-white font-extrabold text-[0.88rem] rounded-xl px-5 py-2.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed";
-const btnGhost  = "flex items-center justify-center gap-2 border border-[#DDD5F8] bg-white hover:bg-[#F5F3FF] text-[#4B3B72] font-bold text-[0.88rem] rounded-xl px-5 py-2.5 transition-all";
+const inputCls    = "w-full bg-white border border-[#DDD5F8] rounded-xl px-4 py-3 text-[0.9rem] font-medium text-[#111827] outline-none placeholder:text-[#C4BAD8] focus:border-[#F59E0B] focus:ring-2 focus:ring-[#F59E0B]/10 transition-all";
+const inputReadonly = "w-full bg-[#FAFAFA] border border-[#EDE9FF] rounded-xl px-4 py-3 text-[0.9rem] font-medium text-[#111827]";
+const labelCls    = "block text-[0.72rem] font-bold text-[#4B3B72] uppercase tracking-[0.055em] mb-1.5";
+const labelLockedCls = "block text-[0.72rem] font-bold text-[#4B3B72] uppercase tracking-[0.055em] mb-1.5";
+const btnPrimary  = "flex items-center justify-center gap-2 bg-[#2D1B4E] hover:bg-[#3d2568] text-white font-extrabold text-[0.88rem] rounded-xl px-5 py-2.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed";
+const btnOrange   = "flex items-center justify-center gap-2 bg-[#2D1B4E] hover:bg-[#3d2568] text-white font-extrabold text-[0.88rem] rounded-xl px-5 py-2.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed";
+const btnGhost    = "flex items-center justify-center gap-2 border border-[#DDD5F8] bg-white hover:bg-[#F5F3FF] text-[#4B3B72] font-bold text-[0.88rem] rounded-xl px-5 py-2.5 transition-all";
 
 const Spinner = () => (
   <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
@@ -79,25 +81,19 @@ function Toast({ message, type = "success", onClose }) {
   );
 }
 
-// ─── Fullscreen Modal Popup for Mobile ──────────────────────────────────────────────
+// ─── Fullscreen Modal Popup for Mobile ───────────────────────────────────────
 function FullscreenModal({ isOpen, onClose, title, children }) {
   if (!isOpen) return null;
-  
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col md:hidden">
-      {/* Sticky header */}
       <div className="sticky top-0 bg-white border-b border-[#EDE9FF] px-5 py-4 flex items-center justify-between shrink-0">
         <h3 className="text-[1rem] font-extrabold text-[#2D1B4E]">{title}</h3>
         <button onClick={onClose} className="text-[#9C8EC1] hover:text-[#2D1B4E] p-1">
           <Icon d={icons.x} size={24} stroke={2} />
         </button>
       </div>
-      
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto pb-8">
-        <div className="p-5">
-          {children}
-        </div>
+        <div className="p-5">{children}</div>
       </div>
     </div>
   );
@@ -151,47 +147,67 @@ function SideNavItem({ iconPath, label, active, onClick }) {
 // ─── Sections ─────────────────────────────────────────────────────────────────
 
 function PersonalInfoSection({ userData, onSave, saving }) {
+  // Only phone is editable
   const [form, setForm] = useState({
-    fullName: userData?.fullName || "",
-    phone:    userData?.phone    || "",
-    dob:      userData?.dob      || "",
+    phone: userData?.phone || "",
   });
   const set = (k) => (e) => setForm(p => ({ ...p, [k]: e.target.value }));
 
+  // Derived read-only values
+  const fullName    = userData?.fullName || "—";
+  const email       = userData?.email    || "—";
+  const dob         = userData?.dob      || "—";
+  const memberSince = userData?.createdAt?.toDate
+    ? userData.createdAt.toDate().toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })
+    : "—";
+
   return (
-    <SectionCard title="Personal Information"
+    <SectionCard
+      title="Personal Information"
       action={
         <button onClick={() => onSave(form)} disabled={saving} className={btnPrimary}>
           {saving ? <Spinner /> : <Icon d={icons.check} size={15} stroke={2.5} />}
           {saving ? "Saving…" : "Save"}
         </button>
-      }>
+      }
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        {/* Full Name — read-only */}
         <div className="sm:col-span-2">
-          <label className={labelCls}>Full Name</label>
-          <input className={inputCls} value={form.fullName} onChange={set("fullName")} placeholder="Your full name" />
+          <label className={labelLockedCls}>Full Name</label>
+          <div className={inputReadonly}>{fullName}</div>
         </div>
+
+        {/* Email — read-only */}
         <div>
-          <label className={labelCls}>Email Address</label>
-          <input className={`${inputCls} bg-[#FAFAFA] text-[#9C8EC1] cursor-not-allowed`}
-            value={userData?.email || ""} disabled placeholder="Email" />
-          <p className="text-[0.7rem] text-[#C4BAD8] mt-1 font-medium">Email cannot be changed here</p>
+          <label className={labelLockedCls}>Email Address</label>
+          <div className={inputReadonly}>{email}</div>
         </div>
+
+        {/* Date of Birth — read-only */}
         <div>
+          <label className={labelLockedCls}>Date of Birth</label>
+          <div className={inputReadonly}>{dob}</div>
+        </div>
+
+        {/* Member Since — read-only */}
+        <div>
+          <label className={labelLockedCls}>Member Since</label>
+          <div className={inputReadonly}>{memberSince}</div>
+        </div>
+
+        {/* Phone — editable */}
+        <div className="sm:col-span-2">
           <label className={labelCls}>Phone Number</label>
-          <input className={inputCls} value={form.phone} onChange={set("phone")} placeholder="+234 000 000 0000" />
+          <input
+            className={inputCls}
+            value={form.phone}
+            onChange={set("phone")}
+            placeholder="+234 000 000 0000"
+          />
         </div>
-        <div>
-          <label className={labelCls}>Date of Birth</label>
-          <input type="date" className={inputCls} value={form.dob} onChange={set("dob")} />
-        </div>
-        <div>
-          <label className={labelCls}>Member Since</label>
-          <input className={`${inputCls} bg-[#FAFAFA] text-[#9C8EC1] cursor-not-allowed`}
-            value={userData?.createdAt?.toDate
-              ? userData.createdAt.toDate().toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })
-              : "—"} disabled />
-        </div>
+
       </div>
     </SectionCard>
   );
@@ -366,8 +382,8 @@ function AddressSection({ addresses, onAdd, onDelete }) {
 }
 
 function SecuritySection({ onChangePassword, saving }) {
-  const [form, setForm]   = useState({ current: "", next: "", confirm: "" });
-  const [show, setShow]   = useState({ current: false, next: false, confirm: false });
+  const [form, setForm] = useState({ current: "", next: "", confirm: "" });
+  const [show, setShow] = useState({ current: false, next: false, confirm: false });
   const toggle = (k) => setShow(p => ({ ...p, [k]: !p[k] }));
   const set    = (k) => (e) => setForm(p => ({ ...p, [k]: e.target.value }));
 
@@ -418,15 +434,14 @@ export default function ProfilePage() {
   const { user, loading: authLoading } = useUser();
   const { logout } = useAuth();
 
-  const [userData,    setUserData]    = useState(null);
+  const [userData,     setUserData]     = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
-  const [activeTab,   setActiveTab]   = useState("info");
-  const [saving,      setSaving]      = useState(false);
-  const [toast,       setToast]       = useState(null);
-  const [modalOpen,   setModalOpen]   = useState(false);
+  const [activeTab,    setActiveTab]    = useState("info");
+  const [saving,       setSaving]       = useState(false);
+  const [toast,        setToast]        = useState(null);
+  const [modalOpen,    setModalOpen]    = useState(false);
   const [modalContent, setModalContent] = useState(null);
 
-  // Placeholder data — replace with real Firestore collections
   const [orders]    = useState([]);
   const [wishlist]  = useState([]);
   const [addresses, setAddresses] = useState([]);
@@ -444,12 +459,10 @@ export default function ProfilePage() {
     setModalContent(null);
   };
 
-  // ── Redirect if not logged in ─────────────────────────────────────────────
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
   }, [user, authLoading]);
 
-  // ── Fetch Firestore profile ───────────────────────────────────────────────
   useEffect(() => {
     if (!user?.uid) return;
     (async () => {
@@ -464,17 +477,14 @@ export default function ProfilePage() {
     })();
   }, [user]);
 
-  // ── Save personal info ────────────────────────────────────────────────────
+  // ── Save personal info — only phone ───────────────────────────────
   const handleSaveInfo = async (form) => {
     setSaving(true);
     try {
       await updateDoc(doc(db, "users", user.uid), {
-        fullName: form.fullName,
-        phone:    form.phone,
-        dob:      form.dob,
+        phone: form.phone,
       });
-      await updateProfile(auth.currentUser, { displayName: form.fullName });
-      setUserData(p => ({ ...p, ...form }));
+      setUserData(p => ({ ...p, phone: form.phone }));
       showToast("Profile updated successfully");
       closeModal();
     } catch (e) {
@@ -559,11 +569,10 @@ export default function ProfilePage() {
     <div className="min-h-dvh bg-[#F7F5FF]">
 
       {/* ════════════════════════════════════════════════════════════════════
-          MOBILE  (< md) - Fullscreen Popup Modals
+          MOBILE  (< md)
       ════════════════════════════════════════════════════════════════════ */}
       <div className="md:hidden flex flex-col min-h-dvh">
 
-        {/* Mobile header */}
         <div className="bg-white border-b border-[#EDE9FF] px-5 pt-12 pb-5">
           <div className="flex items-center gap-4">
             <Avatar name={displayName} photoURL={user.photoURL} size={60} />
@@ -576,12 +585,11 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Quick stats */}
           <div className="grid grid-cols-3 gap-2 mt-5">
             {[
-              { label: "Orders",    value: orders.length   },
-              { label: "Wishlist",  value: wishlist.length },
-              { label: "Addresses", value: addresses.length},
+              { label: "Orders",    value: orders.length    },
+              { label: "Wishlist",  value: wishlist.length  },
+              { label: "Addresses", value: addresses.length },
             ].map(s => (
               <div key={s.label} className="bg-[#F7F5FF] rounded-xl py-3 text-center border border-[#EDE9FF]">
                 <p className="text-[1.1rem] font-extrabold text-[#2D1B4E]">{s.value}</p>
@@ -591,7 +599,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Mobile nav list - opens modals */}
         <div className="flex-1 py-3">
           <div className="bg-white rounded-2xl mx-4 mt-2 border border-[#EDE9FF] overflow-hidden divide-y divide-[#F5F3FF]">
             {NAV_ITEMS.map(item => (
@@ -607,7 +614,6 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          {/* Logout */}
           <div className="bg-white rounded-2xl mx-4 mt-4 border border-[#EDE9FF] overflow-hidden mb-8">
             <MobileNavItem iconPath={icons.logout} label="Sign Out"
               sublabel="You will be logged out" onClick={handleLogout} danger />
@@ -616,9 +622,9 @@ export default function ProfilePage() {
       </div>
 
       {/* Mobile Fullscreen Modal */}
-      <FullscreenModal 
-        isOpen={modalOpen} 
-        onClose={closeModal} 
+      <FullscreenModal
+        isOpen={modalOpen}
+        onClose={closeModal}
         title={NAV_ITEMS.find(n => n.id === modalContent)?.label || ""}
       >
         {renderSection()}
@@ -628,7 +634,6 @@ export default function ProfilePage() {
           DESKTOP  (≥ md)
       ════════════════════════════════════════════════════════════════════ */}
       <div className="hidden md:block">
-        {/* Top bar */}
         <div className="bg-white border-b border-[#EDE9FF] px-8 py-4 flex items-center justify-between">
           <Link href="/" className="text-[0.82rem] font-bold text-[#9C8EC1] hover:text-[#F59E0B] transition-colors flex items-center gap-1.5">
             <Icon d="M19 12H5M12 5l-7 7 7 7" size={14} stroke={2.5} />
@@ -647,7 +652,6 @@ export default function ProfilePage() {
 
             {/* ── Sidebar ── */}
             <aside className="w-[260px] shrink-0">
-              {/* Profile card */}
               <div className="bg-white rounded-2xl border border-[#EDE9FF] p-6 mb-4">
                 <div className="flex flex-col items-center text-center">
                   <div className="relative mb-4">
@@ -660,12 +664,11 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* Stats */}
                 <div className="grid grid-cols-3 gap-2 mt-5 pt-5 border-t border-[#F0ECFF]">
                   {[
-                    { label: "Orders",   value: orders.length    },
-                    { label: "Saved",    value: wishlist.length  },
-                    { label: "Addr.",    value: addresses.length },
+                    { label: "Orders", value: orders.length    },
+                    { label: "Saved",  value: wishlist.length  },
+                    { label: "Addr.",  value: addresses.length },
                   ].map(s => (
                     <div key={s.label} className="text-center">
                       <p className="text-[1.1rem] font-extrabold text-[#2D1B4E]">{s.value}</p>
@@ -675,7 +678,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Nav */}
               <nav className="bg-white rounded-2xl border border-[#EDE9FF] p-3 space-y-1">
                 {NAV_ITEMS.map(item => (
                   <SideNavItem key={item.id} iconPath={item.icon} label={item.label}
@@ -693,7 +695,6 @@ export default function ProfilePage() {
 
             {/* ── Main content ── */}
             <main className="flex-1 min-w-0">
-              {/* Breadcrumb */}
               <div className="flex items-center gap-2 mb-5 text-[0.77rem] font-bold text-[#C4BAD8]">
                 <span>Account</span>
                 <Icon d={icons.chevronRight} size={12} stroke={2.5} />
