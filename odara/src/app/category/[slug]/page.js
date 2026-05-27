@@ -280,7 +280,7 @@ export default function CategoryPage() {
               <h3 className="font-extrabold text-black text-sm mb-3">Subcategories</h3>
               <div className="space-y-1">
                 <Link
-                  href={`/category/${categorySlug}`}
+                  href={`/categories/${categorySlug}`}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     !selectedSubcategory
                       ? "bg-[#2D1B4E] text-white"
@@ -292,7 +292,7 @@ export default function CategoryPage() {
                 {category.subcategories.map((sub) => (
                   <Link
                     key={sub.slug}
-                    href={`/category/${categorySlug}/${sub.slug}`}
+                    href={`/categories/${categorySlug}/${sub.slug}`}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedSubcategory?.slug === sub.slug
                         ? "bg-[#2D1B4E] text-white"

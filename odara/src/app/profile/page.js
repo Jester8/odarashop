@@ -639,12 +639,8 @@ export default function ProfilePage() {
             <Icon d="M19 12H5M12 5l-7 7 7 7" size={14} stroke={2.5} />
             Back to shop
           </Link>
-          <p className="text-[0.72rem] font-extrabold text-[#C4BAD8] uppercase tracking-[0.12em]">My Account</p>
-          <button onClick={handleLogout}
-            className="flex items-center gap-1.5 text-[0.82rem] font-bold text-[#9C8EC1] hover:text-red-400 transition-colors">
-            <Icon d={icons.logout} size={15} stroke={2} />
-            Sign out
-          </button>
+       
+         
         </div>
 
         <div className="max-w-[1100px] mx-auto px-8 py-10">

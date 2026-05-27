@@ -143,23 +143,218 @@ const CATEGORIES = [
   },
 ];
 
+// ─────────────────────────────────────────────
+// Fuzzy / keyword synonym map
+// ─────────────────────────────────────────────
+const SYNONYMS = {
+  clothes: ['Fashion & Apparel', 'Home & Living'],
+  clothing: ['Fashion & Apparel'],
+  dress: ['Fashion & Apparel'],
+  wear: ['Fashion & Apparel'],
+  outfit: ['Fashion & Apparel'],
+  shoes: ['Fashion & Apparel'],
+  bag: ['Fashion & Apparel'],
+  bags: ['Fashion & Apparel'],
+  purse: ['Fashion & Apparel'],
+  jewel: ['Jewelry'],
+  jewellery: ['Jewelry'],
+  jewelry: ['Jewelry'],
+  necklace: ['Jewelry'],
+  ring: ['Jewelry'],
+  bracelet: ['Jewelry'],
+  food: ['Food & Beverages'],
+  drink: ['Food & Beverages'],
+  spice: ['Food & Beverages'],
+  snack: ['Food & Beverages'],
+  beauty: ['Beauty & Personal Care'],
+  skin: ['Beauty & Personal Care'],
+  hair: ['Beauty & Personal Care'],
+  makeup: ['Beauty & Personal Care'],
+  cream: ['Beauty & Personal Care'],
+  lotion: ['Beauty & Personal Care'],
+  home: ['Home & Living'],
+  furniture: ['Home & Living'],
+  kitchen: ['Home & Living'],
+  decor: ['Home & Living'],
+  health: ['Health & Wellness'],
+  herb: ['Health & Wellness'],
+  wellness: ['Health & Wellness'],
+  oil: ['Health & Wellness'],
+  tea: ['Health & Wellness'],
+  book: ['Literature & Stationery'],
+  novel: ['Literature & Stationery'],
+  journal: ['Literature & Stationery'],
+  music: ['Music & Instruments'],
+  instrument: ['Music & Instruments'],
+  drum: ['Music & Instruments'],
+  guitar: ['Music & Instruments'],
+  tech: ['Technology'],
+  phone: ['Technology'],
+  gadget: ['Technology'],
+  laptop: ['Technology'],
+  watch: ['Technology'],
+  art: ['Arts & Crafts'],
+  craft: ['Arts & Crafts'],
+  painting: ['Arts & Crafts'],
+  sculpture: ['Arts & Crafts'],
+  pottery: ['Arts & Crafts'],
+};
+
+// ─────────────────────────────────────────────
+// Search logic
+// ─────────────────────────────────────────────
+function getSearchResults(query) {
+  if (!query || query.trim().length < 1) return null;
+  const q = query.trim().toLowerCase();
+
+  // 1. Direct subcategory matches
+  const directMatches = [];
+  for (const cat of CATEGORIES) {
+    for (const sub of cat.subcategories) {
+      if (sub.label.toLowerCase().includes(q)) {
+        directMatches.push({ type: 'subcategory', cat, sub });
+      }
+    }
+    // also match category name itself
+    if (cat.label.toLowerCase().includes(q)) {
+      directMatches.push({ type: 'category', cat });
+    }
+  }
+
+  if (directMatches.length > 0) {
+    return { type: 'direct', items: directMatches.slice(0, 8) };
+  }
+
+  // 2. Synonym / fuzzy fallback — find related category names
+  const relatedCatLabels = new Set();
+  for (const [keyword, catLabels] of Object.entries(SYNONYMS)) {
+    if (q.includes(keyword) || keyword.includes(q)) {
+      catLabels.forEach(l => relatedCatLabels.add(l));
+    }
+  }
+
+  if (relatedCatLabels.size > 0) {
+    const suggestedCats = CATEGORIES.filter(c => relatedCatLabels.has(c.label));
+    return { type: 'suggestions', query, cats: suggestedCats };
+  }
+
+  // 3. Nothing found
+  return { type: 'empty', query };
+}
+
+// ─────────────────────────────────────────────
+// Search Dropdown Component
+// ─────────────────────────────────────────────
+function SearchDropdown({ query, onClose, router }) {
+  const results = getSearchResults(query);
+  if (!results) return null;
+
+  const handleNav = (href) => {
+    router.push(href);
+    onClose();
+  };
+
+  if (results.type === 'direct') {
+    // Group by category for cleaner display
+    const grouped = {};
+    for (const item of results.items) {
+      const key = item.cat.label;
+      if (!grouped[key]) grouped[key] = { cat: item.cat, items: [] };
+      if (item.type === 'subcategory') grouped[key].items.push(item.sub);
+    }
+
+    return (
+      <div className="search-dropdown">
+        {Object.values(grouped).map(({ cat, items }) => (
+          <div key={cat.label} className="search-group">
+            <button
+              className="search-group-header"
+              onClick={() => handleNav(cat.href)}
+            >
+              <span className="search-group-icon">{cat.icon}</span>
+              <span className="search-group-label">{cat.label}</span>
+              
+            </button>
+            {items.map(sub => (
+              <button
+                key={sub.href}
+                className="search-result-item"
+                onClick={() => handleNav(sub.href)}
+              >
+                <span className="search-result-icon">{sub.icon}</span>
+                <span className="search-result-label">{sub.label}</span>
+                <span className="search-result-hint">in {cat.label}</span>
+              </button>
+            ))}
+          </div>
+        ))}
+        <button
+          className="search-view-all"
+          onClick={() => handleNav(`/search?q=${encodeURIComponent(query)}`)}
+        >
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search all results for "<strong>{query}</strong>"
+        </button>
+      </div>
+    );
+  }
+
+  if (results.type === 'suggestions') {
+    return (
+      <div className="search-dropdown">
+        <div className="search-no-match-banner">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="search-info-icon">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          No exact match for "<strong>{results.query}</strong>" — here are related categories:
+        </div>
+        {results.cats.map(cat => (
+          <div key={cat.label} className="search-group">
+            <button
+              className="search-group-header"
+              onClick={() => handleNav(cat.href)}
+            >
+              <span className="search-group-icon">{cat.icon}</span>
+              <span className="search-group-label">{cat.label}</span>
+              <span className="search-group-arrow">→</span>
+            </button>
+            {cat.subcategories.map(sub => (
+              <button
+                key={sub.href}
+                className="search-result-item"
+                onClick={() => handleNav(sub.href)}
+              >
+                <span className="search-result-icon">{sub.icon}</span>
+                <span className="search-result-label">{sub.label}</span>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // type === 'empty'
+  return (
+    <div className="search-dropdown">
+      <div className="search-empty">
+        <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="search-empty-icon">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <p className="search-empty-title">No results for "<strong>{results.query}</strong>"</p>
+        <p className="search-empty-sub">Try a different keyword or browse categories</p>
+      </div>
+    </div>
+  );
+}
+
 const DefaultAvatarIcon = ({ size = 28 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 28 28"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width={size} height={size} viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="14" cy="14" r="14" fill="#2D1B4E" />
     <circle cx="14" cy="11" r="4" fill="white" fillOpacity="0.9" />
-    <path
-      d="M6 24c0-4.418 3.582-8 8-8s8 3.582 8 8"
-      stroke="white"
-      strokeOpacity="0.9"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M6 24c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="white" strokeOpacity="0.9" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
@@ -205,14 +400,11 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
-
   const firstName = (profile?.fullName || user?.displayName || '').split(' ')[0];
 
   useEffect(() => {
     const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -223,8 +415,7 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
       return (
         <Link href="/login" className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M5 20a7 7 0 0 1 14 0" />
+            <circle cx="12" cy="8" r="4" /><path d="M5 20a7 7 0 0 1 14 0" />
           </svg>
         </Link>
       );
@@ -232,8 +423,7 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
     return (
       <Link href="/login" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M5 20a7 7 0 0 1 14 0" />
+          <circle cx="12" cy="8" r="4" /><path d="M5 20a7 7 0 0 1 14 0" />
         </svg>
         <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E]">Account</span>
       </Link>
@@ -241,46 +431,18 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
   }
 
   const avatarLetter = firstName?.[0]?.toUpperCase();
-
   const Avatar = ({ size = 28 }) => {
-    if (user.photoURL) {
-      return (
-        <img
-          src={user.photoURL}
-          alt={firstName}
-          width={size}
-          height={size}
-          className="rounded-full object-cover flex-shrink-0"
-          style={{ width: size, height: size }}
-        />
-      );
-    }
-    if (avatarLetter) {
-      return (
-        <div
-          className="rounded-full bg-[#2D1B4E] flex items-center justify-center flex-shrink-0"
-          style={{ width: size, height: size }}
-        >
-          <span className="text-white font-extrabold" style={{ fontSize: size * 0.36 }}>
-            {avatarLetter}
-          </span>
-        </div>
-      );
-    }
+    if (user.photoURL) return <img src={user.photoURL} alt={firstName} width={size} height={size} className="rounded-full object-cover flex-shrink-0" style={{ width: size, height: size }} />;
+    if (avatarLetter) return <div className="rounded-full bg-[#2D1B4E] flex items-center justify-center flex-shrink-0" style={{ width: size, height: size }}><span className="text-white font-extrabold" style={{ fontSize: size * 0.36 }}>{avatarLetter}</span></div>;
     return <DefaultAvatarIcon size={size} />;
   };
 
   if (isMobile) {
     return (
       <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all"
-          aria-label="Account menu"
-        >
+        <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center justify-center w-10 h-10 text-[#2D1B4E] rounded-lg hover:bg-[#F5F3FF] transition-all" aria-label="Account menu">
           <Avatar size={28} />
         </button>
-
         {dropdownOpen && (
           <div className="absolute right-0 top-full mt-2 w-[200px] bg-white border border-[#EDE9F6] rounded-xl shadow-xl z-[999] overflow-hidden animate-[nb-dropIn_0.15s_ease]">
             <MiniDropdown firstName={firstName} onLogout={onLogout} router={router} setDropdownOpen={setDropdownOpen} />
@@ -292,17 +454,10 @@ function AccountButton({ user, profile, onLogout, isMobile = false }) {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all"
-        aria-label="Account menu"
-      >
+      <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all" aria-label="Account menu">
         <Avatar size={26} />
-        <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E] max-w-[64px] truncate leading-none">
-          Hi, {firstName || 'You'}
-        </span>
+        <span className="text-[0.6rem] font-extrabold tracking-widest uppercase text-[#2D1B4E] max-w-[64px] truncate leading-none">Hi, {firstName || 'You'}</span>
       </button>
-
       {dropdownOpen && (
         <div className="absolute right-0 top-full mt-2 w-[200px] bg-white border border-[#EDE9F6] rounded-xl shadow-xl z-[999] overflow-hidden animate-[nb-dropIn_0.15s_ease]">
           <MiniDropdown firstName={firstName} onLogout={onLogout} router={router} setDropdownOpen={setDropdownOpen} />
@@ -319,40 +474,126 @@ function MiniDropdown({ firstName, onLogout, router, setDropdownOpen }) {
     { label: 'Wishlist', icon: '❤️', href: '/wishlist' },
     { label: 'Settings', icon: '⚙️', href: '/settings' },
   ];
-
   return (
     <>
       <div className="px-4 py-3 border-b border-[#F0EEF4] bg-[#FAFAFC]">
         <p className="text-[0.65rem] font-bold text-[#B0A8C8] uppercase tracking-wider">Welcome back</p>
         <p className="text-[0.88rem] font-extrabold text-[#2D1B4E] truncate">{firstName || 'there'}</p>
       </div>
-
       {items.map((item, i) => (
         <div key={item.href}>
-          <button
-            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] font-semibold text-[#374151] hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors text-left"
-            onClick={() => { router.push(item.href); setDropdownOpen(false); }}
-          >
-            <span className="text-sm">{item.icon}</span>
-            {item.label}
+          <button className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] font-semibold text-[#374151] hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors text-left" onClick={() => { router.push(item.href); setDropdownOpen(false); }}>
+            <span className="text-sm">{item.icon}</span>{item.label}
           </button>
           {i < items.length - 1 && <div className="h-px bg-[#F3F4F6] mx-3" />}
         </div>
       ))}
-
       <div className="border-t border-[#F0EEF4]">
-        <button
-          className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] font-semibold text-[#C0392B] hover:bg-[#FFF0F0] transition-colors"
-          onClick={onLogout}
-        >
-          <span className="text-sm">🚪</span>
-          Sign Out
+        <button className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[0.82rem] font-semibold text-[#C0392B] hover:bg-[#FFF0F0] transition-colors" onClick={onLogout}>
+          <span className="text-sm">🚪</span>Sign Out
         </button>
       </div>
     </>
   );
 }
 
+// ─────────────────────────────────────────────
+// SearchBar – shared between desktop & mobile
+// ─────────────────────────────────────────────
+function SearchBar({ isMobile = false }) {
+  const router = useRouter();
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+      setOpen(false);
+      setQuery('');
+    }
+  };
+
+  const handleChange = (e) => {
+    setQuery(e.target.value);
+    setOpen(e.target.value.trim().length > 0);
+  };
+
+  const closeDropdown = () => {
+    setOpen(false);
+    setQuery('');
+  };
+
+  if (isMobile) {
+    return (
+      <div ref={wrapperRef} className="relative w-full">
+        <form onSubmit={handleSubmit} className="relative flex items-center w-full">
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Search products, brands..."
+            value={query}
+            onChange={handleChange}
+            onFocus={() => query.trim().length > 0 && setOpen(true)}
+            className="w-full bg-[#EEEEF2] border-[1.5px] border-[#E8E4F0] rounded-full py-2.5 pl-4 pr-14 text-sm text-[#111827] font-['Manrope'] outline-none focus:border-[#C4B5E0] focus:bg-white transition-all"
+          />
+          <button type="submit" className="absolute right-1 bg-[#2D1B4E] text-white rounded-full p-2 hover:bg-[#3d2568] transition-colors flex items-center justify-center">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </form>
+        {open && (
+          <div className="absolute left-0 right-0 top-full mt-2 z-[500]">
+            <SearchDropdown query={query} onClose={closeDropdown} router={router} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={wrapperRef} className="relative flex-1 max-w-[680px]">
+      <form onSubmit={handleSubmit} className="flex w-full relative items-center">
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Search products, brands..."
+          value={query}
+          onChange={handleChange}
+          onFocus={() => query.trim().length > 0 && setOpen(true)}
+          className="w-full bg-[#EEEEF2] border-[1.5px] border-[#E8E4F0] rounded-[22px] py-2.5 px-4 pr-20 text-sm text-[#111827] font-['Manrope'] outline-none focus:border-[#C4B5E0] focus:bg-white transition-all"
+        />
+        <button type="submit" className="absolute right-1 flex items-center gap-1.5 bg-[#2D1B4E] text-white border-none rounded-[18px] py-1.5 px-3.5 text-xs font-bold font-['Manrope'] cursor-pointer whitespace-nowrap hover:bg-[#3d2568] transition-colors">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Search
+        </button>
+      </form>
+      {open && (
+        <div className="absolute left-0 right-0 top-full mt-2 z-[500]">
+          <SearchDropdown query={query} onClose={closeDropdown} router={router} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Navbar
+// ─────────────────────────────────────────────
 const Navbar = () => {
   const router = useRouter();
   const { user, profile } = useUser();
@@ -361,7 +602,6 @@ const Navbar = () => {
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerLangOpen, setDrawerLangOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
   const [mobileSubDrawerOpen, setMobileSubDrawerOpen] = useState(false);
@@ -379,12 +619,8 @@ const Navbar = () => {
   const megaVisible = !!activeCatLabel;
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+    try { await signOut(auth); router.push('/login'); }
+    catch (error) { console.error('Logout failed:', error); }
   };
 
   useEffect(() => {
@@ -395,10 +631,8 @@ const Navbar = () => {
 
   useEffect(() => {
     const onOutside = (e) => {
-      if (
-        langDropdownRef.current && !langDropdownRef.current.contains(e.target) &&
-        langButtonRef.current && !langButtonRef.current.contains(e.target)
-      ) setIsLangDropdownOpen(false);
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target) &&
+        langButtonRef.current && !langButtonRef.current.contains(e.target)) setIsLangDropdownOpen(false);
     };
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
@@ -406,10 +640,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const onOutside = (e) => {
-      if (megaMenuRef.current && !megaMenuRef.current.contains(e.target)) {
-        setPinnedCat(null);
-        setHoveredCat(null);
-      }
+      if (megaMenuRef.current && !megaMenuRef.current.contains(e.target)) { setPinnedCat(null); setHoveredCat(null); }
     };
     document.addEventListener('mousedown', onOutside);
     return () => document.removeEventListener('mousedown', onOutside);
@@ -422,37 +653,13 @@ const Navbar = () => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isDrawerOpen, mobileSubDrawerOpen]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) console.log('Search:', searchQuery);
-  };
-
-  const handleCatMouseEnter = (label) => {
-    clearTimeout(hoverTimerRef.current);
-    setHoveredCat(label);
-  };
-
-  const handleCatMouseLeave = () => {
-    hoverTimerRef.current = setTimeout(() => setHoveredCat(null), 120);
-  };
-
+  const handleCatMouseEnter = (label) => { clearTimeout(hoverTimerRef.current); setHoveredCat(label); };
+  const handleCatMouseLeave = () => { hoverTimerRef.current = setTimeout(() => setHoveredCat(null), 120); };
   const handleMegaMouseEnter = () => clearTimeout(hoverTimerRef.current);
-
-  const handleMegaMouseLeave = () => {
-    hoverTimerRef.current = setTimeout(() => setHoveredCat(null), 120);
-  };
-
+  const handleMegaMouseLeave = () => { hoverTimerRef.current = setTimeout(() => setHoveredCat(null), 120); };
   const handleCatClick = (label) => setPinnedCat(prev => prev === label ? null : label);
-
-  const handleMobileCategoryClick = (cat) => {
-    setSelectedMobileCategory(cat);
-    setMobileSubDrawerOpen(true);
-  };
-
-  const closeMobileSubDrawer = () => {
-    setMobileSubDrawerOpen(false);
-    setSelectedMobileCategory(null);
-  };
+  const handleMobileCategoryClick = (cat) => { setSelectedMobileCategory(cat); setMobileSubDrawerOpen(true); };
+  const closeMobileSubDrawer = () => { setMobileSubDrawerOpen(false); setSelectedMobileCategory(null); };
 
   return (
     <>
@@ -460,54 +667,31 @@ const Navbar = () => {
 
       <nav
         ref={megaMenuRef}
-        className={`fixed md:sticky top-0 left-0 right-0 z-50 bg-white font-['Manrope'] transition-shadow duration-300 ${
-          isScrolled ? 'shadow-lg shadow-[rgba(45,27,78,.08)]' : ''
-        }`}
+        className={`fixed md:sticky top-0 left-0 right-0 z-50 bg-white font-['Manrope'] transition-shadow duration-300 ${isScrolled ? 'shadow-lg shadow-[rgba(45,27,78,.08)]' : ''}`}
       >
-
+        {/* ── DESKTOP ── */}
         <div className="hidden md:block">
           <div className="border-b border-[#F0EEF4]">
             <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center gap-4">
-
               <Link href="/" className="flex-shrink-0">
                 <Image src="/logo.png" alt="Odara Logo" width={150} height={32} priority />
               </Link>
 
-              <div className="relative flex-1 max-w-[680px]">
-                <form onSubmit={handleSearch} className="flex w-full relative items-center">
-                  <input
-                    type="text"
-                    placeholder="Search products, brands..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-[#EEEEF2] border-[1.5px] border-[#E8E4F0] rounded-[22px] py-2.5 px-4 pr-20 text-sm text-[#111827] font-['Manrope'] outline-none focus:border-[#C4B5E0] focus:bg-white transition-all"
-                  />
-                  <button type="submit" className="absolute right-1 flex items-center gap-1.5 bg-[#2D1B4E] text-white border-none rounded-[18px] py-1.5 px-3.5 text-xs font-bold font-['Manrope'] cursor-pointer whitespace-nowrap hover:bg-[#3d2568] transition-colors">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    Search
-                  </button>
-                </form>
-              </div>
+              {/* Desktop Search with Dropdown */}
+              <SearchBar />
 
               <div className="flex items-center gap-1 ml-auto">
                 <Link href="/deals" className="relative text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors">
                   Deals
                   <span className="absolute -top-1 -right-0.5 bg-[#FF4C4C] text-white text-[0.48rem] font-extrabold px-1 py-px rounded-full">HOT</span>
                 </Link>
-                <Link href="/new-arrivals" className="text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors">
-                  New Arrivals
-                </Link>
+                <Link href="/new-arrivals" className="text-sm font-extrabold text-[#1F2937] px-2.5 py-1.5 hover:text-[#2D1B4E] transition-colors">New Arrivals</Link>
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
 
                 <div className="relative">
-                  <button
-                    ref={langButtonRef}
-                    onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                    className={`flex items-center gap-1.5 bg-[#F5F3FF] border-[1.5px] border-[#DDD5F8] rounded-[22px] py-1.5 pl-2 pr-3 cursor-pointer font-['Manrope'] transition-all hover:bg-[#EDE9FF] hover:border-[#C4B5E0] hover:shadow-md text-[#2D1B4E] whitespace-nowrap ${isLangDropdownOpen ? 'shadow-md' : ''}`}
-                  >
+                  <button ref={langButtonRef} onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+                    className={`flex items-center gap-1.5 bg-[#F5F3FF] border-[1.5px] border-[#DDD5F8] rounded-[22px] py-1.5 pl-2 pr-3 cursor-pointer font-['Manrope'] transition-all hover:bg-[#EDE9FF] hover:border-[#C4B5E0] hover:shadow-md text-[#2D1B4E] whitespace-nowrap ${isLangDropdownOpen ? 'shadow-md' : ''}`}>
                     <FlagIcon code={selectedLang.code} size={18} />
                     <span className="text-[0.72rem] font-extrabold tracking-wide uppercase text-[#2D1B4E]">{selectedLang.label}</span>
                     <svg className={`w-3 h-3 opacity-55 transition-transform duration-200 ${isLangDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -520,8 +704,7 @@ const Navbar = () => {
                         <div key={lang.code}>
                           <button
                             className={`flex items-center gap-2.5 w-full px-3.5 py-2.5 text-sm font-['Manrope'] font-medium text-left hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors ${selectedLang.code === lang.code ? 'text-[#2D1B4E] font-bold bg-[#EDE9F6]' : 'text-[#374151]'}`}
-                            onClick={() => { setSelectedLang(lang); setIsLangDropdownOpen(false); }}
-                          >
+                            onClick={() => { setSelectedLang(lang); setIsLangDropdownOpen(false); }}>
                             <FlagIcon code={lang.code} size={18} />
                             <span className="flex-1">{lang.name}</span>
                             {selectedLang.code === lang.code && (
@@ -538,7 +721,6 @@ const Navbar = () => {
                 </div>
 
                 <div className="w-px h-5 bg-[#EDE9F6] mx-1" />
-
                 <AccountButton user={user} profile={profile} onLogout={handleLogout} />
 
                 <Link href="/cart" className="flex flex-col items-center gap-0.5 text-[#2D1B4E] px-2 py-1.5 rounded-lg hover:bg-[#F5F3FF] transition-all relative">
@@ -554,24 +736,15 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div
-            ref={categoryBarRef}
-            className="border-b border-[#F0EEF4] bg-[#FAFAFC] relative"
-            onMouseLeave={handleCatMouseLeave}
-          >
+          {/* Category bar */}
+          <div ref={categoryBarRef} className="border-b border-[#F0EEF4] bg-[#FAFAFC] relative" onMouseLeave={handleCatMouseLeave}>
             <div className="max-w-[1280px] mx-auto px-6 flex items-center gap-0.5 overflow-x-auto scrollbar-hide">
               {CATEGORIES.map((cat) => {
                 const isActive = activeCatLabel === cat.label;
                 const isPinned = pinnedCat === cat.label;
                 return (
-                  <button
-                    key={cat.label}
-                    onMouseEnter={() => handleCatMouseEnter(cat.label)}
-                    onClick={() => handleCatClick(cat.label)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 text-[0.8125rem] font-bold whitespace-nowrap rounded-lg transition-all flex-shrink-0 cursor-pointer bg-transparent border-none outline-none ${
-                      isActive ? 'bg-[#F0EEFB] text-[#2D1B4E]' : 'text-[#374151] hover:bg-[#F0EEFB] hover:text-[#2D1B4E]'
-                    }`}
-                  >
+                  <button key={cat.label} onMouseEnter={() => handleCatMouseEnter(cat.label)} onClick={() => handleCatClick(cat.label)}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 text-[0.8125rem] font-bold whitespace-nowrap rounded-lg transition-all flex-shrink-0 cursor-pointer bg-transparent border-none outline-none ${isActive ? 'bg-[#F0EEFB] text-[#2D1B4E]' : 'text-[#374151] hover:bg-[#F0EEFB] hover:text-[#2D1B4E]'}`}>
                     <span className="text-[15px] leading-none">{cat.icon}</span>
                     {cat.label}
                     {isPinned && (
@@ -589,26 +762,18 @@ const Navbar = () => {
           </div>
         </div>
 
+        {/* ── MOBILE ── */}
         <div className="md:hidden border-b border-[#F0EEF4] bg-white">
           <div className="px-4 h-14 flex items-center gap-3">
-            <button
-              onClick={() => setIsDrawerOpen(true)}
-              className="flex flex-col justify-center items-center gap-1 w-9 h-9 border-none cursor-pointer p-1.5 rounded-lg hover:bg-[#F5F3FF] transition-colors flex-shrink-0 bg-transparent"
-              aria-label="Open menu"
-            >
+            <button onClick={() => setIsDrawerOpen(true)}
+              className="flex flex-col justify-center items-center gap-1 w-9 h-9 border-none cursor-pointer p-1.5 rounded-lg hover:bg-[#F5F3FF] transition-colors flex-shrink-0 bg-transparent" aria-label="Open menu">
               <span className="w-5 h-0.5 bg-[#2D1B4E] rounded-full block" />
               <span className="w-5 h-0.5 bg-[#2D1B4E] rounded-full block" />
               <span className="w-5 h-0.5 bg-[#2D1B4E] rounded-full block" />
             </button>
-
-            <Link href="/" className="flex-shrink-0">
-              <Image src="/logo.png" alt="Odara Logo" width={100} height={32} priority />
-            </Link>
-
+            <Link href="/" className="flex-shrink-0"><Image src="/logo.png" alt="Odara Logo" width={100} height={32} priority /></Link>
             <div className="flex-1" />
-
             <AccountButton user={user} profile={profile} onLogout={handleLogout} isMobile />
-
             <Link href="/cart" className="relative flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5F3FF] transition-all text-[#2D1B4E]">
               <ShoppingCart size={24} strokeWidth={1.8} />
               {cartCount > 0 && (
@@ -619,29 +784,17 @@ const Navbar = () => {
             </Link>
           </div>
 
+          {/* Mobile Search with Dropdown */}
           <div className="px-4 pb-3">
-            <form onSubmit={handleSearch} className="relative flex items-center w-full">
-              <input
-                type="text"
-                placeholder="Search products, brands..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#EEEEF2] border-[1.5px] border-[#E8E4F0] rounded-full py-2.5 pl-4 pr-14 text-sm text-[#111827] font-['Manrope'] outline-none focus:border-[#C4B5E0] focus:bg-white transition-all"
-              />
-              <button type="submit" className="absolute right-1 bg-[#2D1B4E] text-white rounded-full p-2 hover:bg-[#3d2568] transition-colors flex items-center justify-center">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </form>
+            <SearchBar isMobile />
           </div>
         </div>
 
+        {/* Mobile Drawer */}
         {isDrawerOpen && (
           <>
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[300] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={() => setIsDrawerOpen(false)} />
             <div className="fixed top-0 left-0 h-full w-[300px] max-w-[85vw] bg-white z-[301] flex flex-col overflow-y-auto animate-[nb-slideIn_0.26s_cubic-bezier(.32,.72,0,1)]">
-
               <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0">
                 <Image src="/logo.png" alt="Odara Logo" width={90} height={26} priority />
                 <button onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors" aria-label="Close menu">
@@ -652,59 +805,27 @@ const Navbar = () => {
               {user ? (
                 <div className="px-4 py-3 bg-[#F8F6FF] border-b border-[#EDE9F6]">
                   <div className="flex items-center gap-2.5 mb-2">
-                    {user.photoURL ? (
-                      <img src={user.photoURL} alt="avatar" className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
-                    ) : (
-                      <DefaultAvatarIcon size={36} />
-                    )}
+                    {user.photoURL ? <img src={user.photoURL} alt="avatar" className="w-9 h-9 rounded-full object-cover flex-shrink-0" /> : <DefaultAvatarIcon size={36} />}
                     <div className="min-w-0">
                       <p className="text-[0.62rem] font-bold text-[#B0A8C8] uppercase tracking-wider leading-none mb-0.5">Welcome back</p>
-                      <p className="text-[0.9rem] font-extrabold text-[#2D1B4E] truncate">
-                        {(profile?.fullName || user?.displayName || '').split(' ')[0] || 'there'}
-                      </p>
+                      <p className="text-[0.9rem] font-extrabold text-[#2D1B4E] truncate">{(profile?.fullName || user?.displayName || '').split(' ')[0] || 'there'}</p>
                     </div>
                   </div>
                   <div className="flex gap-3 mt-1">
-                    <button
-                      onClick={() => { router.push('/profile'); setIsDrawerOpen(false); }}
-                      className="text-[0.72rem] font-bold text-[#6D4DB2] hover:underline bg-transparent border-none cursor-pointer p-0"
-                    >
-                      My Profile
-                    </button>
-                    <button
-                      onClick={() => { router.push('/orders'); setIsDrawerOpen(false); }}
-                      className="text-[0.72rem] font-bold text-[#6D4DB2] hover:underline bg-transparent border-none cursor-pointer p-0"
-                    >
-                      My Orders
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="text-[0.72rem] font-bold text-[#C0392B] hover:underline bg-transparent border-none cursor-pointer p-0 ml-auto"
-                    >
-                      Sign Out
-                    </button>
+                    <button onClick={() => { router.push('/profile'); setIsDrawerOpen(false); }} className="text-[0.72rem] font-bold text-[#6D4DB2] hover:underline bg-transparent border-none cursor-pointer p-0">My Profile</button>
+                    <button onClick={() => { router.push('/orders'); setIsDrawerOpen(false); }} className="text-[0.72rem] font-bold text-[#6D4DB2] hover:underline bg-transparent border-none cursor-pointer p-0">My Orders</button>
+                    <button onClick={handleLogout} className="text-[0.72rem] font-bold text-[#C0392B] hover:underline bg-transparent border-none cursor-pointer p-0 ml-auto">Sign Out</button>
                   </div>
                 </div>
               ) : (
                 <div className="px-4 py-3 border-b border-[#EDE9F6]">
-                  <Link
-                    href="/login"
-                    onClick={() => setIsDrawerOpen(false)}
-                    className="w-full flex items-center justify-center bg-[#2D1B4E] text-white text-[0.82rem] font-extrabold rounded-xl py-2.5 no-underline hover:bg-[#3d2568] transition-colors"
-                  >
-                    Sign In / Sign Up
-                  </Link>
+                  <Link href="/login" onClick={() => setIsDrawerOpen(false)} className="w-full flex items-center justify-center bg-[#2D1B4E] text-white text-[0.82rem] font-extrabold rounded-xl py-2.5 no-underline hover:bg-[#3d2568] transition-colors">Sign In / Sign Up</Link>
                 </div>
               )}
 
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Categories</div>
-
               {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.label}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-left cursor-pointer bg-transparent border-none transition-colors text-[#1F2937] hover:bg-[#F5F3FF] hover:text-[#2D1B4E]"
-                  onClick={() => handleMobileCategoryClick(cat)}
-                >
+                <button key={cat.label} className="flex items-center gap-3 w-full px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-left cursor-pointer bg-transparent border-none transition-colors text-[#1F2937] hover:bg-[#F5F3FF] hover:text-[#2D1B4E]" onClick={() => handleMobileCategoryClick(cat)}>
                   <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">{cat.icon}</span>
                   <span className="flex-1">{cat.label}</span>
                   <ChevronRight size={18} className="text-[#B0A8C8]" />
@@ -712,12 +833,8 @@ const Navbar = () => {
               ))}
 
               <div className="h-px bg-[#F0EEF4] my-1.5 mx-4" />
-
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Preferences</div>
-              <button
-                className={`flex items-center gap-3 w-full px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-left cursor-pointer bg-transparent border-none hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors ${drawerLangOpen ? 'text-[#2D1B4E]' : 'text-[#1F2937]'}`}
-                onClick={() => setDrawerLangOpen(!drawerLangOpen)}
-              >
+              <button className={`flex items-center gap-3 w-full px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-left cursor-pointer bg-transparent border-none hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors ${drawerLangOpen ? 'text-[#2D1B4E]' : 'text-[#1F2937]'}`} onClick={() => setDrawerLangOpen(!drawerLangOpen)}>
                 <span className="w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">
                   <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" /></svg>
                 </span>
@@ -734,33 +851,20 @@ const Navbar = () => {
               <div className={`overflow-hidden transition-all duration-300 ease-in-out ${drawerLangOpen ? 'max-h-[280px]' : 'max-h-0'}`}>
                 <div className="bg-[#FAFAFE]">
                   {LANGUAGES.map((lang) => (
-                    <button
-                      key={lang.code}
-                      className={`flex items-center gap-3 w-full px-4 py-3 pl-14 text-[0.875rem] font-['Manrope'] text-left hover:bg-[#EDE9FF] hover:text-[#2D1B4E] transition-colors ${selectedLang.code === lang.code ? 'text-[#2D1B4E] font-bold' : 'text-[#374151] font-medium'}`}
-                      onClick={() => { setSelectedLang(lang); setDrawerLangOpen(false); }}
-                    >
+                    <button key={lang.code} className={`flex items-center gap-3 w-full px-4 py-3 pl-14 text-[0.875rem] font-['Manrope'] text-left hover:bg-[#EDE9FF] hover:text-[#2D1B4E] transition-colors ${selectedLang.code === lang.code ? 'text-[#2D1B4E] font-bold' : 'text-[#374151] font-medium'}`} onClick={() => { setSelectedLang(lang); setDrawerLangOpen(false); }}>
                       <FlagIcon code={lang.code} size={20} />
                       <span className="flex-1">{lang.name}</span>
-                      {selectedLang.code === lang.code && (
-                        <svg className="text-[#2D1B4E]" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                      )}
+                      {selectedLang.code === lang.code && <svg className="text-[#2D1B4E]" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="h-px bg-[#F0EEF4] my-1.5 mx-4" />
-
               <div className="text-[0.6rem] font-extrabold tracking-wide uppercase text-[#B0A8C8] px-4 pt-4 pb-1.5">Support</div>
-              <Link href="/contact" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">💬</span>Contact Us
-              </Link>
-              <Link href="/faq" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">❓</span>FAQs
-              </Link>
-              <Link href="/track-order" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}>
-                <span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">📦</span>Track My Order
-              </Link>
+              <Link href="/contact" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}><span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">💬</span>Contact Us</Link>
+              <Link href="/faq" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}><span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">❓</span>FAQs</Link>
+              <Link href="/track-order" className="flex items-center gap-3 px-4 py-2.5 text-[0.9rem] font-semibold font-['Manrope'] text-[#1F2937] no-underline hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors" onClick={() => setIsDrawerOpen(false)}><span className="text-base w-7 h-7 flex items-center justify-center bg-[#F5F3FF] rounded-lg flex-shrink-0">📦</span>Track My Order</Link>
 
               <div className="mt-auto pt-4 pb-4 px-4 border-t border-[#F0EEF4] flex-shrink-0">
                 <div className="flex gap-3.5 flex-wrap">
@@ -773,14 +877,13 @@ const Navbar = () => {
           </>
         )}
 
+        {/* Mobile sub-drawer */}
         {mobileSubDrawerOpen && selectedMobileCategory && (
           <>
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[350] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={closeMobileSubDrawer} />
             <div className="fixed top-0 right-0 h-full w-[300px] max-w-[85vw] bg-white z-[351] flex flex-col overflow-y-auto animate-[nb-slideInRight_0.26s_cubic-bezier(.32,.72,0,1)]">
               <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0">
-                <button onClick={closeMobileSubDrawer} className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors" aria-label="Go back">
-                  <ChevronLeft size={18} />
-                </button>
+                <button onClick={closeMobileSubDrawer} className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors" aria-label="Go back"><ChevronLeft size={18} /></button>
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{selectedMobileCategory.icon}</span>
                   <span className="text-[0.9rem] font-extrabold text-[#2D1B4E]">{selectedMobileCategory.label}</span>
@@ -788,9 +891,7 @@ const Navbar = () => {
               </div>
               <div className="px-4 pt-3 pb-2">
                 <Link href={selectedMobileCategory.href} className="flex items-center gap-2 text-[0.8rem] font-bold text-[#2D1B4E] hover:opacity-70 transition-opacity" onClick={closeMobileSubDrawer}>
-                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
                   View all {selectedMobileCategory.label}
                 </Link>
               </div>
@@ -829,8 +930,112 @@ const Navbar = () => {
           from { opacity: 0; transform: translateY(4px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes searchDropIn {
+          from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ── Search Dropdown Styles ── */
+        .search-dropdown {
+          background: #fff;
+          border: 1.5px solid #EDE9F6;
+          border-radius: 16px;
+          box-shadow: 0 12px 40px rgba(45,27,78,0.13), 0 2px 8px rgba(45,27,78,0.06);
+          overflow: hidden;
+          animation: searchDropIn 0.18s cubic-bezier(.32,.72,0,1) both;
+          max-height: 420px;
+          overflow-y: auto;
+        }
+        .search-dropdown::-webkit-scrollbar { width: 4px; }
+        .search-dropdown::-webkit-scrollbar-thumb { background: #DDD5F8; border-radius: 99px; }
+
+        .search-group { padding: 6px 0; }
+        .search-group + .search-group { border-top: 1px solid #F3F4F6; }
+
+        .search-group-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          padding: 8px 14px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+          transition: background 0.15s;
+        }
+        .search-group-header:hover { background: #F5F3FF; }
+        .search-group-icon { font-size: 15px; width: 26px; height: 26px; background: #F0ECFF; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .search-group-label { font-size: 0.82rem; font-weight: 800; color: #2D1B4E; flex: 1; font-family: 'Manrope', sans-serif; }
+        .search-group-arrow { font-size: 0.75rem; color: #B0A8C8; font-weight: 700; }
+
+        .search-result-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          padding: 7px 14px 7px 22px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+          transition: background 0.15s;
+        }
+        .search-result-item:hover { background: #F8F6FF; }
+        .search-result-icon { font-size: 13px; width: 22px; height: 22px; background: #F8F6FF; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .search-result-label { font-size: 0.8rem; font-weight: 600; color: #374151; flex: 1; font-family: 'Manrope', sans-serif; }
+        .search-result-hint { font-size: 0.67rem; color: #B0A8C8; font-weight: 500; white-space: nowrap; font-family: 'Manrope', sans-serif; }
+
+        .search-view-all {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          width: 100%;
+          padding: 10px 14px;
+          background: #FAFAFC;
+          border: none;
+          border-top: 1px solid #F0EEF4;
+          cursor: pointer;
+          font-size: 0.78rem;
+          font-weight: 600;
+          color: #6D4DB2;
+          font-family: 'Manrope', sans-serif;
+          transition: background 0.15s;
+          text-align: left;
+        }
+        .search-view-all:hover { background: #F0ECFF; }
+        .search-view-all strong { color: #2D1B4E; }
+
+        .search-no-match-banner {
+          display: flex;
+          align-items: flex-start;
+          gap: 7px;
+          padding: 10px 14px;
+          background: #FFF9EC;
+          border-bottom: 1px solid #F5EDCB;
+          font-size: 0.75rem;
+          color: #7C6120;
+          font-weight: 500;
+          font-family: 'Manrope', sans-serif;
+          line-height: 1.4;
+        }
+        .search-no-match-banner strong { color: #2D1B4E; }
+        .search-info-icon { flex-shrink: 0; margin-top: 1px; color: #D4960A; }
+
+        .search-empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 28px 16px;
+          gap: 6px;
+          text-align: center;
+        }
+        .search-empty-icon { color: #C4BAD8; margin-bottom: 4px; }
+        .search-empty-title { font-size: 0.85rem; font-weight: 700; color: #374151; font-family: 'Manrope', sans-serif; }
+        .search-empty-title strong { color: #2D1B4E; }
+        .search-empty-sub { font-size: 0.75rem; color: #9C8EC1; font-family: 'Manrope', sans-serif; }
       `}</style>
     </>
   );
