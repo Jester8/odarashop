@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartProvider>
           <main className="min-h-screen">{children}</main>
           <MobileNav />
-          <Chatbot /> 
+          {/* <Chatbot />  */}
         </CartProvider>
       </body>
     </html>

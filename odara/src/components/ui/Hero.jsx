@@ -300,8 +300,14 @@ export default function Hero() {
           }
           .hero-side { display: none; }
           .hero-carousel {
-            min-height: 420px;
+            min-height: auto;
+            height: auto;
             border-radius: 0;
+            aspect-ratio: 16 / 9;
+          }
+          .carousel-slide img {
+            object-fit: contain;
+            background: #1a0a00;
           }
           .carousel-arrow {
             top: auto;
