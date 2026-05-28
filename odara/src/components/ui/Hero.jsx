@@ -16,51 +16,19 @@ function useCountdown(initialSeconds = 15771) {
   return `${h}:${m}:${s}`;
 }
 
-// ── Carousel slides ───────────────────────────────────────────────────────────
+// ── Carousel slides ── 3 images only, no text ─────────────────────────────────
 const SLIDES = [
   {
     id: 1,
-    badge: "Exclusive Launch",
-    headline: "Africa's Finest,",
-    headlineAccent: "Delivered to You.",
-    body: "Discover a marketplace where premium African craftsmanship meets modern vitality. Up to 40% off on featured collections.",
-    cta: "Shop Collection",
-    ctaHref: "/shop",
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4b984b?w=900&q=80&fit=crop&crop=top",
-    accent: "#E8520A",
+    image: "/img1.png",
   },
   {
     id: 2,
-    badge: "New Arrivals",
-    headline: "Ankara & Aso-oke",
-    headlineAccent: "Ready to Wear.",
-    body: "Handcrafted by skilled Nigerian artisans. Explore our latest collection of authentic Ankara prints and Aso-oke weaves.",
-    cta: "Explore Fashion",
-    ctaHref: "/category/fashion",
-    image: "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=80&fit=crop&crop=center",
-    accent: "#0F7B4E",
+    image: "/img2.png",
   },
   {
     id: 3,
-    badge: "Beauty & Wellness",
-    headline: "Nature's Best",
-    headlineAccent: "From Africa.",
-    body: "Shea butter, black soap, argan oil and more. 100% natural, ethically sourced beauty essentials from across the continent.",
-    cta: "Shop Beauty",
-    ctaHref: "/category/beauty",
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=900&q=80&fit=crop&crop=faces",
-    accent: "#7B3FA0",
-  },
-  {
-    id: 4,
-    badge: "Flash Sale",
-    headline: "Artisan Crafts",
-    headlineAccent: "Up to 50% Off.",
-    body: "Beaded jewellery, woven baskets, hand-carved wood décor — celebrate Africa's rich artistic heritage in your home.",
-    cta: "See Flash Deals",
-    ctaHref: "/deals",
-    image: "https://images.unsplash.com/photo-1573408301185-9519f94816a5?w=900&q=80&fit=crop",
-    accent: "#C9860A",
+    image: "/img3.png",
   },
 ];
 
@@ -87,8 +55,6 @@ export default function Hero() {
     return () => clearInterval(t);
   }, [paused, next]);
 
-  const slide = SLIDES[current];
-
   return (
     <>
       <style>{`
@@ -108,7 +74,7 @@ export default function Hero() {
           align-items: stretch;
         }
 
-        /* ── Main carousel ── */
+        /* ── Main carousel ── original height */
         .hero-carousel {
           position: relative;
           border-radius: 18px;
@@ -132,78 +98,8 @@ export default function Hero() {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          object-position: center top;
+          object-position: center;
         }
-        .carousel-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(105deg, rgba(10,4,0,0.85) 0%, rgba(10,4,0,0.5) 48%, rgba(10,4,0,0.05) 100%);
-        }
-        .carousel-content {
-          position: relative;
-          z-index: 3;
-          padding: 36px 40px;
-          max-width: 500px;
-        }
-        .hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          color: #fff;
-          font-family: 'Sora', sans-serif;
-          font-size: 0.62rem;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          text-transform: uppercase;
-          padding: 5px 12px;
-          border-radius: 4px;
-          margin-bottom: 16px;
-          transition: background 0.4s;
-        }
-        .badge-dot {
-          width: 6px; height: 6px;
-          background: #fff;
-          border-radius: 50%;
-          animation: blink 1.4s ease-in-out infinite;
-        }
-        @keyframes blink {
-          0%,100% { opacity: 1; } 50% { opacity: 0.3; }
-        }
-        .hero-headline {
-          font-family: 'Sora', sans-serif;
-          font-size: 2.05rem;
-          font-weight: 800;
-          color: #fff;
-          line-height: 1.15;
-          margin: 0 0 12px;
-          letter-spacing: -0.02em;
-        }
-        .hero-headline-accent { display: block; }
-        .hero-body {
-          font-size: 0.875rem;
-          color: rgba(255,255,255,0.76);
-          line-height: 1.65;
-          margin: 0 0 26px;
-          max-width: 380px;
-        }
-        .hero-cta {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          color: #fff;
-          font-family: 'Sora', sans-serif;
-          font-size: 0.875rem;
-          font-weight: 700;
-          padding: 12px 26px;
-          border-radius: 8px;
-          text-decoration: none;
-          border: none;
-          cursor: pointer;
-          transition: filter 0.2s, transform 0.15s;
-        }
-        .hero-cta:hover { filter: brightness(1.12); transform: translateY(-1px); }
-        .hero-cta svg { transition: transform 0.2s; }
-        .hero-cta:hover svg { transform: translateX(3px); }
 
         /* Prev / Next arrows */
         .carousel-arrow {
@@ -212,16 +108,16 @@ export default function Hero() {
           transform: translateY(-50%);
           z-index: 10;
           width: 36px; height: 36px;
-          background: rgba(255,255,255,0.18);
+          background: rgba(0,0,0,0.5);
           backdrop-filter: blur(6px);
-          border: 1px solid rgba(255,255,255,0.25);
+          border: 1px solid rgba(255,255,255,0.3);
           border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
           cursor: pointer;
           color: #fff;
           transition: background 0.2s;
         }
-        .carousel-arrow:hover { background: rgba(255,255,255,0.32); }
+        .carousel-arrow:hover { background: rgba(0,0,0,0.7); }
         .carousel-arrow.prev { left: 14px; }
         .carousel-arrow.next { right: 14px; }
 
@@ -233,38 +129,22 @@ export default function Hero() {
           transform: translateX(-50%);
           z-index: 10;
           display: flex;
-          gap: 7px;
+          gap: 8px;
           align-items: center;
         }
         .carousel-dot {
-          width: 7px; height: 7px;
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
-          background: rgba(255,255,255,0.4);
+          background: rgba(255,255,255,0.5);
           border: none;
           cursor: pointer;
           padding: 0;
-          transition: background 0.2s, transform 0.2s, width 0.25s;
+          transition: all 0.2s;
         }
         .carousel-dot.active {
           background: #fff;
           transform: scale(1.3);
-        }
-
-        /* Progress bar */
-        .carousel-progress {
-          position: absolute;
-          bottom: 0; left: 0;
-          height: 3px;
-          z-index: 10;
-          border-radius: 0 3px 3px 0;
-          transition: background 0.4s;
-        }
-        @keyframes progressFill {
-          from { width: 0%; }
-          to   { width: 100%; }
-        }
-        .carousel-progress.running {
-          animation: progressFill 5s linear;
         }
 
         /* ── Side column ── */
@@ -411,7 +291,6 @@ export default function Hero() {
 
         /* ── Mobile ── */
         @media (max-width: 768px) {
-          /* Full-width: remove all padding so carousel bleeds edge to edge */
           .hero-root {
             padding: 0;
           }
@@ -420,33 +299,10 @@ export default function Hero() {
             gap: 0;
           }
           .hero-side { display: none; }
-
-          /* Taller, no rounded corners */
           .hero-carousel {
             min-height: 420px;
             border-radius: 0;
           }
-
-          /* Content padding — extra bottom space for dots/arrows */
-          .carousel-content {
-            padding: 28px 20px 72px;
-          }
-
-          .hero-headline { font-size: 1.65rem; }
-
-          .hero-body {
-            font-size: 0.8rem;
-            margin-bottom: 18px;
-          }
-
-          /* Smaller CTA button */
-          .hero-cta {
-            font-size: 0.8rem;
-            padding: 10px 18px;
-          }
-          .hero-cta svg { width: 14px; height: 14px; }
-
-          /* Hide centre arrows on mobile — use bottom-right arrows instead */
           .carousel-arrow {
             top: auto;
             transform: none;
@@ -456,8 +312,6 @@ export default function Hero() {
           }
           .carousel-arrow.prev { left: auto; right: 52px; }
           .carousel-arrow.next { right: 14px; }
-
-          /* Dots — bottom-left, moved lower */
           .carousel-dots {
             bottom: 18px;
             left: 18px;
@@ -479,7 +333,7 @@ export default function Hero() {
       <section className="hero-root">
         <div className="hero-grid">
 
-          {/* ══ CAROUSEL ══ */}
+          {/* ══ CAROUSEL — IMAGES ONLY ══ */}
           <div
             className="hero-carousel"
             onMouseEnter={() => setPaused(true)}
@@ -488,27 +342,7 @@ export default function Hero() {
             {SLIDES.map((s, i) => (
               <div key={s.id} className={`carousel-slide${i === current ? " active" : ""}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.image} alt={s.headline} loading={i === 0 ? "eager" : "lazy"} />
-                <div className="carousel-overlay" />
-                <div className="carousel-content">
-                  <div className="hero-badge" style={{ background: s.accent }}>
-                    <span className="badge-dot" />
-                    {s.badge}
-                  </div>
-                  <h1 className="hero-headline">
-                    {s.headline}
-                    <span className="hero-headline-accent" style={{ color: s.accent }}>
-                      {s.headlineAccent}
-                    </span>
-                  </h1>
-                  <p className="hero-body">{s.body}</p>
-                  <Link href={s.ctaHref} className="hero-cta" style={{ background: s.accent }}>
-                    {s.cta}
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M13 6l6 6-6 6" />
-                    </svg>
-                  </Link>
-                </div>
+                <img src={s.image} alt={`Slide ${i + 1}`} loading={i === 0 ? "eager" : "lazy"} />
               </div>
             ))}
 
@@ -535,15 +369,6 @@ export default function Hero() {
                 />
               ))}
             </div>
-
-            {/* Progress bar */}
-            {!paused && (
-              <div
-                key={`${current}-${paused}`}
-                className="carousel-progress running"
-                style={{ background: slide.accent }}
-              />
-            )}
           </div>
 
           {/* ══ SIDE COLUMN ══ */}

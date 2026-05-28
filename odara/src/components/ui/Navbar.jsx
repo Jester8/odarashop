@@ -34,10 +34,10 @@ const FlagIcon = ({ code, size = 20 }) => {
 };
 
 const LANGUAGES = [
-  { code: 'en', label: 'EN', name: 'English' },
-  { code: 'yo', label: 'YO', name: 'Yorùbá' },
-  { code: 'ha', label: 'HA', name: 'Hausa' },
-  { code: 'ig', label: 'IG', name: 'Igbo' },
+  { code: 'en', label: 'EN', name: 'English', googleCode: 'en' },
+  { code: 'yo', label: 'YO', name: 'Yorùbá', googleCode: 'yo' },
+  { code: 'ha', label: 'HA', name: 'Hausa', googleCode: 'ha' },
+  { code: 'ig', label: 'IG', name: 'Igbo', googleCode: 'ig' },
 ];
 
 const CATEGORIES = [
@@ -273,7 +273,7 @@ function SearchDropdown({ query, onClose, router }) {
             >
               <span className="search-group-icon">{cat.icon}</span>
               <span className="search-group-label">{cat.label}</span>
-              
+            
             </button>
             {items.map(sub => (
               <button
@@ -653,6 +653,109 @@ const Navbar = () => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isDrawerOpen, mobileSubDrawerOpen]);
 
+  // Function to load and execute Google Translate
+  const loadGoogleTranslate = (targetLangCode) => {
+    // Find the Google language code
+    const lang = LANGUAGES.find(l => l.code === targetLangCode);
+    const targetLanguage = lang ? lang.googleCode : 'en';
+    
+    // If target language is English, remove the translation and reset
+    if (targetLanguage === 'en') {
+      // Remove Google Translate widget if exists
+      const widgetElement = document.querySelector('.goog-te-banner-frame');
+      if (widgetElement) {
+        widgetElement.style.display = 'none';
+      }
+      
+      // Reset the page to original language by removing any meta tag or cookie
+      const meta = document.querySelector('meta[name="google"]');
+      if (meta) meta.remove();
+      
+      // Refresh page to reset translation (best way to ensure complete reset)
+      window.location.reload();
+      return;
+    }
+    
+    // Check if Google Translate script is already loaded
+    let existingScript = document.querySelector('#google-translate-script');
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    // Remove any existing Google Translate meta tag
+    const existingMeta = document.querySelector('meta[name="google"]');
+    if (existingMeta) existingMeta.remove();
+    
+    // Add meta tag for translation
+    const meta = document.createElement('meta');
+    meta.name = "google";
+    meta.content = "notranslate";
+    document.head.appendChild(meta);
+    
+    // Create and load the Google Translate script
+    const script = document.createElement('script');
+    script.id = 'google-translate-script';
+    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.async = true;
+    
+    // Define the callback function globally
+    window.googleTranslateElementInit = () => {
+      // Remove any existing translate element
+      const existingElement = document.querySelector('.goog-te-combo');
+      if (existingElement) {
+        const selectParent = existingElement.parentElement;
+        if (selectParent) selectParent.remove();
+      }
+      
+      // Create a hidden select element to trigger translation
+      const translateDiv = document.createElement('div');
+      translateDiv.id = 'google_translate_element';
+      translateDiv.style.display = 'none';
+      document.body.appendChild(translateDiv);
+      
+      // Initialize the translate element
+      new window.google.translate.TranslateElement(
+        {
+          pageLanguage: 'en',
+          includedLanguages: targetLanguage,
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: true
+        },
+        'google_translate_element'
+      );
+      
+      // Trigger language change by manipulating the select dropdown
+      const checkSelectExist = setInterval(() => {
+        const select = document.querySelector('.goog-te-combo');
+        if (select) {
+          clearInterval(checkSelectExist);
+          select.value = targetLanguage;
+          // Dispatch change event to trigger translation
+          select.dispatchEvent(new Event('change'));
+          
+          // Hide the Google Translate banner
+          setTimeout(() => {
+            const banner = document.querySelector('.goog-te-banner-frame');
+            if (banner) {
+              banner.style.display = 'none';
+            }
+          }, 100);
+        }
+      }, 500);
+    };
+    
+    document.head.appendChild(script);
+  };
+
+  const handleLanguageChange = (lang) => {
+    setSelectedLang(lang);
+    setIsLangDropdownOpen(false);
+    setDrawerLangOpen(false);
+    
+    // Trigger Google Translate
+    loadGoogleTranslate(lang.code);
+  };
+
   const handleCatMouseEnter = (label) => { clearTimeout(hoverTimerRef.current); setHoveredCat(label); };
   const handleCatMouseLeave = () => { hoverTimerRef.current = setTimeout(() => setHoveredCat(null), 120); };
   const handleMegaMouseEnter = () => clearTimeout(hoverTimerRef.current);
@@ -704,7 +807,7 @@ const Navbar = () => {
                         <div key={lang.code}>
                           <button
                             className={`flex items-center gap-2.5 w-full px-3.5 py-2.5 text-sm font-['Manrope'] font-medium text-left hover:bg-[#F5F3FF] hover:text-[#2D1B4E] transition-colors ${selectedLang.code === lang.code ? 'text-[#2D1B4E] font-bold bg-[#EDE9F6]' : 'text-[#374151]'}`}
-                            onClick={() => { setSelectedLang(lang); setIsLangDropdownOpen(false); }}>
+                            onClick={() => handleLanguageChange(lang)}>
                             <FlagIcon code={lang.code} size={18} />
                             <span className="flex-1">{lang.name}</span>
                             {selectedLang.code === lang.code && (
@@ -796,8 +899,8 @@ const Navbar = () => {
             <div className="fixed inset-0 bg-[rgba(15,8,30,.52)] z-[300] animate-[nb-fadeIn_0.2s_ease] backdrop-blur-[2px]" onClick={() => setIsDrawerOpen(false)} />
             <div className="fixed top-0 left-0 h-full w-[300px] max-w-[85vw] bg-white z-[301] flex flex-col overflow-y-auto animate-[nb-slideIn_0.26s_cubic-bezier(.32,.72,0,1)]">
               <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#F0EEF4] flex-shrink-0">
-                <Image src="/logo.png" alt="Odara Logo" width={90} height={26} priority />
-                <button onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center w-8 h-8 bg-[#F5F3FF] border-none rounded-lg text-[#2D1B4E] cursor-pointer hover:bg-[#EDE9FF] transition-colors" aria-label="Close menu">
+                <Image src="/logo.png" alt="Odara Logo" width={100} height={36} priority />
+                <button onClick={() => setIsDrawerOpen(false)} className="flex items-center justify-center w-8 h-8  border-none rounded-lg text-[#2D1B4E] cursor-pointer transition-colors" aria-label="Close menu">
                   <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
@@ -819,7 +922,7 @@ const Navbar = () => {
                 </div>
               ) : (
                 <div className="px-4 py-3 border-b border-[#EDE9F6]">
-                  <Link href="/login" onClick={() => setIsDrawerOpen(false)} className="w-full flex items-center justify-center bg-[#2D1B4E] text-white text-[0.82rem] font-extrabold rounded-xl py-2.5 no-underline hover:bg-[#3d2568] transition-colors">Sign In / Sign Up</Link>
+
                 </div>
               )}
 
@@ -851,7 +954,7 @@ const Navbar = () => {
               <div className={`overflow-hidden transition-all duration-300 ease-in-out ${drawerLangOpen ? 'max-h-[280px]' : 'max-h-0'}`}>
                 <div className="bg-[#FAFAFE]">
                   {LANGUAGES.map((lang) => (
-                    <button key={lang.code} className={`flex items-center gap-3 w-full px-4 py-3 pl-14 text-[0.875rem] font-['Manrope'] text-left hover:bg-[#EDE9FF] hover:text-[#2D1B4E] transition-colors ${selectedLang.code === lang.code ? 'text-[#2D1B4E] font-bold' : 'text-[#374151] font-medium'}`} onClick={() => { setSelectedLang(lang); setDrawerLangOpen(false); }}>
+                    <button key={lang.code} className={`flex items-center gap-3 w-full px-4 py-3 pl-14 text-[0.875rem] font-['Manrope'] text-left hover:bg-[#EDE9FF] hover:text-[#2D1B4E] transition-colors ${selectedLang.code === lang.code ? 'text-[#2D1B4E] font-bold' : 'text-[#374151] font-medium'}`} onClick={() => handleLanguageChange(lang)}>
                       <FlagIcon code={lang.code} size={20} />
                       <span className="flex-1">{lang.name}</span>
                       {selectedLang.code === lang.code && <svg className="text-[#2D1B4E]" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>}

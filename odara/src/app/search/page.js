@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, ArrowLeft, SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { Search,  SlidersHorizontal, X, ChevronDown } from "lucide-react";
 
 function SearchResults() {
   const searchParams = useSearchParams();
